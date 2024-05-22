@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Curso 
 {
-	
-	private String curso;
+	/**curso*/
+	private int curso;
+	/**etapa*/
 	private String etapa;
+	/**grupo*/
 	private String grupo;
 }

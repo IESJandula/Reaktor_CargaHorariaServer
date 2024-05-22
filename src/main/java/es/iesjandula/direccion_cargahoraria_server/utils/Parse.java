@@ -1,9 +1,12 @@
 package es.iesjandula.direccion_cargahoraria_server.utils;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,72 +16,97 @@ import es.iesjandula.direccion_cargahoraria_server.models.Curso;
 import es.iesjandula.direccion_cargahoraria_server.models.Departamento;
 import es.iesjandula.direccion_cargahoraria_server.models.Profesor;
 import es.iesjandula.direccion_cargahoraria_server.models.Reduccion;
+import es.iesjandula.direccion_cargahoraria_server.models.ReduccionHoras;
+import es.iesjandula.direccion_cargahoraria_server.models.Resumen;
+import es.iesjandula.direccion_cargahoraria_server.models.ResumenProfesor;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.log4j.Log4j2;
 
+/**
+ * clase Parse 
+ */
 @Log4j2
 public class Parse 
 {
 	/**
-	 * 
+	 * metodo para parsear departamentos
 	 * @param csvFile
 	 * @return
 	 * @throws HorarioException
 	 */
-	public static List<Departamento> parseDepartamentos(MultipartFile csvFile) throws HorarioException
+	public List<Departamento> parseDepartamentos(MultipartFile csvFile) throws HorarioException
 	{
+		Scanner scanner=null;
 		try
 		{
 			List<Departamento> listaDepartamentos = new ArrayList<>();
 			String contenido = new String(csvFile.getBytes());
-			Scanner scanner = new Scanner(contenido);
+			scanner = new Scanner(contenido);
+			//saltamos la cabecera
 			scanner.nextLine();
 			while(scanner.hasNext())
 			{
+				//separamos la linea por ,
 				String[] linea = scanner.nextLine().split(",");
 				Departamento departamento = new Departamento(linea[0]);
 				listaDepartamentos.add(departamento);
 			}
 			
-			scanner.close();
 			return listaDepartamentos;
-		}catch(IOException ioException ) 
+		}
+		catch(IOException ioException ) 
 		{
 			String error = "Error al realizar la lectura del fichero CSV";
 			log.error(error,ioException);
 			throw new HorarioException(11,error,ioException);
 		}
-		
+		finally 
+		{
+			if(scanner!=null) 
+			{
+				scanner.close();			
+			}
+		}	
 	}
 
 	/**
-	 * 
+	 * endpoint para parsear cursos
 	 * @param csvFile
 	 * @return
 	 * @throws HorarioException
 	 */
-	public static List<Curso> parseCursos(MultipartFile csvFile) throws HorarioException
+	public List<Curso> parseCursos(MultipartFile csvFile) throws HorarioException
 	{
+		Scanner scanner=null;
 		try
 		{
 			List<Curso> listaCursos = new ArrayList<>();
 			String contenido = new String(csvFile.getBytes());
-			Scanner scanner = new Scanner(contenido);
+			scanner = new Scanner(contenido);
+			//saltamos la cabecera
 			scanner.nextLine();
 			while(scanner.hasNext())
 			{
+				//separamos la linea por ,
 				String[] linea = scanner.nextLine().split(",");
-				Curso curso = new Curso(linea[0],linea[1],linea[2]);
+				Curso curso = new Curso(Integer.parseInt(linea[0]),linea[1],linea[2]);
 				listaCursos.add(curso);
 			}
-			scanner.close();
 			return listaCursos;
-		}catch(IOException ioException ) 
+		}
+		catch(IOException ioException) 
 		{
 			String error = "Error al realizar la lectura del fichero CSV";
 			log.error(error,ioException);
 			throw new HorarioException(11,error,ioException);
 		}
-		
+		finally 
+		{
+			if(scanner!=null) 
+			{
+				scanner.close();			
+			}
+		}		
 	}
 	
 	/**
@@ -88,165 +116,566 @@ public class Parse
 	 * @return
 	 * @throws HorarioException
 	 */
-	public static List<Profesor> parseProfesores(MultipartFile csvFile,List<Departamento> listaDepartamentos) throws HorarioException
+	public  List<Profesor> parseProfesores(MultipartFile csvFile,List<Departamento> listaDepartamentos) throws HorarioException
 	{
+		Scanner scanner=null;
 		try
 		{
 			List<Profesor> listaProfesores = new ArrayList<>();
 			String contenido = new String(csvFile.getBytes());
-			Scanner scanner = new Scanner(contenido);
+
+			scanner = new Scanner(contenido);
+			//saltamos la cabecera
 			scanner.nextLine();
-			boolean departamentoExiste = false;
+
 			while(scanner.hasNext())
 			{
+				//separamos la linea por ,
 				String[] linea = scanner.nextLine().split(",");
 				
 				Departamento departamento = new Departamento(linea[2]);
-				for(Departamento departamentoLista : listaDepartamentos)
-				{
-					if(departamentoLista.getNombre().equals(departamento.getNombre()))
-					{
-						departamentoExiste = true;
-					}
-				}
-				if(!departamentoExiste)
+				//comprobamos que el departamento existe
+				if (!listaDepartamentos.contains(departamento))
 				{
 					String error = "Departamento no encontrado";
-					log.info(error);
+					log.error(error);
 					throw new HorarioException(12,error);
 				}
-				Profesor profesor = new Profesor(linea[0],linea[1],linea[2]);
+
+				Profesor profesor = new Profesor(linea[0], linea[1], linea[2]);
 				listaProfesores.add(profesor);
 			}
-			scanner.close();
 			return listaProfesores;
-		}catch(IOException ioException ) 
+		}
+		catch (IOException ioException) 
 		{
 			String error = "Error al realizar la lectura del fichero CSV";
 			log.error(error,ioException);
 			throw new HorarioException(11,error,ioException);
 		}
-		
+		finally 
+		{
+			if(scanner!=null) 
+			{
+				scanner.close();			
+			}
+		}	
 	}
 
 	/**
-	 * 
+	 * metodo para parsear asignaturas
 	 * @param csvFile
 	 * @param listaCursos
 	 * @param listaDepartamentos
 	 * @return
 	 * @throws HorarioException
 	 */
-	public static List<Asignatura> parseAsignaturas(MultipartFile csvFile,List<Curso> listaCursos,List<Departamento> listaDepartamentos) throws HorarioException
+	public  List<Asignatura> parseAsignaturas(MultipartFile csvFile,List<Curso> listaCursos,List<Departamento> listaDepartamentos) throws HorarioException
 	{
+		Scanner scanner = null;
 		try
 		{
 			List<Asignatura> listaAsignaturas = new ArrayList<>();
 			String contenido = new String(csvFile.getBytes());
-			Scanner scanner = new Scanner(contenido);
+			scanner = new Scanner(contenido);
+			//saltamos la cabecera
 			scanner.nextLine();
-			boolean departamentoExiste = false;
-			boolean cursoExiste = false;
 			while(scanner.hasNext())
 			{
+				//separamos la linea por ,
 				String[] linea = scanner.nextLine().split(",");
 				
 				Departamento departamento = new Departamento(linea[5]);
-				for(Departamento departamentoLista : listaDepartamentos)
-				{
-					if(departamentoLista.getNombre().equals(departamento.getNombre()))
-					{
-						departamentoExiste = true;
-					}
-				}
-				if(!departamentoExiste)
+				//comprobamos que el departamento exista
+				if(!listaDepartamentos.contains(departamento))
 				{
 					String error = "Departamento no encontrado";
-					log.info(error);
+					log.error(error);
+					throw new HorarioException(12, error);
+				}
+				
+				Curso curso = new Curso(Integer.parseInt(linea [1]), linea[2], linea[3]);
+				//comprobamos que el curso existe
+				if(!listaCursos.contains(curso))
+				{
+					String error = "Curso no encontrado";
+					log.error(error);
 					throw new HorarioException(12,error);
 				}
 				
-				Curso curso = new Curso(linea[1],linea[2],linea[3]);
-				for(Curso cursoLista : listaCursos)
-				{
-					if(cursoLista.equals(curso))
-					{
-						cursoExiste = true;
-					}
-				}
-				if(!cursoExiste)
-				{
-					String error = "Curso no encontrado";
-					throw new HorarioException(12,error);
-				}
-				Asignatura asignatura = new Asignatura(linea[0],linea[1],linea[2],linea[3],Integer.valueOf(linea[4]),linea[5]);
+				Asignatura asignatura = new Asignatura(linea[0], Integer.parseInt(linea [1]), linea[2], linea[3], Integer.valueOf(linea[4]), linea[5]);
 				listaAsignaturas.add(asignatura);
 			}
-			scanner.close();
+			
 			return listaAsignaturas;
-		}catch(IOException ioException ) 
+		}
+		catch(IOException ioException) 
 		{
 			String error = "Error al realizar la lectura del fichero CSV";
 			log.error(error,ioException);
 			throw new HorarioException(11,error,ioException);
 		}
-		
+		finally 
+		{
+			if(scanner!=null) 
+			{
+				scanner.close();			
+			}
+		}	
 	}
 	
 	/**
-	 * 
+	 * metodo para parsear reducciones
 	 * @param csvFile
 	 * @param listaCursos
 	 * @return
 	 * @throws HorarioException
 	 */
-	public static List<Reduccion> parseReducciones(MultipartFile csvFile,List<Curso> listaCursos) throws HorarioException
+	public List<Reduccion> parseReducciones(MultipartFile csvFile,List<Curso> listaCursos) throws HorarioException
 	{
+		Scanner scanner=null;
 		try
 		{
 			List<Reduccion> listaReducciones = new ArrayList<>();
 			Reduccion reduccion;
 			String contenido = new String(csvFile.getBytes());
-			Scanner scanner = new Scanner(contenido);
+			scanner = new Scanner(contenido);
+			//saltamos la cabecera
 			scanner.nextLine();
-			boolean cursoExiste = false;
 			while(scanner.hasNext())
 			{
+				//separamos la linea por ,
 				String[] linea = scanner.nextLine().split(",");
-				
-				if(linea[1].equals("Tutoria")) {
-					Curso curso = new Curso(linea[3],linea[4],linea[5]);
-					for(Curso cursoLista : listaCursos)
-					{
-						if(cursoLista.equals(curso))
-						{
-							cursoExiste = true;
-						}
-					}
-					if(!cursoExiste)
+				//comprobamos si es tutoria
+				if("tutoria".equalsIgnoreCase(linea[1])) 
+				{
+					Curso curso = new Curso(Integer.parseInt(linea [3]),linea[4],linea[5]);
+					//comprobamos si el curso existe
+					if(!listaCursos.contains(curso))
 					{
 						String error = "Curso no encontrado";
+						log.error(error);
 						throw new HorarioException(12,error);
 					}
-					reduccion = new Reduccion(linea[0],linea[1],Integer.valueOf(linea[2]),curso.getCurso(),curso.getEtapa(),curso.getGrupo());
-					listaReducciones.add(reduccion);
-				}else
+					
+					Reduccion reduccionObject = new Reduccion(linea[0], linea[1], Integer.parseInt(linea[2]), String.valueOf(curso.getCurso()), curso.getEtapa(), curso.getGrupo());
+					listaReducciones.add(reduccionObject);
+				}
+				else
 				{
-					reduccion = new Reduccion(linea[0],linea[1],Integer.valueOf(linea[2]),null,null,null);
+					reduccion = new Reduccion(linea[0],linea[1],Integer.valueOf(linea[2]), null, null, null);
 					listaReducciones.add(reduccion);
 				}
 				
 				
 			}
-			scanner.close();
 			return listaReducciones;
-		}catch(IOException ioException ) 
+		}
+		catch (IOException ioException) 
 		{
 			String error = "Error al realizar la lectura del fichero CSV";
 			log.error(error,ioException);
 			throw new HorarioException(11,error,ioException);
 		}
+		finally 
+		{
+			if(scanner!=null) 
+			{
+				scanner.close();			
+			}
+		}	
+	}
+	/**
+	 * metodo para obtener el resumen de un profesor
+	 * @param nombreDepartamento
+	 * @param session
+	 * @param numeroProfesorDepartamento
+	 * @param totalHoras
+	 * @return
+	 * @throws HorarioException
+	 */
+	@SuppressWarnings("unchecked")
+	public Resumen resumenDepartamento(String nombreDepartamento, HttpSession session) throws HorarioException
+	{
+		 int numeroProfesorDepartamento=0;
+		 int totalHoras =0;
+		Map <String,List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
+		Map <String, List<Asignatura>> mapaAsignatura   = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
+		Map <String, Integer> mapaGuardias 				= (Map<String, Integer>) session.getAttribute("mapaGuardias");
 		
+		List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
+		for(Profesor profesor : listaProfesores) 
+		{
+			//comprobamos si el profesor pertenece a ese departamento
+			if(profesor.getDepartamento().equalsIgnoreCase(nombreDepartamento)) 
+			{
+				numeroProfesorDepartamento++;
+				String profesorId=profesor.getIdProfesor();
+				totalHoras = totalHoras + this.obtenerHorasAsignaturas(mapaAsignatura, profesorId);
+				totalHoras = totalHoras + this.obtenerHorasReduccion(mapaReduccion, profesorId);
+				
+				if(mapaGuardias.containsKey(profesorId)) 
+				{
+					totalHoras+=mapaGuardias.get(profesorId);
+				}
+			}
+		}
+		List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
+		log.info(listaAsignaturas);
+		for(Asignatura asignatura : listaAsignaturas) 
+		{
+			//comprobamos si la asignatura pertenece a ese departamento
+			if(asignatura.getDepartamento().equalsIgnoreCase(nombreDepartamento))
+			{
+				totalHoras+=asignatura.getNumeroHorasSemanales();
+			}
+		}
+		
+		int horasNecesarias = numeroProfesorDepartamento*18;
+		int desfase         = totalHoras-horasNecesarias;
+		
+		String resultadoDesfase = "Cerrado" ;
+		if(desfase>0) 
+		{
+			resultadoDesfase="Sobran horas";
+		}
+		else if(desfase<0) 
+		{
+			resultadoDesfase="Faltan horas";
+		}
+		
+		return new Resumen(numeroProfesorDepartamento, horasNecesarias, totalHoras, desfase, resultadoDesfase);
+	}
+	/**
+	 * metodo para obtener las horas de reduccion
+	 * @param mapaReduccion
+	 * @param profesorId
+	 * @return
+	 */
+	private int obtenerHorasReduccion(Map<String, List<ReduccionHoras>> mapaReduccion, String profesorId)
+	{
+		int totalHoras = 0 ;
+		
+		List<ReduccionHoras> listaReducciones = mapaReduccion.get(profesorId);
+		
+		for (ReduccionHoras reduccionHoras : listaReducciones) 
+		{
+			totalHoras += reduccionHoras.getNumHoras();
+		}
+		
+		return totalHoras;
+	}
+	/**
+	 * metodo para obtener las horas de las asignaturas
+	 * @param mapaAsignatura
+	 * @param profesorId
+	 * @return
+	 */
+	private int obtenerHorasAsignaturas(Map<String, List<Asignatura>> mapaAsignatura, String profesorId)
+	{
+		int totalHoras = 0 ;
+		
+		List<Asignatura> listaAsignaturas = mapaAsignatura.get(profesorId);
+		
+		for (Asignatura asignatura : listaAsignaturas) 
+		{
+			totalHoras += asignatura.getNumeroHorasSemanales();
+		}
+		
+		return totalHoras;
+	}
+	/**
+	 * metodo para hacer un resumen del profesor
+	 * @param idProfesor
+	 * @param session
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public ResumenProfesor resumenProfesor(String idProfesor, HttpSession session)
+	{
+		int horasAsignaturas=0;
+		int horasReduccion=0;
+		Map <String,List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
+		Map <String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
+			
+		if(mapaAsignatura.containsKey(idProfesor)) 
+		{
+			horasAsignaturas = this.obtenerHorasAsignaturas(mapaAsignatura, idProfesor);	
+		}
+		if(mapaReduccion.containsKey(idProfesor)) 
+		{
+			horasReduccion = this.obtenerHorasReduccion(mapaReduccion, idProfesor);
+		}
+		
+		int horasTotales=horasAsignaturas+horasReduccion;
+		ResumenProfesor resumen = new ResumenProfesor(horasAsignaturas, horasReduccion, horasTotales);
+		return resumen;
+	}
+	/**
+	 * metodo para hacer una reduccion
+	 * @param idProfesor
+	 * @param idReduccion
+	 * @param session
+	 * @param listaReducciones
+	 * @param listaReduccionHoras
+	 * @param reduccionEncontrada
+	 * @param reduccionHoras
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, List<ReduccionHoras>> realizarReduccion(String idProfesor, String idReduccion,
+			HttpSession session, List<Reduccion> listaReducciones, List<ReduccionHoras> listaReduccionHoras)
+	{
+		ReduccionHoras reduccionHoras = new ReduccionHoras();
+		boolean reduccionEncontrada=false;
+		Map<String, List<ReduccionHoras>> asignacionReduccion;
+		int i = 0;
+		while(i< listaReducciones.size() && !reduccionEncontrada) 
+		{
+			if(listaReducciones.get(i).getIdReduccion().equalsIgnoreCase(idReduccion)) 
+			{
+				reduccionEncontrada=true;
+				reduccionHoras.setIdReduccion(idReduccion);
+				reduccionHoras.setNumHoras(listaReducciones.get(i).getNumeroHoras());
+			}
+			i++;
+		}
+		listaReduccionHoras.add(reduccionHoras);
+		if(session.getAttribute("mapaReduccion")==null)
+		{
+			asignacionReduccion = new TreeMap<String, List<ReduccionHoras>>();
+			asignacionReduccion.put(idProfesor, listaReduccionHoras);
+			session.setAttribute("mapaReduccion", asignacionReduccion);
+		}
+		else
+		{
+			 asignacionReduccion = (Map<String,List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
+			    if (asignacionReduccion.containsKey(idProfesor)) 
+			    {
+			    	List<ReduccionHoras> existingReduccionHoras = asignacionReduccion.get(idProfesor);
+			    	existingReduccionHoras.addAll(listaReduccionHoras);
+			    }
+			    else
+			    {
+			       asignacionReduccion.put(idProfesor, listaReduccionHoras);
+			    }
+			    session.setAttribute("mapaReduccion", asignacionReduccion);
+		}
+		return asignacionReduccion;
+	}
+	/**
+	 * metodo para validar los ids
+	 * @param idProfesor
+	 * @param nombreAsignatura
+	 * @param listaProfesores
+	 * @param listaAsignaturas
+	 * @param asignaturaObject
+	 * @throws HorarioException
+	 */
+	public void ValidarIds(String idProfesor, String nombreAsignatura, List<Profesor> listaProfesores,
+			List<Asignatura> listaAsignaturas, Asignatura asignaturaObject) throws HorarioException
+	{
+		boolean asignaturaExiste = false;
+		boolean idProfesorExiste = false;
+		for(Profesor profesor : listaProfesores) 
+		{
+			if(profesor.getIdProfesor().equalsIgnoreCase(idProfesor)) 
+			{
+				idProfesorExiste = true;
+			}
+		}
+		for(Asignatura asignatura : listaAsignaturas)
+		{
+			if(asignatura.getNombreAsinatura().equalsIgnoreCase(nombreAsignatura))
+			{
+				asignaturaExiste = true;
+			}
+		}
+		if(!asignaturaExiste)
+		{
+			String error = "Asignatura no encontrada";
+			log.info(error);
+			throw new HorarioException(13,error);
+		}
+		if(!idProfesorExiste)
+		{
+			String error = "Profesor no encontrada";
+			log.info(error);
+			throw new HorarioException(13,error);
+		}
+		asignaturaObject.setNombreAsinatura(nombreAsignatura);
+	}
+	/**
+	 * metodo para validar y crear el objeto
+	 * @param nombreAsignatura
+	 * @param curso
+	 * @param etapa
+	 * @param grupo
+	 * @param datosAsignacion
+	 * @param listaAsignaturas
+	 * @param listaCursos
+	 * @param asignaturaObject
+	 * @param asignaturaEncontrada
+	 * @throws HorarioException
+	 */
+	public void ComprobacionCreacionObjeto(String nombreAsignatura, Integer curso, String etapa, String grupo,
+			List<Asignatura> datosAsignacion, List<Asignatura> listaAsignaturas, List<Curso> listaCursos,
+			Asignatura asignaturaObject) throws HorarioException
+	{
+		boolean asignaturaEncontrada=false;
+		boolean cursoExiste = false;
+		Curso cursoAsignacion = new Curso(curso,etapa,grupo);
+		comprobarCurso(listaCursos, cursoExiste, cursoAsignacion);
+		asignaturaObject.setCurso(curso);
+		asignaturaObject.setEtapa(etapa);
+		asignaturaObject.setGrupo(grupo);
+		
+		int i =0;
+		while(i<listaAsignaturas.size() && !asignaturaEncontrada) 
+		{
+			if(listaAsignaturas.get(i).getNombreAsinatura().equalsIgnoreCase(nombreAsignatura)) 
+			{
+				asignaturaEncontrada=true;
+				asignaturaObject.setDepartamento(listaAsignaturas.get(i).getDepartamento());
+				asignaturaObject.setNumeroHorasSemanales(listaAsignaturas.get(i).getNumeroHorasSemanales());
+			}
+			i++;
+		}
+		datosAsignacion.add(asignaturaObject);
+	}
+
+	public void comprobarCurso(List<Curso> listaCursos, boolean cursoExiste, Curso cursoAsignacion)
+			throws HorarioException {
+		for(Curso cursoComprobante : listaCursos)
+		{
+			if(cursoComprobante.equals(cursoAsignacion))
+			{
+				cursoExiste = true;
+			}
+		}
+		if(!cursoExiste)
+		{
+			String error = "Curso no encontrado";
+			log.info(error);
+			throw new HorarioException(13,error);
+		}
+	}
+	
+	public void comprobarIdProfesor(String idProfesor, List<Profesor> listaProfesores)
+			throws HorarioException 
+	{
+		boolean idProfesorExiste = false;
+		for(Profesor profesor : listaProfesores)
+		{
+			if(profesor.getIdProfesor().equals(idProfesor))
+			{
+				idProfesorExiste = true;
+			}
+		}
+		if(!idProfesorExiste)
+		{
+			String error = "Profesor no encontrado";
+			log.info(error);
+			throw new HorarioException(13,error);
+		}
+	}
+	public List<Departamento> comprobarListaDepartamentos(HttpSession session, List<Departamento> listaDepartamentos)
+			throws HorarioException 
+	{
+		if(session.getAttribute("listaDepartamentos")!=null)
+		{
+			listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
+		}
+		else 
+		{
+			String error = "Los departamentos no han sido cargados en sesion todavía";
+			throw new HorarioException(1,error);
+		}
+		return listaDepartamentos;
+	}
+	
+	public List<Curso> comprobarListCursos(HttpSession session, List<Curso> listaCursos) throws HorarioException {
+		if(session.getAttribute("listaCursos")!=null)
+		{
+			listaCursos = (List<Curso>) session.getAttribute("listaCursos");
+		}
+		else
+		{
+			String error = "Los cursos no han sido cargados en sesion todavía";
+			throw new HorarioException(1,error);
+		}
+		return listaCursos;
+	}
+	
+	public List<Profesor> comprobarListaProfesores(HttpSession session, List<Profesor> listaProfesores)
+			throws HorarioException {
+		if(session.getAttribute("listaProfesores")!=null)
+		{
+			listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
+		}
+		else 
+		{
+			String error = "Los profesores no han sido cargados en sesion todavía";
+			throw new HorarioException(1,error);
+		}
+		return listaProfesores;
+	}
+	
+	public List<Asignatura> comprobarListaAsignaturas(HttpSession session, List<Asignatura> listaAsignaturas)
+			throws HorarioException {
+		if(session.getAttribute("listaAsignaturas")!=null)
+		{
+			listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
+		}
+		else
+		{
+			String error = "Las asignatura no han sido cargados en sesion todavía";
+			throw new HorarioException(1,error);
+		}
+		return listaAsignaturas;
+	}
+	
+	public List<Reduccion> comprobarListaReducciones(HttpSession session, List<Reduccion> listaReducciones)
+			throws HorarioException {
+		if(session.getAttribute("listaReducciones")!=null)
+		{
+			listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
+		}
+		else 
+		{
+			String error = "Las reducciones no han sido cargados en sesion todavía";
+			throw new HorarioException(1,error);
+		}
+		return listaReducciones;
+	}
+	
+	public void comprobarDepartamentoExiste(List<Departamento> listaDepartamentos, Departamento departamento)
+			throws HorarioException {
+		if(!listaDepartamentos.contains(departamento))
+		{
+			String error = "Departamento no encontrado";
+			log.info(error);
+			throw new HorarioException(13,error);
+		}
+	}
+	
+	public void comprobarIdReduccionExiste(String idReduccion, List<Reduccion> listaReducciones
+		) throws HorarioException 
+	{
+		boolean idReduccionExiste = false;
+		for(Reduccion reduccion : listaReducciones)
+		{
+			if(reduccion.getIdReduccion().equals(idReduccion))
+			{
+				idReduccionExiste = true;
+			}
+		}
+		if(!idReduccionExiste)
+		{
+			String error = "Reduccion no encontrada";
+			log.info(error);
+			throw new HorarioException(13,error);
+		}
 	}
 
 }

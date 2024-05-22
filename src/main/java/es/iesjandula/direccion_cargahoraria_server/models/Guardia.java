@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 public class Guardia
 {
 
+	/**Id del profesor*/
 	private String idProfesor;
-	private String horasAsignadas;
+	/**numero horas guardia*/
+	private Integer horasAsignadas;
 }

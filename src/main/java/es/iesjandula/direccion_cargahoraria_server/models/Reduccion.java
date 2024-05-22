@@ -10,8 +10,11 @@ import lombok.NoArgsConstructor;
 public class Reduccion 
 {
 
+	/**Id reduccion*/
 	private String idReduccion;
+	/*nombre reducccion*/
 	private String nombreReduccion;
+	/**numero horas*/
 	private int numeroHoras;
 	private String curso;
 	private String etapa;

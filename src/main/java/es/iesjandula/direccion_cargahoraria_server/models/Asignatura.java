@@ -9,10 +9,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Asignatura 
 {
-	private String nombreAsignatura;
-	private String curso;
+	/**nombreAsignatura*/
+	private String nombreAsinatura;
+	/**curso*/
+	private int curso;
+	/**etapa*/
 	private String etapa;
+	/**grupo*/
 	private String grupo;
+	/**horas semanales*/
 	private int numeroHorasSemanales;
+	/**departamento*/
 	private String departamento;
 }
