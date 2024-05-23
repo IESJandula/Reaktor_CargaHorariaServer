@@ -311,10 +311,18 @@ public class Parse
 			{
 				numeroProfesorDepartamento++;
 				String profesorId=profesor.getIdProfesor();
-				totalHoras = totalHoras + this.obtenerHorasAsignaturas(mapaAsignatura, profesorId);
-				totalHoras = totalHoras + this.obtenerHorasReduccion(mapaReduccion, profesorId);
-				
-				if(mapaGuardias.containsKey(profesorId)) 
+				//comprobamos que el mapa de asignaturas existe para sumar horas
+				if(mapaAsignatura!=null) 
+				{
+					totalHoras = totalHoras + this.obtenerHorasAsignaturas(mapaAsignatura, profesorId);
+				}
+				//comprobamos que el mapa de reducciones existe para sumar horas
+				if(mapaReduccion!=null) 
+				{
+					totalHoras = totalHoras + this.obtenerHorasReduccion(mapaReduccion, profesorId);
+				}
+				//comprobamos que el mapa de guardias no es nulo y contiene la id del profesor
+				if(mapaGuardias!=null && mapaGuardias.containsKey(profesorId)) 
 				{
 					totalHoras+=mapaGuardias.get(profesorId);
 				}
@@ -464,48 +472,6 @@ public class Parse
 		return asignacionReduccion;
 	}
 	/**
-	 * metodo para validar los ids
-	 * @param idProfesor
-	 * @param nombreAsignatura
-	 * @param listaProfesores
-	 * @param listaAsignaturas
-	 * @param asignaturaObject
-	 * @throws HorarioException
-	 */
-	public void ValidarIds(String idProfesor, String nombreAsignatura, List<Profesor> listaProfesores,
-			List<Asignatura> listaAsignaturas, Asignatura asignaturaObject) throws HorarioException
-	{
-		boolean asignaturaExiste = false;
-		boolean idProfesorExiste = false;
-		for(Profesor profesor : listaProfesores) 
-		{
-			if(profesor.getIdProfesor().equalsIgnoreCase(idProfesor)) 
-			{
-				idProfesorExiste = true;
-			}
-		}
-		for(Asignatura asignatura : listaAsignaturas)
-		{
-			if(asignatura.getNombreAsinatura().equalsIgnoreCase(nombreAsignatura))
-			{
-				asignaturaExiste = true;
-			}
-		}
-		if(!asignaturaExiste)
-		{
-			String error = "Asignatura no encontrada";
-			log.info(error);
-			throw new HorarioException(13,error);
-		}
-		if(!idProfesorExiste)
-		{
-			String error = "Profesor no encontrada";
-			log.info(error);
-			throw new HorarioException(13,error);
-		}
-		asignaturaObject.setNombreAsinatura(nombreAsignatura);
-	}
-	/**
 	 * metodo para validar y crear el objeto
 	 * @param nombreAsignatura
 	 * @param curso
@@ -573,8 +539,7 @@ public class Parse
 	 * @param listaProfesores
 	 * @throws HorarioException
 	 */
-	public void comprobarIdProfesor(String idProfesor, List<Profesor> listaProfesores)
-			throws HorarioException 
+	public void comprobarIdProfesor(String idProfesor, List<Profesor> listaProfesores)throws HorarioException 
 	{
 		boolean idProfesorExiste = false;
 		for(Profesor profesor : listaProfesores)
@@ -598,6 +563,7 @@ public class Parse
 	 * @return
 	 * @throws HorarioException
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Departamento> comprobarListaDepartamentos(HttpSession session, List<Departamento> listaDepartamentos)
 			throws HorarioException 
 	{
@@ -620,6 +586,7 @@ public class Parse
 	 * @return
 	 * @throws HorarioException
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Curso> comprobarListCursos(HttpSession session, List<Curso> listaCursos) throws HorarioException {
 		if(session.getAttribute("listaCursos")!=null)
 		{
@@ -640,6 +607,7 @@ public class Parse
 	 * @return
 	 * @throws HorarioException
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Profesor> comprobarListaProfesores(HttpSession session, List<Profesor> listaProfesores)
 			throws HorarioException {
 		if(session.getAttribute("listaProfesores")!=null)
@@ -660,6 +628,7 @@ public class Parse
 	 * @return
 	 * @throws HorarioException
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Asignatura> comprobarListaAsignaturas(HttpSession session, List<Asignatura> listaAsignaturas)
 			throws HorarioException {
 		if(session.getAttribute("listaAsignaturas")!=null)
@@ -681,6 +650,7 @@ public class Parse
 	 * @return
 	 * @throws HorarioException
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Reduccion> comprobarListaReducciones(HttpSession session, List<Reduccion> listaReducciones)
 			throws HorarioException {
 		if(session.getAttribute("listaReducciones")!=null)
@@ -735,5 +705,28 @@ public class Parse
 			throw new HorarioException(13,error);
 		}
 	}
-
+	/**
+	 * metodo para comprobar si el nombre de asignatura existe
+	 * @param nombreAsignatura
+	 * @param listaAsignaturas
+	 * @param asignaturaExiste
+	 * @throws HorarioException
+	 */
+	public void comprobarNombreAsignaturaExiste(String nombreAsignatura, List<Asignatura> listaAsignaturas) throws HorarioException
+	{
+		boolean asignaturaExiste = false;
+		for(Asignatura asignatura : listaAsignaturas)
+		{
+			if(asignatura.getNombreAsinatura().equalsIgnoreCase(nombreAsignatura))
+			{
+				asignaturaExiste = true;
+			}
+		}
+		if(!asignaturaExiste)
+		{
+			String error = "Asignatura no encontrada";
+			log.info(error);
+			throw new HorarioException(13,error);
+		}
+	}
 }

@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "http://localhost:8080/carga_horaria/departamentos",
+			"name": "departamentos",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -26,7 +26,16 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/carga_horaria/cursos",
+			"name": "departamentos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/carga_horaria/departamentos"
+			},
+			"response": []
+		},
+		{
+			"name": "cursos",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -45,71 +54,16 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/carga_horaria/departamentos/resumen",
+			"name": "cursos",
 			"request": {
 				"method": "GET",
-				"header": [
-					{
-						"key": "nombreDepartamento",
-						"value": "Informatica"
-					}
-				],
-				"url": "http://localhost:8080/carga_horaria/departamentos/resumen"
+				"header": [],
+				"url": "http://localhost:8080/carga_horaria/cursos"
 			},
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/carga_horaria/profesores/resumen",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "idProfesor",
-						"value": "FMBC"
-					}
-				],
-				"url": "http://localhost:8080/carga_horaria/profesores/resumen"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8080/carga_horaria/guardias",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "idProfesor",
-						"value": "FMBC"
-					},
-					{
-						"key": "horasAsignadas",
-						"value": "6"
-					}
-				],
-				"url": "http://localhost:8080/carga_horaria/guardias"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8080/carga_horaria/reducciones",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "idProfesor",
-						"value": "FMBC"
-					},
-					{
-						"key": "idReduccion",
-						"value": "JEF"
-					}
-				],
-				"url": "http://localhost:8080/carga_horaria/reducciones"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8080/carga_horaria/reducciones",
+			"name": "profesores",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -119,16 +73,66 @@
 						{
 							"key": "csv",
 							"type": "file",
-							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/reducciones.csv"
+							"src": "/C:/Users/MANU/Desktop/modulo/Git/Direccion_CargaHorariaServer/src/main/resources/profesores.csv"
 						}
 					]
 				},
-				"url": "http://localhost:8080/carga_horaria/reducciones"
+				"url": "http://localhost:8080/carga_horaria/profesores"
 			},
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/carga_horaria/asignaturas",
+			"name": "profesores",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csv",
+							"type": "file",
+							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/profesores.csv"
+						}
+					]
+				},
+				"url": "http://localhost:8080/carga_horaria/profesores"
+			},
+			"response": []
+		},
+		{
+			"name": "asignaturas",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csv",
+							"type": "file",
+							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/asignaturas.csv"
+						}
+					]
+				},
+				"url": "http://localhost:8080/carga_horaria/asignaturas"
+			},
+			"response": []
+		},
+		{
+			"name": "asignaturas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/carga_horaria/asignaturas"
+			},
+			"response": []
+		},
+		{
+			"name": "asignatura",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -158,7 +162,25 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/carga_horaria/asignaturas",
+			"name": "guardias",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "idProfesor",
+						"value": "FMBC"
+					},
+					{
+						"key": "horasAsignadas",
+						"value": "6"
+					}
+				],
+				"url": "http://localhost:8080/carga_horaria/guardias"
+			},
+			"response": []
+		},
+		{
+			"name": "reducciones",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -168,47 +190,16 @@
 						{
 							"key": "csv",
 							"type": "file",
-							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/asignaturas.csv"
+							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/reducciones.csv"
 						}
 					]
 				},
-				"url": "http://localhost:8080/carga_horaria/asignaturas"
+				"url": "http://localhost:8080/carga_horaria/reducciones"
 			},
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/carga_horaria/profesores",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "csv",
-							"type": "file",
-							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/profesores.csv"
-						}
-					]
-				},
-				"url": "http://localhost:8080/carga_horaria/profesores"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8080/carga_horaria/asignaturas",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": "http://localhost:8080/carga_horaria/asignaturas"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:8080/carga_horaria/reducciones",
+			"name": "reducciones",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -217,20 +208,48 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/carga_horaria/cursos",
+			"name": "reducciones",
 			"request": {
-				"method": "GET",
-				"header": [],
-				"url": "http://localhost:8080/carga_horaria/cursos"
+				"method": "PUT",
+				"header": [
+					{
+						"key": "idProfesor",
+						"value": "FMBC"
+					},
+					{
+						"key": "idReduccion",
+						"value": "JEF"
+					}
+				],
+				"url": "http://localhost:8080/carga_horaria/reducciones"
 			},
 			"response": []
 		},
 		{
-			"name": "http://localhost:8080/carga_horaria/departamentos",
+			"name": "resumen profesores",
 			"request": {
 				"method": "GET",
-				"header": [],
-				"url": "http://localhost:8080/carga_horaria/departamentos"
+				"header": [
+					{
+						"key": "idProfesor",
+						"value": "FMBC"
+					}
+				],
+				"url": "http://localhost:8080/carga_horaria/profesores/resumen"
+			},
+			"response": []
+		},
+		{
+			"name": "resumen departamentos",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "nombreDepartamento",
+						"value": "Informatica"
+					}
+				],
+				"url": "http://localhost:8080/carga_horaria/departamentos/resumen"
 			},
 			"response": []
 		}

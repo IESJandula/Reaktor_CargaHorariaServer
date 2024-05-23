@@ -178,15 +178,11 @@ public class RestHandler
 	{
 		try
 		{
-			//comprobamos si existe la lista de departamentos
-			if(session.getAttribute("listaDepartamentos")==null)
-			{
-				String error = "Los departamentos no han sido cargados";
-				throw new HorarioException(2,error);
-			}
 			Parse parse = new Parse();
 			//obtenemos la lista de departamentos guardada en session
 			List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
+			//comprobamos si existe la lista de departamentos
+			parse.comprobarListaDepartamentos(session, listaDepartamentos);
 			//parseamos el csv con el endpoint
 			List<Profesor> listaProfesores = parse.parseProfesores(csvFile,listaDepartamentos);
 			//guardamos la lista en session
@@ -253,22 +249,13 @@ public class RestHandler
 	{
 		try
 		{
-			//comprobamos si existe la lista de departamentos
-			if(session.getAttribute("listaDepartamentos")==null)
-			{
-				String error = "Los departamentos no han sido cargados";
-				throw new HorarioException(2,error);
-			}
-			List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
-			//comprobamos si existe la lista cursos
-			if(session.getAttribute("listaCursos")==null)
-			{
-				String error = "Los cursos no han sido cargados";
-				throw new HorarioException(2,error);
-			}
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			
 			Parse parse = new Parse();
+			//comprobamos si existe la lista de departamentos
+			List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
+			parse.comprobarListaDepartamentos(session, listaDepartamentos);
+			//comprobamos si existe la lista cursos
+			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
+			parse.comprobarListCursos(session, listaCursos);
 			//parseamos el csv con el endpoint
 			List<Asignatura> listaAsignaturas = parse.parseAsignaturas(csvFile,listaCursos,listaDepartamentos);
 			//guardamos la lista en session
@@ -348,8 +335,12 @@ public class RestHandler
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
 			Asignatura asignaturaObject = new Asignatura();
 			Parse parse = new Parse();
-			//metodo para validar los ids
-			parse.ValidarIds(idProfesor, nombreAsignatura, listaProfesores, listaAsignaturas, asignaturaObject);
+			//metodo para validar el id de profesor
+			parse.comprobarIdProfesor(idProfesor, listaProfesores);
+			//metodo para comprobar si el nombre de la asignatura existe
+			parse.comprobarNombreAsignaturaExiste(nombreAsignatura, listaAsignaturas);
+			//asignamos el nombre de la asignatura
+			asignaturaObject.setNombreAsinatura(nombreAsignatura);
 			//metodo para comprobar si el curso existe y creacion del objeto asignatura
 			parse.ComprobacionCreacionObjeto(nombreAsignatura, curso, etapa, grupo, datosAsignacion, listaAsignaturas,listaCursos, asignaturaObject);
 			//comprobamos si el mapa existe
@@ -387,7 +378,7 @@ public class RestHandler
 			log.error(error,exception.getMessage());
 			return ResponseEntity.status(400).body(exception.getMessage());
 		}
-	}
+	}	
 	
 	/**
 	 * endpoint para subir las reducciones
@@ -437,7 +428,7 @@ public class RestHandler
 		{
 			Parse parse = new Parse();
 			List<Reduccion> listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
-			//comprobamos si la lista reducciones existe))
+			//comprobamos si la lista reducciones existe
 			parse.comprobarListaReducciones(session, listaReducciones);
 			log.info(listaReducciones);
 			return ResponseEntity.ok().body(listaReducciones);
@@ -447,7 +438,6 @@ public class RestHandler
 			String error = "Error de carga de datos";
 			log.error(error,horarioException.getMessage());
 			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
-			
 		}
 		catch(Exception exception)
 		{
@@ -563,7 +553,6 @@ public class RestHandler
 	{
 		try
 		{
-			
 			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
 			//bucle para comprobar si existe el idProfesor
 			Parse parse = new Parse();
@@ -584,8 +573,6 @@ public class RestHandler
 		}
 	}
 
-	
-	
 	/**
 	 * endpoint para obtener un resumen por departamento
 	 * @param nombreDepartamento
@@ -619,6 +606,4 @@ public class RestHandler
 			return ResponseEntity.status(400).body(exception.getMessage());
 		}
 	}
-
-	
 }
