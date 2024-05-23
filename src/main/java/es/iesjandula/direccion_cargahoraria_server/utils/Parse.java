@@ -198,7 +198,7 @@ public class Parse
 				//comprobamos que el curso existe
 				if(!listaCursos.contains(curso))
 				{
-					String error = "Curso no encontrado";
+					String error = "Curso no encontrado: " + curso;
 					log.error(error);
 					throw new HorarioException(12,error);
 				}

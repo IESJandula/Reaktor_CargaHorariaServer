@@ -1,4 +1,7 @@
 nombreAsignatura,curso,etapa,grupo,numeroHorasSemanales,departamento
 Robotica,4,ESO,B,4,Tecnologia
 TIC,1,ESO,A,2,Informatica
-Matematicas,2,BACH,C,6,Matematicas
+Matematicas,2,BACH,C,5,Matematicas
+Lenguajes de Marcas,1,DAM,A,4,Informatica
+Programación de Servicios y Procesos,2,DAM,A,3,Informatica
+Acceso a Datos,2,DAM,A,5,Informatica
