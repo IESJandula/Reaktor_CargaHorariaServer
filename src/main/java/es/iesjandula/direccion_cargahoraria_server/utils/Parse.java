@@ -543,7 +543,13 @@ public class Parse
 		}
 		datosAsignacion.add(asignaturaObject);
 	}
-
+	/**
+	 * metodo para comprobar el curso
+	 * @param listaCursos
+	 * @param cursoExiste
+	 * @param cursoAsignacion
+	 * @throws HorarioException
+	 */
 	public void comprobarCurso(List<Curso> listaCursos, boolean cursoExiste, Curso cursoAsignacion)
 			throws HorarioException {
 		for(Curso cursoComprobante : listaCursos)
@@ -561,6 +567,12 @@ public class Parse
 		}
 	}
 	
+	/**
+	 * metodo para comprobar el id del profesor
+	 * @param idProfesor
+	 * @param listaProfesores
+	 * @throws HorarioException
+	 */
 	public void comprobarIdProfesor(String idProfesor, List<Profesor> listaProfesores)
 			throws HorarioException 
 	{
@@ -579,6 +591,13 @@ public class Parse
 			throw new HorarioException(13,error);
 		}
 	}
+	/**
+	 * metodo para comprobar que la lista de departamentos existe
+	 * @param session
+	 * @param listaDepartamentos
+	 * @return
+	 * @throws HorarioException
+	 */
 	public List<Departamento> comprobarListaDepartamentos(HttpSession session, List<Departamento> listaDepartamentos)
 			throws HorarioException 
 	{
@@ -594,6 +613,13 @@ public class Parse
 		return listaDepartamentos;
 	}
 	
+	/**
+	 * metodo para comprobar si la lista de cursos existe
+	 * @param session
+	 * @param listaCursos
+	 * @return
+	 * @throws HorarioException
+	 */
 	public List<Curso> comprobarListCursos(HttpSession session, List<Curso> listaCursos) throws HorarioException {
 		if(session.getAttribute("listaCursos")!=null)
 		{
@@ -607,6 +633,13 @@ public class Parse
 		return listaCursos;
 	}
 	
+	/**
+	 * metodo para comprobar la lista de profesores
+	 * @param session
+	 * @param listaProfesores
+	 * @return
+	 * @throws HorarioException
+	 */
 	public List<Profesor> comprobarListaProfesores(HttpSession session, List<Profesor> listaProfesores)
 			throws HorarioException {
 		if(session.getAttribute("listaProfesores")!=null)
@@ -620,7 +653,13 @@ public class Parse
 		}
 		return listaProfesores;
 	}
-	
+	/**
+	 * metodo para comprobar la lista de asignaturas
+	 * @param session
+	 * @param listaAsignaturas
+	 * @return
+	 * @throws HorarioException
+	 */
 	public List<Asignatura> comprobarListaAsignaturas(HttpSession session, List<Asignatura> listaAsignaturas)
 			throws HorarioException {
 		if(session.getAttribute("listaAsignaturas")!=null)
@@ -635,6 +674,13 @@ public class Parse
 		return listaAsignaturas;
 	}
 	
+	/**
+	 * metodo para comprobar la lista de reducciones
+	 * @param session
+	 * @param listaReducciones
+	 * @return
+	 * @throws HorarioException
+	 */
 	public List<Reduccion> comprobarListaReducciones(HttpSession session, List<Reduccion> listaReducciones)
 			throws HorarioException {
 		if(session.getAttribute("listaReducciones")!=null)
@@ -649,6 +695,12 @@ public class Parse
 		return listaReducciones;
 	}
 	
+	/**
+	 * metodo para comprobar si el departamento existe 
+	 * @param listaDepartamentos
+	 * @param departamento
+	 * @throws HorarioException
+	 */
 	public void comprobarDepartamentoExiste(List<Departamento> listaDepartamentos, Departamento departamento)
 			throws HorarioException {
 		if(!listaDepartamentos.contains(departamento))
@@ -659,6 +711,12 @@ public class Parse
 		}
 	}
 	
+	/**
+	 * metodo para comprobar si la id reduccion existe
+	 * @param idReduccion
+	 * @param listaReducciones
+	 * @throws HorarioException
+	 */
 	public void comprobarIdReduccionExiste(String idReduccion, List<Reduccion> listaReducciones
 		) throws HorarioException 
 	{
