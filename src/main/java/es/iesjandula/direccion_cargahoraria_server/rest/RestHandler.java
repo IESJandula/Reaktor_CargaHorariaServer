@@ -17,9 +17,10 @@ import es.iesjandula.direccion_cargahoraria_server.exception.HorarioException;
 import es.iesjandula.direccion_cargahoraria_server.models.Asignatura;
 import es.iesjandula.direccion_cargahoraria_server.models.Curso;
 import es.iesjandula.direccion_cargahoraria_server.models.Departamento;
-import es.iesjandula.direccion_cargahoraria_server.models.Guardia;
 import es.iesjandula.direccion_cargahoraria_server.models.Profesor;
 import es.iesjandula.direccion_cargahoraria_server.models.Reduccion;
+import es.iesjandula.direccion_cargahoraria_server.models.ReduccionHoras;
+import es.iesjandula.direccion_cargahoraria_server.models.Resumen;
 import es.iesjandula.direccion_cargahoraria_server.models.ResumenProfesor;
 import es.iesjandula.direccion_cargahoraria_server.utils.Parse;
 import jakarta.servlet.http.HttpSession;
@@ -32,7 +33,7 @@ public class RestHandler
 {
 
 	/**
-	 * 
+	 * endpoint para subir los departamentos
 	 * @param csvFile
 	 * @param session
 	 * @return
@@ -42,16 +43,21 @@ public class RestHandler
 	{
 		try
 		{
-			List<Departamento> listaDepartamentos = Parse.parseDepartamentos(csvFile);
+			Parse parse = new Parse();
+			//parseamos el csv con el endpoint
+			List<Departamento> listaDepartamentos = parse.parseDepartamentos(csvFile);
+			//guardamos la lista en session
 			session.setAttribute("listaDepartamentos", listaDepartamentos);
-			log.info(listaDepartamentos.toString());
-			return ResponseEntity.ok("Departamentos subidos correctamente");
-		}catch(HorarioException horarioException)
+			log.info(listaDepartamentos);
+			return ResponseEntity.ok().body("Departamentos subidos correctamente");
+		}
+		catch(HorarioException horarioException)
 		{
 			String error = "Error de parseo";
-			log.error(error,horarioException.getMessage());
+			log.error(error,horarioException.getBodyExceptionMessage());
 			return ResponseEntity.status(410).body(error);
-		}catch(Exception exception)
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -60,7 +66,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para obtener los departamentos
 	 * @param session
 	 * @return
 	 */
@@ -70,24 +76,23 @@ public class RestHandler
 	{
 		try
 		{
-			List<Departamento> listaDepartamentos;
-			if(session.getAttribute("listaDepartamentos")!=null)
-			{
-				listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
-			}else {
-				String error = "Los departamentos no han sido cargados en sesion todavía";
-				throw new HorarioException(1,error);
-			}
-
-			log.info(listaDepartamentos.toString());
-			return ResponseEntity.ok(listaDepartamentos.toString());
-		}catch(HorarioException horarioException)
+			Parse parse = new Parse();
+			List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
+			//comprobamos si la lista existe
+			parse.comprobarListaDepartamentos(session, listaDepartamentos);
+			log.info(listaDepartamentos);
+			return ResponseEntity.ok(listaDepartamentos);
+			
+		
+		}
+		catch(HorarioException horarioException)
 		{
 			String error = "Error de carga de datos";
 			log.error(error,horarioException.getMessage());
 			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
 			
-		}catch(Exception exception)
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -96,7 +101,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para subir los cursos
 	 * @param csvFile
 	 * @param session
 	 * @return
@@ -106,16 +111,21 @@ public class RestHandler
 	{
 		try
 		{
-			List<Curso> listaCursos = Parse.parseCursos(csvFile);
+			Parse parse = new Parse();
+			//parseamos el csv con el endpoint
+			List<Curso> listaCursos = parse.parseCursos(csvFile);
+			//guardamos la lista en session
 			session.setAttribute("listaCursos", listaCursos);
-			log.info(listaCursos.toString());
-			return ResponseEntity.ok("Cursos subidos correctamente");
-		}catch(HorarioException horarioException)
+			log.info(listaCursos);
+			return ResponseEntity.ok().body("Cursos subidos correctamente");
+		}
+		catch(HorarioException horarioException)
 		{
 			String error = "Error de parseo";
-			log.error(error,horarioException.getMessage());
+			log.error(error,horarioException.getBodyExceptionMessage());
 			return ResponseEntity.status(410).body(error);
-		}catch(Exception exception)
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -124,7 +134,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para obtener lista de cursos
 	 * @param session
 	 * @return
 	 */
@@ -134,24 +144,21 @@ public class RestHandler
 	{
 		try
 		{
-			List<Curso> listaCursos;
-			if(session.getAttribute("listaCursos")!=null)
-			{
-				listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			}else {
-				String error = "Los cursos no han sido cargados en sesion todavía";
-				throw new HorarioException(1,error);
-			}
-
-			log.info(listaCursos.toString());
-			return ResponseEntity.ok(listaCursos.toString());
-		}catch(HorarioException horarioException)
+			Parse parse = new Parse();
+			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
+			//comprobamos si la lista existe
+			parse.comprobarListCursos(session, listaCursos);
+			log.info(listaCursos);
+			return ResponseEntity.ok().body(listaCursos);
+		}
+		catch(HorarioException horarioException)
 		{
 			String error = "Error de carga de datos";
-			log.error(error,horarioException.getMessage());
+			log.error(error,horarioException.getBodyExceptionMessage());
 			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
 			
-		}catch(Exception exception)
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -160,7 +167,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para subir los profesores
 	 * @param csvFile
 	 * @param session
 	 * @return
@@ -171,22 +178,25 @@ public class RestHandler
 	{
 		try
 		{
-			if(session.getAttribute("listaDepartamentos")==null)
-			{
-				String error = "Los departamentos no han sido cargados";
-				throw new HorarioException(2,error);
-			}
+			Parse parse = new Parse();
+			//obtenemos la lista de departamentos guardada en session
 			List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
-			List<Profesor> listaProfesores = Parse.parseProfesores(csvFile,listaDepartamentos);
+			//comprobamos si existe la lista de departamentos
+			parse.comprobarListaDepartamentos(session, listaDepartamentos);
+			//parseamos el csv con el endpoint
+			List<Profesor> listaProfesores = parse.parseProfesores(csvFile,listaDepartamentos);
+			//guardamos la lista en session
 			session.setAttribute("listaProfesores", listaProfesores);
-			log.info(listaProfesores.toString());
-			return ResponseEntity.ok("Profesores subidos correctamente");
-		}catch(HorarioException horarioException)
+			log.info(listaProfesores);
+			return ResponseEntity.ok().body("Profesores subidos correctamente");
+		}
+		catch(HorarioException horarioException)
 		{
 			String error = "Error de parseo";
-			log.error(error,horarioException.getMessage());
+			log.error(error,horarioException.getBodyExceptionMessage());
 			return ResponseEntity.status(410).body(error);
-		}catch(Exception exception)
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -195,7 +205,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para obtener la lista profesores
 	 * @param session
 	 * @return
 	 */
@@ -205,24 +215,21 @@ public class RestHandler
 	{
 		try
 		{
-			List<Profesor> listaProfesores;
-			if(session.getAttribute("listaProfesores")!=null)
-			{
-				listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-			}else {
-				String error = "Los profesores no han sido cargados en sesion todavía";
-				throw new HorarioException(1,error);
-			}
-
-			log.info(listaProfesores.toString());
-			return ResponseEntity.ok(listaProfesores.toString());
-		}catch(HorarioException horarioException)
+			Parse parse = new Parse();
+			List<Profesor> listaProfesores =(List<Profesor>) session.getAttribute("listaProfesores");
+			//comprobamos si existe la lista profesores
+			parse.comprobarListaProfesores(session, listaProfesores);
+			log.info(listaProfesores);
+			return ResponseEntity.ok().body(listaProfesores);
+		}
+		catch(HorarioException horarioException)
 		{
 			String error = "Error de carga de datos";
-			log.error(error,horarioException.getMessage());
+			log.error(error,horarioException.getBodyExceptionMessage());
 			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
 			
-		}catch(Exception exception)
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -231,7 +238,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para subir las asignaturas
 	 * @param csvFile
 	 * @param session
 	 * @return
@@ -242,29 +249,25 @@ public class RestHandler
 	{
 		try
 		{
-			if(session.getAttribute("listaDepartamentos")==null)
-			{
-				String error = "Los departamentos no han sido cargados";
-				throw new HorarioException(2,error);
-			}
+			Parse parse = new Parse();
+			//comprobamos si existe la lista de departamentos
 			List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
-			
-			if(session.getAttribute("listaCursos")==null)
-			{
-				String error = "Los cursos no han sido cargados";
-				throw new HorarioException(2,error);
-			}
+			parse.comprobarListaDepartamentos(session, listaDepartamentos);
+			//comprobamos si existe la lista cursos
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			
-			
-			List<Asignatura> listaAsignaturas = Parse.parseAsignaturas(csvFile,listaCursos,listaDepartamentos);
+			parse.comprobarListCursos(session, listaCursos);
+			//parseamos el csv con el endpoint
+			List<Asignatura> listaAsignaturas = parse.parseAsignaturas(csvFile,listaCursos,listaDepartamentos);
+			//guardamos la lista en session
 			session.setAttribute("listaAsignaturas", listaAsignaturas);
-			log.info(listaAsignaturas.toString());
-			return ResponseEntity.ok("Asignaturas subidas correctamente");
-		}catch(HorarioException horarioException)
+			log.info(listaAsignaturas);
+			return ResponseEntity.ok().body("Asignaturas subidas correctamente");
+		}
+		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getMessage());
-		}catch(Exception exception)
+			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -273,7 +276,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para obtener las asignaturas
 	 * @param session
 	 * @return
 	 */
@@ -283,24 +286,21 @@ public class RestHandler
 	{
 		try
 		{
-			List<Asignatura> listaAsignaturas;
-			if(session.getAttribute("listaAsignaturas")!=null)
-			{
-				listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-			}else {
-				String error = "Las asignatura no han sido cargados en sesion todavía";
-				throw new HorarioException(1,error);
-			}
-
-			log.info(listaAsignaturas.toString());
-			return ResponseEntity.ok(listaAsignaturas.toString());
-		}catch(HorarioException horarioException)
+			Parse parse = new Parse();
+			List<Asignatura> listaAsignaturas =(List<Asignatura>) session.getAttribute("listaAsignaturas");
+			//comprobamos si existe la lista asignaturas
+			parse.comprobarListaAsignaturas(session, listaAsignaturas);
+			log.info(listaAsignaturas);
+			return ResponseEntity.ok().body(listaAsignaturas);
+		}
+		catch(HorarioException horarioException)
 		{
 			String error = "Error de carga de datos";
-			log.error(error,horarioException.getMessage());
+			log.error(error,horarioException.getBodyExceptionMessage());
 			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
 			
-		}catch(Exception exception)
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -309,7 +309,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para asignar una asignatura a un profesor
 	 * @param idProfesor
 	 * @param nombreAsignatura
 	 * @param curso
@@ -322,81 +322,66 @@ public class RestHandler
 	@RequestMapping(method=RequestMethod.PUT,value="/asignaturas")
 	public ResponseEntity<?> asignacionAsignaturas(@RequestHeader(value="idProfesor",required=true)String idProfesor,
 			@RequestHeader(value="nombreAsignatura",required=true)String nombreAsignatura,
-			@RequestHeader(value="curso",required=true)String curso,
+			@RequestHeader(value="curso",required=true)Integer curso,
 			@RequestHeader(value="etapa",required=true)String etapa,
 			@RequestHeader(value="grupo",required=true)String grupo,HttpSession session)
 	{
 		try
 		{
-			Map<String,List<Object>> asignacion = new TreeMap<>();	
-			List<Object> datosAsignacion = new ArrayList<>();
-			
+			Map<String,List<Asignatura>> asignacion = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");	
+			List<Asignatura> datosAsignacion = new ArrayList<Asignatura>();
+			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
 			List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			
-			boolean asignaturaExiste = false;
-			for(Asignatura asignatura : listaAsignaturas)
+			Asignatura asignaturaObject = new Asignatura();
+			Parse parse = new Parse();
+			//metodo para validar el id de profesor
+			parse.comprobarIdProfesor(idProfesor, listaProfesores);
+			//metodo para comprobar si el nombre de la asignatura existe
+			parse.comprobarNombreAsignaturaExiste(nombreAsignatura, listaAsignaturas);
+			//asignamos el nombre de la asignatura
+			asignaturaObject.setNombreAsinatura(nombreAsignatura);
+			//metodo para comprobar si el curso existe y creacion del objeto asignatura
+			parse.ComprobacionCreacionObjeto(nombreAsignatura, curso, etapa, grupo, datosAsignacion, listaAsignaturas,listaCursos, asignaturaObject);
+			//comprobamos si el mapa existe
+			if (session.getAttribute("mapaAsignaturas") == null) 
 			{
-				if(asignatura.getNombreAsignatura().equals(nombreAsignatura))
-				{
-					asignaturaExiste = true;
-				}
+			    asignacion = new TreeMap<String, List<Asignatura>>();
+			    asignacion.put(idProfesor, datosAsignacion);
+			    session.setAttribute("mapaAsignaturas", asignacion);
 			}
-			if(!asignaturaExiste)
+			else 
 			{
-				String error = "Asignatura no encontrada";
-				log.info(error);
-				throw new HorarioException(13,error);
+			    asignacion = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
+			    //comprobamos si existe el idProfesor en el mapa
+			    if (asignacion.containsKey(idProfesor)) 
+			    {
+			        List<Asignatura> existingAsignaturas = asignacion.get(idProfesor);
+			        existingAsignaturas.addAll(datosAsignacion);
+			    }
+			    else
+			    {
+			        asignacion.put(idProfesor, datosAsignacion);
+			    }
+			    session.setAttribute("mapaAsignaturas", asignacion);
 			}
-			datosAsignacion.add(nombreAsignatura);
-			
-			boolean cursoExiste = false;
-			Curso cursoAsignacion = new Curso(curso,etapa,grupo);
-			for(Curso cursoComprobante : listaCursos)
-			{
-				if(cursoComprobante.equals(cursoAsignacion))
-				{
-					cursoExiste = true;
-				}
-			}
-			if(!cursoExiste)
-			{
-				String error = "Curso no encontrado";
-				log.info(error);
-				throw new HorarioException(13,error);
-			}
-			datosAsignacion.add(cursoAsignacion);
-			
-			asignacion.put(idProfesor, datosAsignacion);
-			
-			List<Map<String,List<Object>>> listaAsignaturasAsignadas;
-			if(session.getAttribute("listaAsignaciones")==null)
-			{
-				listaAsignaturasAsignadas = new ArrayList<>();
-			}else
-			{
-				listaAsignaturasAsignadas = (List<Map<String, List<Object>>>) session.getAttribute("listaAsignaciones");
-			}
-			
-			listaAsignaturasAsignadas.add(asignacion);
-			
-			session.setAttribute("listaAsignaturasAsignadas", listaAsignaturasAsignadas);
-			
-			log.info(listaAsignaturasAsignadas.toString());
-			return ResponseEntity.ok("Asignacion creada correctamente");
-		}catch(HorarioException horarioException)
+			log.info(asignacion);
+			return ResponseEntity.ok().body("Asignacion creada correctamente");
+		}
+		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getMessage());
-		}catch(Exception exception)
+			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
 			return ResponseEntity.status(400).body(exception.getMessage());
 		}
-	}
+	}	
 	
 	/**
-	 * 
+	 * endpoint para subir las reducciones
 	 * @param csvFile
 	 * @param session
 	 * @return
@@ -407,22 +392,22 @@ public class RestHandler
 	{
 		try
 		{
-			if(session.getAttribute("listaCursos")==null)
-			{
-				String error = "Los cursos no han sido cargados";
-				throw new HorarioException(2,error);
-			}
+			Parse parse = new Parse();
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			
-			
-			List<Reduccion> listaReducciones = Parse.parseReducciones(csvFile,listaCursos);
+			//comprobamos si la lsita de cursos existe
+			parse.comprobarListCursos(session, listaCursos);
+			//llamamos el metodo para parsear reducciones
+			List<Reduccion> listaReducciones = parse.parseReducciones(csvFile,listaCursos);
+			//guardamos la lista en session
 			session.setAttribute("listaReducciones", listaReducciones);
-			log.info(listaReducciones.toString());
-			return ResponseEntity.ok("Reducciones subidas correctamente");
-		}catch(HorarioException horarioException)
+			log.info(listaReducciones);
+			return ResponseEntity.ok().body("Reducciones subidas correctamente");
+		}
+		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getMessage());
-		}catch(Exception exception)
+			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -431,7 +416,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para obtener lista de reducciones
 	 * @param session
 	 * @return
 	 */
@@ -441,24 +426,20 @@ public class RestHandler
 	{
 		try
 		{
-			List<Reduccion> listaReducciones;
-			if(session.getAttribute("listaReducciones")!=null)
-			{
-				listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
-			}else {
-				String error = "Las reducciones no han sido cargados en sesion todavía";
-				throw new HorarioException(1,error);
-			}
-
-			log.info(listaReducciones.toString());
-			return ResponseEntity.ok(listaReducciones.toString());
-		}catch(HorarioException horarioException)
+			Parse parse = new Parse();
+			List<Reduccion> listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
+			//comprobamos si la lista reducciones existe
+			parse.comprobarListaReducciones(session, listaReducciones);
+			log.info(listaReducciones);
+			return ResponseEntity.ok().body(listaReducciones);
+		}
+		catch(HorarioException horarioException)
 		{
 			String error = "Error de carga de datos";
 			log.error(error,horarioException.getMessage());
 			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
-			
-		}catch(Exception exception)
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -467,7 +448,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para asignar reducciones a un profesor
 	 * @param idProfesor
 	 * @param idReduccion
 	 * @param session
@@ -480,62 +461,29 @@ public class RestHandler
 	{
 		try
 		{
-			Map<String,String> asignacionReduccion = new TreeMap<>();	
+			Map<String,List<ReduccionHoras>> asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");	
 			
 			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
 			List<Reduccion> listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
+			List<ReduccionHoras> listaReduccionHoras = new ArrayList<ReduccionHoras>();
+
+			Parse parse = new Parse();
+			//recorremos la lista de profesores para comprobar si existe el idprofesor que recibimos
+			parse.comprobarIdProfesor(idProfesor, listaProfesores);
+			//recorremos la lista reducciones para comprobar si existe el idreduccion que recibimos
+			parse.comprobarIdReduccionExiste(idReduccion, listaReducciones);
 			
-			boolean idProfesorExiste = false;
-			for(Profesor profesor : listaProfesores)
-			{
-				if(profesor.getIdProfesor().equals(idProfesor))
-				{
-					idProfesorExiste = true;
-				}
-			}
-			if(!idProfesorExiste)
-			{
-				String error = "Profesor no encontrado";
-				log.info(error);
-				throw new HorarioException(13,error);
-			}
+			//llamamos al metodo realizarReduccion
+			asignacionReduccion = parse.realizarReduccion(idProfesor, idReduccion, session, listaReducciones, listaReduccionHoras);
 			
-			boolean idReduccionExiste = false;
-			for(Reduccion reduccion : listaReducciones)
-			{
-				if(reduccion.getIdReduccion().equals(idReduccion))
-				{
-					idReduccionExiste = true;
-				}
-			}
-			if(!idReduccionExiste)
-			{
-				String error = "Reduccion no encontrada";
-				log.info(error);
-				throw new HorarioException(13,error);
-			}
-			
-			asignacionReduccion.put(idProfesor, idReduccion);
-			
-			List<Map<String,String>> listaReduccionesAsignadas;
-			if(session.getAttribute("listaReduccionesAsignadas")==null)
-			{
-				listaReduccionesAsignadas = new ArrayList<>();
-			}else
-			{
-				listaReduccionesAsignadas =  (List<Map<String, String>>) session.getAttribute("listaReduccionesAsignadas");
-			}
-			
-			listaReduccionesAsignadas.add(asignacionReduccion);
-			
-			session.setAttribute("listaReduccionesAsignadas", listaReduccionesAsignadas);
-			
-			log.info(listaReduccionesAsignadas.toString());
-			return ResponseEntity.ok("Asignacion de reduccion creada correctamente");
-		}catch(HorarioException horarioException)
+			log.info(asignacionReduccion);
+			return ResponseEntity.ok().body("Asignacion de reduccion creada correctamente");
+		}
+		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getMessage());
-		}catch(Exception exception)
+			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -544,7 +492,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para asignar horas de guardias a un profesor
 	 * @param idProfesor
 	 * @param horasAsignadas
 	 * @param session
@@ -553,47 +501,39 @@ public class RestHandler
 	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.POST,value="/guardias")
 	public ResponseEntity<?> uploadGuardias(@RequestHeader(value="idProfesor",required=true)String idProfesor,
-			@RequestHeader(value="horasAsignadas",required=true)String horasAsignadas,HttpSession session)
+			@RequestHeader(value="horasAsignadas",required=true)Integer horasAsignadas,HttpSession session)
 	{
 		try
 		{
 			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-			boolean idProfesorExiste = false;
-			for(Profesor profesor : listaProfesores)
-			{
-				if(profesor.getIdProfesor().equals(idProfesor))
-				{
-					idProfesorExiste = true;
-				}
-			}
-			if(!idProfesorExiste)
-			{
-				String error = "Profesor no encontrado";
-				log.info(error);
-				throw new HorarioException(13,error);
-			}
 			
-			Guardia guardia = new Guardia(idProfesor,horasAsignadas);
-			List<Guardia> listaGuardias;
+			//bucle para comprobar si existe el idProfesor recibido
+			Parse parse = new Parse();
+			parse.comprobarIdProfesor(idProfesor, listaProfesores);
 			
-			if(session.getAttribute("listaGuardias")==null)
+			Map<String,Integer> mapaGuardias;
+			//comprobamos si se ha creado el mapa de guardias
+			if(session.getAttribute("mapaGuardias")==null)
 			{
-				listaGuardias = new ArrayList<>();
-			}else
+				mapaGuardias = new TreeMap<String, Integer>();
+				mapaGuardias.put(idProfesor, horasAsignadas);
+				session.setAttribute("mapaGuardias", mapaGuardias);
+			}
+			else
 			{
-				listaGuardias =  (List<Guardia>) session.getAttribute("listaGuardias");
+				mapaGuardias=(Map<String, Integer>) session.getAttribute("mapaGuardias");
+				mapaGuardias.put(idProfesor, horasAsignadas);
+				session.setAttribute("mapaGuardias", mapaGuardias);
 			}
 			
-			listaGuardias.add(guardia);
-			
-			session.setAttribute("listaGuardias", listaGuardias);
-			
-			log.info(listaGuardias.toString());
-			return ResponseEntity.ok("Guardia subida correctamente");
-		}catch(HorarioException horarioException)
+			log.info(mapaGuardias);
+			return ResponseEntity.ok().body("Guardia subida correctamente");
+		}
+		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getMessage());
-		}catch(Exception exception)
+			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
@@ -602,7 +542,7 @@ public class RestHandler
 	}
 	
 	/**
-	 * 
+	 * endpoint para obtener un resemun de un profesor
 	 * @param idProfesor
 	 * @param session
 	 * @return
@@ -614,98 +554,56 @@ public class RestHandler
 		try
 		{
 			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-			boolean idProfesorExiste = false;
-			for(Profesor profesor : listaProfesores)
-			{
-				if(profesor.getIdProfesor().equals(idProfesor))
-				{
-					idProfesorExiste = true;
-				}
-			}
-			if(!idProfesorExiste)
-			{
-				String error = "Profesor no encontrado";
-				log.info(error);
-				throw new HorarioException(13,error);
-			}
-			
-			List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-			List<Reduccion> listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
-			int horasAsignaturas = 0;
-			for(Asignatura asignatura:listaAsignaturas)
-			{
-				horasAsignaturas+= asignatura.getNumeroHorasSemanales();
-			}
-			int horasReducciones = 0;
-			for(Reduccion reduccion:listaReducciones)
-			{
-				horasReducciones+= reduccion.getNumeroHoras();
-			}
-			int horasTotales = horasAsignaturas+horasReducciones;
-			ResumenProfesor resumenProfesor = new ResumenProfesor(listaAsignaturas,listaReducciones,horasTotales);
-
-			
-			log.info(resumenProfesor.toString());
-			return ResponseEntity.ok("Datos del profesor "+idProfesor+": \n"+ resumenProfesor.toString());
-		}catch(HorarioException horarioException)
+			//bucle para comprobar si existe el idProfesor
+			Parse parse = new Parse();
+			parse.comprobarIdProfesor(idProfesor, listaProfesores);
+			//llamamos el metodo resumenProfesor
+			ResumenProfesor resumen = parse.resumenProfesor(idProfesor, session);
+			return ResponseEntity.ok().body(resumen);
+		}
+		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getMessage());
-		}catch(Exception exception)
+			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+		}
+		catch(Exception exception)
 		{
 			String error = "Error desconocido";
 			log.error(error,exception.getMessage());
 			return ResponseEntity.status(400).body(exception.getMessage());
 		}
 	}
-	
-//	@SuppressWarnings("unchecked")
-//	@RequestMapping(method=RequestMethod.GET,value="/departamentos/resumen")
-//	public ResponseEntity<?> resumenDepartamento(@RequestHeader(value="nombreDepartamento",required=true)String nombreDepartamento,HttpSession session)
-//	{
-//		try
-//		{
-//			List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
-//			boolean nombreDepartamentoExiste = false;
-//			for(Departamento departamento : listaDepartamentos)
-//			{
-//				if(departamento.getNombre().equals(nombreDepartamento))
-//				{
-//					nombreDepartamentoExiste = true;
-//				}
-//			}
-//			if(!nombreDepartamentoExiste)
-//			{
-//				String error = "Departamento no encontrado";
-//				log.info(error);
-//				throw new HorarioException(13,error);
-//			}
-//			
-//			List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-//			List<Reduccion> listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
-//			int horasAsignaturas = 0;
-//			for(Asignatura asignatura:listaAsignaturas)
-//			{
-//				horasAsignaturas+= asignatura.getNumeroHorasSemanales();
-//			}
-//			int horasReducciones = 0;
-//			for(Reduccion reduccion:listaReducciones)
-//			{
-//				horasReducciones+= reduccion.getNumeroHoras();
-//			}
-//			int horasTotales = horasAsignaturas+horasReducciones;
-//			ResumenProfesor resumenProfesor = new ResumenProfesor(listaAsignaturas,listaReducciones,horasTotales);
-//
-//			
-//			log.info(resumenProfesor.toString());
-//			return ResponseEntity.ok("Datos del profesor "+idProfesor+": \n"+ resumenProfesor.toString());
-//		}catch(HorarioException horarioException)
-//		{
-//			return ResponseEntity.status(410).body(horarioException.getMessage());
-//		}catch(Exception exception)
-//		{
-//			String error = "Error desconocido";
-//			log.error(error,exception.getMessage());
-//			return ResponseEntity.status(400).body(exception.getMessage());
-//		}
-//	}
+
+	/**
+	 * endpoint para obtener un resumen por departamento
+	 * @param nombreDepartamento
+	 * @param session
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(method=RequestMethod.GET,value="/departamentos/resumen")
+	public ResponseEntity<?> resumenDepartamento(@RequestHeader(value="nombreDepartamento",required=true)String nombreDepartamento,HttpSession session)
+	{
+		try
+		{
+			//obtenemos la lista departamentos en session
+			List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
+			Parse parse = new Parse();
+			Departamento departamento = new Departamento(nombreDepartamento);
+			//comprobamos si existe el departamento
+			parse.comprobarDepartamentoExiste(listaDepartamentos, departamento);
+			
+			Resumen resumen = parse.resumenDepartamento(nombreDepartamento, session);	
+			return ResponseEntity.ok().body(resumen);
+		}
+		catch(HorarioException horarioException)
+		{
+			return ResponseEntity.status(410).body(horarioException.getMessage());
+		}
+		catch(Exception exception)
+		{
+			String error = "Error desconocido";
+			log.error(error,exception.getMessage());
+			return ResponseEntity.status(400).body(exception.getMessage());
+		}
+	}
 }

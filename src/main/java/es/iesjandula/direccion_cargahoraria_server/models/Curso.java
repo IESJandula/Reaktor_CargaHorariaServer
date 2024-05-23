@@ -3,14 +3,18 @@ package es.iesjandula.direccion_cargahoraria_server.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+/**
+ * Clase Curso
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Curso 
 {
-	
-	private String curso;
+	/**curso*/
+	private int curso;
+	/**etapa*/
 	private String etapa;
+	/**grupo*/
 	private String grupo;
 }
