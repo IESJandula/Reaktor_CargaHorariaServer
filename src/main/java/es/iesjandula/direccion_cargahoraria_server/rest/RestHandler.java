@@ -557,8 +557,11 @@ public class RestHandler
 			//bucle para comprobar si existe el idProfesor
 			Parse parse = new Parse();
 			parse.comprobarIdProfesor(idProfesor, listaProfesores);
-			//llamamos el metodo resumenProfesor
-			ResumenProfesor resumen = parse.resumenProfesor(idProfesor, session);
+			Map <String,List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
+			Map <String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
+			//obtenemos el resumen mediante el metodo 	
+			ResumenProfesor resumen = parse.obtencionHorasProfesor(idProfesor, mapaReduccion, mapaAsignatura);
+
 			return ResponseEntity.ok().body(resumen);
 		}
 		catch(HorarioException horarioException)

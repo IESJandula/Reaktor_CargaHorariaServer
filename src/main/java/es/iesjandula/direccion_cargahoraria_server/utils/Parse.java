@@ -327,17 +327,7 @@ public class Parse
 					totalHoras+=mapaGuardias.get(profesorId);
 				}
 			}
-		}
-		List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-		log.info(listaAsignaturas);
-		for(Asignatura asignatura : listaAsignaturas) 
-		{
-			//comprobamos si la asignatura pertenece a ese departamento
-			if(asignatura.getDepartamento().equalsIgnoreCase(nombreDepartamento))
-			{
-				totalHoras+=asignatura.getNumeroHorasSemanales();
-			}
-		}
+		}		
 		
 		int horasNecesarias = numeroProfesorDepartamento*18;
 		int desfase         = totalHoras-horasNecesarias;
@@ -398,27 +388,27 @@ public class Parse
 	 * @param session
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public ResumenProfesor resumenProfesor(String idProfesor, HttpSession session)
-	{
-		int horasAsignaturas=0;
-		int horasReduccion=0;
-		Map <String,List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
-		Map <String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
-			
-		if(mapaAsignatura.containsKey(idProfesor)) 
-		{
-			horasAsignaturas = this.obtenerHorasAsignaturas(mapaAsignatura, idProfesor);	
-		}
-		if(mapaReduccion.containsKey(idProfesor)) 
-		{
-			horasReduccion = this.obtenerHorasReduccion(mapaReduccion, idProfesor);
-		}
-		
-		int horasTotales=horasAsignaturas+horasReduccion;
-		ResumenProfesor resumen = new ResumenProfesor(horasAsignaturas, horasReduccion, horasTotales);
-		return resumen;
-	}
+//	@SuppressWarnings("unchecked")
+//	public ResumenProfesor resumenProfesor(String idProfesor, HttpSession session)
+//	{
+//		int horasAsignaturas=0;
+//		int horasReduccion=0;
+//		Map <String,List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
+//		Map <String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
+//			
+//		if(mapaAsignatura.containsKey(idProfesor)) 
+//		{
+//			horasAsignaturas = this.obtenerHorasAsignaturas(mapaAsignatura, idProfesor);	
+//		}
+//		if(mapaReduccion.containsKey(idProfesor)) 
+//		{
+//			horasReduccion = this.obtenerHorasReduccion(mapaReduccion, idProfesor);
+//		}
+//		
+//		int horasTotales=horasAsignaturas+horasReduccion;
+//		ResumenProfesor resumen = new ResumenProfesor(horasAsignaturas, horasReduccion, horasTotales);
+//		return resumen;
+//	}
 	/**
 	 * metodo para hacer una reduccion
 	 * @param idProfesor
@@ -728,5 +718,49 @@ public class Parse
 			log.info(error);
 			throw new HorarioException(13,error);
 		}
+	}
+	/**
+	 * metodo para obtener las horas de reduccion y de asignaturas de un profesor
+	 * @param idProfesor
+	 * @param totalHoras
+	 * @param mapaReduccion
+	 * @param mapaAsignatura
+	 * @param listaAsignaturaProfesor
+	 * @param listaReduccionHoras
+	 * @return
+	 */
+	
+	public ResumenProfesor obtencionHorasProfesor(String idProfesor,
+			Map<String, List<ReduccionHoras>> mapaReduccion, Map<String, List<Asignatura>> mapaAsignatura)
+	{
+		int totalHoras = 0 ;
+		List<Asignatura> listaAsignaturaProfesor = new ArrayList<Asignatura>();
+		List<ReduccionHoras> listaReduccionHoras = new ArrayList<ReduccionHoras>();
+		if(mapaAsignatura.containsKey(idProfesor)) 
+		{
+			List<Asignatura> listaAsignaturas = mapaAsignatura.get(idProfesor);
+			
+			for (Asignatura asignatura : listaAsignaturas) 
+			{
+				Asignatura asignatura2 = asignatura;
+				listaAsignaturaProfesor.add(asignatura2);
+				totalHoras += asignatura.getNumeroHorasSemanales();
+			}
+		}
+		if(mapaReduccion.containsKey(idProfesor)) 
+		{
+			
+			List<ReduccionHoras> listaReducciones = mapaReduccion.get(idProfesor);
+			
+			for (ReduccionHoras reduccionHoras : listaReducciones) 
+			{
+				ReduccionHoras reduccionHoras2 = reduccionHoras;
+				listaReduccionHoras.add(reduccionHoras2);
+				totalHoras += reduccionHoras.getNumHoras();
+			}
+		}
+		
+		ResumenProfesor resumen = new ResumenProfesor(listaAsignaturaProfesor,listaReduccionHoras,totalHoras);
+		return resumen;
 	}
 }

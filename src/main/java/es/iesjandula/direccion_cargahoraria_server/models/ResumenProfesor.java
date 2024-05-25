@@ -1,5 +1,7 @@
 package es.iesjandula.direccion_cargahoraria_server.models;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,9 +14,9 @@ import lombok.NoArgsConstructor;
 public class ResumenProfesor 
 {
 	/**numero de horas de la asignatura*/
-	private int horasAsignaturas;
+	private List<Asignatura> asignaturas;
 	/**numero de horas de la reduccion*/
-	private int horasReduccion;
+	private List<ReduccionHoras> reducciones;
 	/**numero de horas totales*/
 	private int horasTotales;
 }
