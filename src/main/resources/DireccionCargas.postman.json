@@ -17,7 +17,7 @@
 						{
 							"key": "csv",
 							"type": "file",
-							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/departamentos.csv"
+							"src": "/C:/Users/MANU/Desktop/modulo/Git/Direccion_CargaHorariaServer/src/main/resources/departamentos.csv"
 						}
 					]
 				},
@@ -45,7 +45,7 @@
 						{
 							"key": "csv",
 							"type": "file",
-							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/cursos.csv"
+							"src": "/C:/Users/MANU/Desktop/modulo/Git/Direccion_CargaHorariaServer/src/main/resources/cursos.csv"
 						}
 					]
 				},
@@ -93,9 +93,10 @@
 					"mode": "formdata",
 					"formdata": [
 						{
-							"key": "csv",
+							"key": "",
 							"type": "file",
-							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/profesores.csv"
+							"src": [],
+							"disabled": true
 						}
 					]
 				},
@@ -114,7 +115,7 @@
 						{
 							"key": "csv",
 							"type": "file",
-							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/asignaturas.csv"
+							"src": "/C:/Users/MANU/Desktop/modulo/Git/Direccion_CargaHorariaServer/src/main/resources/asignaturas.csv"
 						}
 					]
 				},
@@ -142,19 +143,19 @@
 					},
 					{
 						"key": "nombreAsignatura",
-						"value": "Matematicas"
+						"value": "Acceso a Datos"
 					},
 					{
 						"key": "curso",
-						"value": "4"
+						"value": "2"
 					},
 					{
 						"key": "etapa",
-						"value": "ESO"
+						"value": "DAM"
 					},
 					{
 						"key": "grupo",
-						"value": "B"
+						"value": "A"
 					}
 				],
 				"url": "http://localhost:8080/carga_horaria/asignaturas"
@@ -190,7 +191,7 @@
 						{
 							"key": "csv",
 							"type": "file",
-							"src": "/C:/Users/MANU/Downloads/Direccion_CargaHorariaServer-master/src/main/reducciones.csv"
+							"src": "/C:/Users/MANU/Desktop/modulo/Git/Direccion_CargaHorariaServer/src/main/resources/reducciones.csv"
 						}
 					]
 				},
@@ -218,7 +219,7 @@
 					},
 					{
 						"key": "idReduccion",
-						"value": "JEF"
+						"value": "TDE"
 					}
 				],
 				"url": "http://localhost:8080/carga_horaria/reducciones"
@@ -250,6 +251,190 @@
 					}
 				],
 				"url": "http://localhost:8080/carga_horaria/departamentos/resumen"
+			},
+			"response": []
+		},
+		{
+			"name": "matriculaCursos",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "curso",
+						"value": "4",
+						"type": "text"
+					},
+					{
+						"key": "etapa",
+						"value": "ESO",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csv",
+							"type": "file",
+							"src": "/C:/Users/MANU/Desktop/modulo/Git/Direccion_CargaHorariaServer/src/main/resources/matriculaCursos.csv"
+						}
+					]
+				},
+				"url": "http://localhost:8080/matriculas/cursos"
+			},
+			"response": []
+		},
+		{
+			"name": "matriculaCursos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/matriculas/cursos"
+			},
+			"response": []
+		},
+		{
+			"name": "bloques",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "curso",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "etapa",
+						"value": "ESO",
+						"type": "text"
+					},
+					{
+						"key": "nombreAsignatura",
+						"value": "TIC",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/matriculas/bloques"
+			},
+			"response": []
+		},
+		{
+			"name": "bloques",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "curso",
+						"value": "2",
+						"type": "text"
+					},
+					{
+						"key": "etapa",
+						"value": "ESO",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/matriculas/bloques"
+			},
+			"response": []
+		},
+		{
+			"name": "alumnos",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "alumno",
+						"value": "Nuñez Nuñez,Zutanito",
+						"type": "text"
+					},
+					{
+						"key": "curso",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "etapa",
+						"value": "ESO",
+						"type": "text"
+					},
+					{
+						"key": "grupo",
+						"value": "A",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/matriculas/alumnos"
+			},
+			"response": []
+		},
+		{
+			"name": "alumnos",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "curso",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "etapa",
+						"value": "ESO",
+						"type": "text"
+					},
+					{
+						"key": "grupo",
+						"value": "A",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/matriculas/alumnos"
+			},
+			"response": []
+		},
+		{
+			"name": "alumnos",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "alumno",
+						"value": "Nuñez Nuñez,Zutanito",
+						"type": "text"
+					},
+					{
+						"key": "curso",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "etapa",
+						"value": "ESO",
+						"type": "text"
+					},
+					{
+						"key": "grupo",
+						"value": "A",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/matriculas/alumnos"
+			},
+			"response": []
+		},
+		{
+			"name": "resumenAsignatura",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "nombreAsignatura",
+						"value": "Matematicas",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/matriculas/asignaturas/resumen"
 			},
 			"response": []
 		}

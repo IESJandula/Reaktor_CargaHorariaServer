@@ -25,7 +25,9 @@ import es.iesjandula.direccion_cargahoraria_server.models.ResumenProfesor;
 import es.iesjandula.direccion_cargahoraria_server.utils.Parse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.log4j.Log4j2;
-
+/**
+ * clase RestHandler
+ */
 @RequestMapping(value="/carga_horaria")
 @RestController
 @Log4j2
@@ -145,7 +147,7 @@ public class RestHandler
 			Parse parse = new Parse();
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
 			//comprobamos si la lista existe
-			parse.comprobarListCursos(session, listaCursos);
+			parse.comprobarListaCursos(session, listaCursos);
 			log.info(listaCursos);
 			return ResponseEntity.ok().body(listaCursos);
 		}
@@ -251,7 +253,7 @@ public class RestHandler
 			parse.comprobarListaDepartamentos(session, listaDepartamentos);
 			//comprobamos si existe la lista cursos
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			parse.comprobarListCursos(session, listaCursos);
+			parse.comprobarListaCursos(session, listaCursos);
 			//parseamos el csv con el endpoint
 			List<Asignatura> listaAsignaturas = parse.parseAsignaturas(csvFile,listaCursos,listaDepartamentos);
 			//guardamos la lista en session
@@ -332,7 +334,7 @@ public class RestHandler
 			List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
 			parse.comprobarListaAsignaturas(session, listaAsignaturas);
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			parse.comprobarListCursos(session, listaCursos);
+			parse.comprobarListaCursos(session, listaCursos);
 			Asignatura asignaturaObject = new Asignatura();
 			
 			String resultado="Asignacion creada correctamente";
@@ -455,7 +457,7 @@ public class RestHandler
 			Parse parse = new Parse();
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
 			//comprobamos si la lsita de cursos existe
-			parse.comprobarListCursos(session, listaCursos);
+			parse.comprobarListaCursos(session, listaCursos);
 			//llamamos el metodo para parsear reducciones
 			List<Reduccion> listaReducciones = parse.parseReducciones(csvFile,listaCursos);
 			//guardamos la lista en session
@@ -613,10 +615,10 @@ public class RestHandler
 	{
 		try
 		{
-			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-			
-			//bucle para comprobar si existe el idProfesor recibido
 			Parse parse = new Parse();
+			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
+			parse.comprobarListaProfesores(session, listaProfesores);
+			//bucle para comprobar si existe el idProfesor recibido
 			parse.comprobarIdProfesor(idProfesor, listaProfesores);
 			
 			Map<String,Integer> mapaGuardias;
