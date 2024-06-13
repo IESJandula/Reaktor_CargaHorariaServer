@@ -31,7 +31,6 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class RestHandler 
 {
-
 	/**
 	 * endpoint para subir los departamentos
 	 * @param csvFile
@@ -132,7 +131,6 @@ public class RestHandler
 			return ResponseEntity.status(400).body(exception.getMessage());
 		}
 	}
-	
 	/**
 	 * endpoint para obtener lista de cursos
 	 * @param session
@@ -192,9 +190,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			String error = "Error de parseo";
-			log.error(error,horarioException.getBodyExceptionMessage());
-			return ResponseEntity.status(410).body(error);
+			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -328,13 +324,18 @@ public class RestHandler
 	{
 		try
 		{
-			Map<String,List<Asignatura>> asignacion = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");	
+			Parse parse = new Parse();
+			Map<String,List<Asignatura>> asignacion = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
 			List<Asignatura> datosAsignacion = new ArrayList<Asignatura>();
 			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
+			parse.comprobarListaProfesores(session, listaProfesores);
 			List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
+			parse.comprobarListaAsignaturas(session, listaAsignaturas);
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
+			parse.comprobarListCursos(session, listaCursos);
 			Asignatura asignaturaObject = new Asignatura();
-			Parse parse = new Parse();
+			
+			String resultado="Asignacion creada correctamente";
 			//metodo para validar el id de profesor
 			parse.comprobarIdProfesor(idProfesor, listaProfesores);
 			//metodo para comprobar si el nombre de la asignatura existe
@@ -342,7 +343,7 @@ public class RestHandler
 			//asignamos el nombre de la asignatura
 			asignaturaObject.setNombreAsinatura(nombreAsignatura);
 			//metodo para comprobar si el curso existe y creacion del objeto asignatura
-			parse.ComprobacionCreacionObjeto(nombreAsignatura, curso, etapa, grupo, datosAsignacion, listaAsignaturas,listaCursos, asignaturaObject);
+			resultado=parse.comprobacionCreacionObjeto(nombreAsignatura, curso, etapa, grupo, datosAsignacion, listaAsignaturas,listaCursos, asignaturaObject);
 			//comprobamos si el mapa existe
 			if (session.getAttribute("mapaAsignaturas") == null) 
 			{
@@ -357,7 +358,14 @@ public class RestHandler
 			    if (asignacion.containsKey(idProfesor)) 
 			    {
 			        List<Asignatura> existingAsignaturas = asignacion.get(idProfesor);
-			        existingAsignaturas.addAll(datosAsignacion);
+			        if(existingAsignaturas.contains(asignaturaObject)) 
+			        {
+			        	resultado="la asignacion ya existe";
+			        }
+			        else 
+			        {
+			        	existingAsignaturas.addAll(datosAsignacion);
+			        }
 			    }
 			    else
 			    {
@@ -366,7 +374,59 @@ public class RestHandler
 			    session.setAttribute("mapaAsignaturas", asignacion);
 			}
 			log.info(asignacion);
-			return ResponseEntity.ok().body("Asignacion creada correctamente");
+			return ResponseEntity.ok().body(resultado);
+		}
+		catch(HorarioException horarioException)
+		{
+			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+		}
+		catch(Exception exception)
+		{
+			String error = "Error desconocido";
+			log.error(error,exception.getMessage());
+			return ResponseEntity.status(400).body(exception.getMessage());
+		}
+	}
+	/**
+	 * Endpoint para eliminar asignaturas
+	 * @param idProfesor
+	 * @param nombreAsignatura
+	 * @param curso
+	 * @param etapa
+	 * @param grupo
+	 * @param session
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked"})
+	@RequestMapping(method=RequestMethod.DELETE,value="/asignaturas")
+	public ResponseEntity<?> borrarAsignaturas(@RequestHeader(value="idProfesor",required=true)String idProfesor,
+			@RequestHeader(value="nombreAsignatura",required=true)String nombreAsignatura,
+			@RequestHeader(value="curso",required=true)Integer curso,
+			@RequestHeader(value="etapa",required=true)String etapa,
+			@RequestHeader(value="grupo",required=true)String grupo,HttpSession session)
+	{
+		try
+		{
+			Parse parse = new Parse();
+			Map<String,List<Asignatura>> asignacion = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
+			parse.comprobarMapaAsignaturas(session, asignacion);
+			List<Asignatura> listaMapaAsignatura = asignacion.get(idProfesor);
+			int i = 0;
+			boolean encontrado = false;
+			String resultado= "No existe la asignacion";
+			while(i < listaMapaAsignatura.size() && !encontrado) 
+			{
+				if(listaMapaAsignatura.get(i).getNombreAsinatura().equalsIgnoreCase(nombreAsignatura) && listaMapaAsignatura.get(i).getCurso()==curso && listaMapaAsignatura.get(i).getEtapa().equalsIgnoreCase(etapa) && listaMapaAsignatura.get(i).getGrupo().equalsIgnoreCase(grupo)) 
+				{
+					encontrado = true;
+					listaMapaAsignatura.remove(i);
+					resultado="asignacion borrada correctamente";
+				}
+				i++;
+			}
+			asignacion.get(idProfesor).addAll(listaMapaAsignatura);
+			session.setAttribute("mapaAsinaturas", asignacion);
+			return ResponseEntity.ok().body(resultado);
 		}
 		catch(HorarioException horarioException)
 		{
@@ -461,13 +521,15 @@ public class RestHandler
 	{
 		try
 		{
+			Parse parse = new Parse();
 			Map<String,List<ReduccionHoras>> asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");	
 			
 			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
+			parse.comprobarListaProfesores(session, listaProfesores);
 			List<Reduccion> listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
+			parse.comprobarListaReducciones(session, listaReducciones);
 			List<ReduccionHoras> listaReduccionHoras = new ArrayList<ReduccionHoras>();
 
-			Parse parse = new Parse();
 			//recorremos la lista de profesores para comprobar si existe el idprofesor que recibimos
 			parse.comprobarIdProfesor(idProfesor, listaProfesores);
 			//recorremos la lista reducciones para comprobar si existe el idreduccion que recibimos
@@ -478,6 +540,52 @@ public class RestHandler
 			
 			log.info(asignacionReduccion);
 			return ResponseEntity.ok().body("Asignacion de reduccion creada correctamente");
+		}
+		catch(HorarioException horarioException)
+		{
+			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+		}
+		catch(Exception exception)
+		{
+			String error = "Error desconocido";
+			log.error(error,exception.getMessage());
+			return ResponseEntity.status(400).body(exception.getMessage());
+		}
+	}
+	/**
+	 * endpoint para borrar reducciones
+	 * @param idProfesor
+	 * @param idReduccion
+	 * @param session
+	 * @return
+	 */
+	@SuppressWarnings({ "unchecked"})
+	@RequestMapping(method=RequestMethod.DELETE,value="/reducciones")
+	public ResponseEntity<?> borrarReducciones(@RequestHeader(value="idProfesor",required=true)String idProfesor,
+			@RequestHeader(value="idReduccion",required=true)String idReduccion,HttpSession session)
+	{
+		try
+		{
+			Parse parse = new Parse();
+			Map<String,List<ReduccionHoras>> asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");	
+			parse.comprobarMapaReduccion(session, asignacionReduccion);
+			List<ReduccionHoras> listaMapaReducciones = asignacionReduccion.get(idProfesor);
+			int i = 0;
+			boolean encontrado = false;
+			String resultado= "No existe la reduccion";
+			while(i < listaMapaReducciones.size() && !encontrado) 
+			{
+				if(listaMapaReducciones.get(i).getIdReduccion().equalsIgnoreCase(idReduccion))
+				{
+					encontrado = true;
+					listaMapaReducciones.remove(i);
+					resultado="reduccion borrada correctamente";
+				}
+				i++;
+			}
+			asignacionReduccion.get(idProfesor).addAll(listaMapaReducciones);
+			session.setAttribute("mapaAsinaturas", asignacionReduccion);
+			return ResponseEntity.ok().body(resultado);
 		}
 		catch(HorarioException horarioException)
 		{
@@ -553,12 +661,15 @@ public class RestHandler
 	{
 		try
 		{
-			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-			//bucle para comprobar si existe el idProfesor
 			Parse parse = new Parse();
+			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
+			parse.comprobarListaProfesores(session, listaProfesores);
+			//bucle para comprobar si existe el idProfesor
 			parse.comprobarIdProfesor(idProfesor, listaProfesores);
 			Map <String,List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
+			mapaReduccion = parse.comprobarMapaReduccion(session, mapaReduccion);
 			Map <String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
+			mapaAsignatura = parse.comprobarMapaAsignaturas(session, mapaAsignatura);
 			//obtenemos el resumen mediante el metodo 	
 			ResumenProfesor resumen = parse.obtencionHorasProfesor(idProfesor, mapaReduccion, mapaAsignatura);
 
@@ -575,7 +686,7 @@ public class RestHandler
 			return ResponseEntity.status(400).body(exception.getMessage());
 		}
 	}
-
+	
 	/**
 	 * endpoint para obtener un resumen por departamento
 	 * @param nombreDepartamento
@@ -591,6 +702,7 @@ public class RestHandler
 			//obtenemos la lista departamentos en session
 			List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
 			Parse parse = new Parse();
+			parse.comprobarListaDepartamentos(session, listaDepartamentos);
 			Departamento departamento = new Departamento(nombreDepartamento);
 			//comprobamos si existe el departamento
 			parse.comprobarDepartamentoExiste(listaDepartamentos, departamento);

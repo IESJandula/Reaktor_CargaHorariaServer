@@ -1,8 +1,10 @@
 package es.iesjandula.direccion_cargahoraria_server.utils;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -178,21 +180,13 @@ public class Parse
 			List<Asignatura> listaAsignaturas = new ArrayList<>();
 			String contenido = new String(csvFile.getBytes());
 			scanner = new Scanner(contenido);
+			Asignatura asignatura = null;
 			//saltamos la cabecera
 			scanner.nextLine();
 			while(scanner.hasNext())
 			{
 				//separamos la linea por ,
 				String[] linea = scanner.nextLine().split(",");
-				
-				Departamento departamento = new Departamento(linea[5]);
-				//comprobamos que el departamento exista
-				if(!listaDepartamentos.contains(departamento))
-				{
-					String error = "Departamento no encontrado";
-					log.error(error);
-					throw new HorarioException(12, error);
-				}
 				
 				Curso curso = new Curso(Integer.parseInt(linea [1]), linea[2], linea[3]);
 				//comprobamos que el curso existe
@@ -202,8 +196,24 @@ public class Parse
 					log.error(error);
 					throw new HorarioException(12,error);
 				}
+				if(linea.length==6) 
+				{
+					Departamento departamento = new Departamento(linea[5]);
+					//comprobamos que el departamento exista
+					 asignatura = new Asignatura(linea[0], Integer.parseInt(linea [1]), linea[2], linea[3], Integer.valueOf(linea[4]), linea[5]);
+					if(!listaDepartamentos.contains(departamento))
+					{
+						String error = "Departamento no encontrado";
+						log.error(error);
+						throw new HorarioException(12, error);
+					}
+				}
+				else 
+				{
+					asignatura = new Asignatura(linea[0], Integer.parseInt(linea [1]), linea[2], linea[3], Integer.valueOf(linea[4]), null);
+				}
 				
-				Asignatura asignatura = new Asignatura(linea[0], Integer.parseInt(linea [1]), linea[2], linea[3], Integer.valueOf(linea[4]), linea[5]);
+				log.info(listaAsignaturas);
 				listaAsignaturas.add(asignatura);
 			}
 			
@@ -419,10 +429,11 @@ public class Parse
 	 * @param reduccionEncontrada
 	 * @param reduccionHoras
 	 * @return
+	 * @throws HorarioException 
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, List<ReduccionHoras>> realizarReduccion(String idProfesor, String idReduccion,
-			HttpSession session, List<Reduccion> listaReducciones, List<ReduccionHoras> listaReduccionHoras)
+			HttpSession session, List<Reduccion> listaReducciones, List<ReduccionHoras> listaReduccionHoras) throws HorarioException
 	{
 		ReduccionHoras reduccionHoras = new ReduccionHoras();
 		boolean reduccionEncontrada=false;
@@ -439,26 +450,46 @@ public class Parse
 			i++;
 		}
 		listaReduccionHoras.add(reduccionHoras);
-		if(session.getAttribute("mapaReduccion")==null)
+		if(session.getAttribute("mapaReduccion") == null) 
 		{
-			asignacionReduccion = new TreeMap<String, List<ReduccionHoras>>();
-			asignacionReduccion.put(idProfesor, listaReduccionHoras);
-			session.setAttribute("mapaReduccion", asignacionReduccion);
-		}
-		else
+		    asignacionReduccion = new TreeMap<String, List<ReduccionHoras>>();
+		    asignacionReduccion.put(idProfesor, listaReduccionHoras);
+		    session.setAttribute("mapaReduccion", asignacionReduccion);
+		} 
+		else 
 		{
-			 asignacionReduccion = (Map<String,List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
-			    if (asignacionReduccion.containsKey(idProfesor)) 
-			    {
-			    	List<ReduccionHoras> existingReduccionHoras = asignacionReduccion.get(idProfesor);
-			    	existingReduccionHoras.addAll(listaReduccionHoras);
-			    }
-			    else
-			    {
-			       asignacionReduccion.put(idProfesor, listaReduccionHoras);
-			    }
-			    session.setAttribute("mapaReduccion", asignacionReduccion);
+		    asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
+		    if (asignacionReduccion.containsKey(idProfesor))
+		    {
+		        List<ReduccionHoras> existingReduccionHoras = asignacionReduccion.get(idProfesor);
+		        boolean idReduccionExists = false;
+		        
+		        //comprobamos si la id de reduccion existe
+		        i = 0;
+		        while(i < existingReduccionHoras.size() && !idReduccionExists) 
+		        {
+		        	if (existingReduccionHoras.get(i).getIdReduccion().equalsIgnoreCase(idReduccion)) 
+		            {
+		                idReduccionExists = true;
+		            }
+		        }	        
+		        if (idReduccionExists) 
+		        {
+		            String error = "La reducción ya existe";
+		            throw new HorarioException(1, error);
+		        }
+		        else 
+		        {
+		            existingReduccionHoras.addAll(listaReduccionHoras);
+		        }
+		    }
+		    else 
+		    {
+		        asignacionReduccion.put(idProfesor, listaReduccionHoras);
+		    }
+		    session.setAttribute("mapaReduccion", asignacionReduccion);
 		}
+
 		return asignacionReduccion;
 	}
 	/**
@@ -474,30 +505,34 @@ public class Parse
 	 * @param asignaturaEncontrada
 	 * @throws HorarioException
 	 */
-	public void ComprobacionCreacionObjeto(String nombreAsignatura, Integer curso, String etapa, String grupo,
+	public String comprobacionCreacionObjeto(String nombreAsignatura, Integer curso, String etapa, String grupo,
 			List<Asignatura> datosAsignacion, List<Asignatura> listaAsignaturas, List<Curso> listaCursos,
 			Asignatura asignaturaObject) throws HorarioException
 	{
 		boolean asignaturaEncontrada=false;
 		boolean cursoExiste = false;
-		Curso cursoAsignacion = new Curso(curso,etapa,grupo);
-		comprobarCurso(listaCursos, cursoExiste, cursoAsignacion);
-		asignaturaObject.setCurso(curso);
-		asignaturaObject.setEtapa(etapa);
-		asignaturaObject.setGrupo(grupo);
-		
-		int i =0;
-		while(i<listaAsignaturas.size() && !asignaturaEncontrada) 
+		String result="No se ha podido crear la asignacion";
+		int i = 0;
+		while(i < listaAsignaturas.size() && !cursoExiste) 
 		{
-			if(listaAsignaturas.get(i).getNombreAsinatura().equalsIgnoreCase(nombreAsignatura)) 
+			if(listaAsignaturas.get(i).getCurso()==curso && listaAsignaturas.get(i).getEtapa().equals(etapa) && listaAsignaturas.get(i).getGrupo().equals(grupo) && listaAsignaturas.get(i).getNombreAsinatura().equalsIgnoreCase(nombreAsignatura) ) 
 			{
+				cursoExiste = true;
 				asignaturaEncontrada=true;
 				asignaturaObject.setDepartamento(listaAsignaturas.get(i).getDepartamento());
 				asignaturaObject.setNumeroHorasSemanales(listaAsignaturas.get(i).getNumeroHorasSemanales());
 			}
 			i++;
 		}
-		datosAsignacion.add(asignaturaObject);
+		if(asignaturaEncontrada && cursoExiste) 
+		{
+			asignaturaObject.setCurso(curso);
+			asignaturaObject.setEtapa(etapa);
+			asignaturaObject.setGrupo(grupo);
+			result="asignacion creada correctamente";
+			datosAsignacion.add(asignaturaObject);
+		}
+		return result;
 	}
 	/**
 	 * metodo para comprobar el curso
@@ -507,13 +542,16 @@ public class Parse
 	 * @throws HorarioException
 	 */
 	public void comprobarCurso(List<Curso> listaCursos, boolean cursoExiste, Curso cursoAsignacion)
-			throws HorarioException {
-		for(Curso cursoComprobante : listaCursos)
+			throws HorarioException 
+	{
+		int i = 0;
+		while(i< listaCursos.size() && !cursoExiste) 
 		{
-			if(cursoComprobante.equals(cursoAsignacion))
+			if(listaCursos.get(i).equals(cursoAsignacion))
 			{
 				cursoExiste = true;
 			}
+			i++;
 		}
 		if(!cursoExiste)
 		{
@@ -532,12 +570,14 @@ public class Parse
 	public void comprobarIdProfesor(String idProfesor, List<Profesor> listaProfesores)throws HorarioException 
 	{
 		boolean idProfesorExiste = false;
-		for(Profesor profesor : listaProfesores)
+		int i = 0;
+		while(i < listaProfesores.size() && !idProfesorExiste)
 		{
-			if(profesor.getIdProfesor().equals(idProfesor))
+			if(listaProfesores.get(i).getIdProfesor().equals(idProfesor)) 
 			{
 				idProfesorExiste = true;
 			}
+			i++;
 		}
 		if(!idProfesorExiste)
 		{
@@ -568,7 +608,7 @@ public class Parse
 		}
 		return listaDepartamentos;
 	}
-	
+
 	/**
 	 * metodo para comprobar si la lista de cursos existe
 	 * @param session
@@ -577,7 +617,8 @@ public class Parse
 	 * @throws HorarioException
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Curso> comprobarListCursos(HttpSession session, List<Curso> listaCursos) throws HorarioException {
+	public List<Curso> comprobarListCursos(HttpSession session, List<Curso> listaCursos) throws HorarioException
+	{
 		if(session.getAttribute("listaCursos")!=null)
 		{
 			listaCursos = (List<Curso>) session.getAttribute("listaCursos");
@@ -681,12 +722,14 @@ public class Parse
 		) throws HorarioException 
 	{
 		boolean idReduccionExiste = false;
-		for(Reduccion reduccion : listaReducciones)
+		int i = 0;
+		while(i < listaReducciones.size() && !idReduccionExiste) 
 		{
-			if(reduccion.getIdReduccion().equals(idReduccion))
+			if(listaReducciones.get(i).getIdReduccion().equals(idReduccion))
 			{
 				idReduccionExiste = true;
 			}
+			i++;
 		}
 		if(!idReduccionExiste)
 		{
@@ -705,12 +748,14 @@ public class Parse
 	public void comprobarNombreAsignaturaExiste(String nombreAsignatura, List<Asignatura> listaAsignaturas) throws HorarioException
 	{
 		boolean asignaturaExiste = false;
-		for(Asignatura asignatura : listaAsignaturas)
+		int i = 0;
+		while(i < listaAsignaturas.size() && !asignaturaExiste) 
 		{
-			if(asignatura.getNombreAsinatura().equalsIgnoreCase(nombreAsignatura))
+			if(listaAsignaturas.get(i).getNombreAsinatura().equalsIgnoreCase(nombreAsignatura))
 			{
 				asignaturaExiste = true;
 			}
+			i++;
 		}
 		if(!asignaturaExiste)
 		{
@@ -729,7 +774,6 @@ public class Parse
 	 * @param listaReduccionHoras
 	 * @return
 	 */
-	
 	public ResumenProfesor obtencionHorasProfesor(String idProfesor,
 			Map<String, List<ReduccionHoras>> mapaReduccion, Map<String, List<Asignatura>> mapaAsignatura)
 	{
@@ -762,5 +806,179 @@ public class Parse
 		
 		ResumenProfesor resumen = new ResumenProfesor(listaAsignaturaProfesor,listaReduccionHoras,totalHoras);
 		return resumen;
+	}
+	/**
+	 * metodo para comprobar si existe el mapa de reduccion
+	 * @param session
+	 * @param mapaReduccion
+	 * @return
+	 * @throws HorarioException
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, List<ReduccionHoras>> comprobarMapaReduccion(HttpSession session,
+			Map<String, List<ReduccionHoras>> mapaReduccion) throws HorarioException 
+	{
+		if(session.getAttribute("mapaReduccion")!=null) 
+		{
+			mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
+		}
+		else 
+		{
+			String error = "No se ha realizado reducciones todavía";
+			throw new HorarioException(1,error);
+		}
+		return mapaReduccion;
+	}
+	/**
+	 * metodo para comprobar si existe el mapa asignaturas
+	 * @param session
+	 * @param mapaAsignatura
+	 * @return
+	 * @throws HorarioException
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, List<Asignatura>> comprobarMapaAsignaturas(HttpSession session,
+			Map<String, List<Asignatura>> mapaAsignatura) throws HorarioException 
+	{
+		if(session.getAttribute("mapaAsignaturas")!=null) 
+		{
+			mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
+		}
+		else 
+		{
+			String error = "No se ha realizado asignacion de asignaturas todavía";
+			throw new HorarioException(1,error);
+		}
+		return mapaAsignatura;
+	}
+	/**
+	 * metodo para parsear el fichero matriculaCursos 
+	 * @param csvFile
+	 * @param curso
+	 * @param etapa
+	 * @param mapaAsignaturas
+	 * @param session
+	 * @return
+	 * @throws IOException
+	 * @throws HorarioException 
+	 */
+	@SuppressWarnings("unchecked")
+	public String parseCursosMap(MultipartFile csvFile, Integer curso, String etapa,
+	        Map<String, List<String>> mapaAsignaturas, HttpSession session) throws IOException, HorarioException 
+	{
+	    Scanner scanner = null;
+	    try 
+	    {
+	    	boolean encontrado = false;
+	        String contenido = new String(csvFile.getBytes());
+	        scanner = new Scanner(contenido);
+	        String clave = curso + etapa; 
+	        String[] linea = scanner.nextLine().split(",");
+	        List<Asignatura> listaAsignatura = (List<Asignatura>) session.getAttribute("listaAsignaturas");
+	        comprobarListaAsignaturas(session, listaAsignatura);
+	        List<String> listaNombreAsignaturas = new ArrayList<String>();
+	        String asignatura1 = linea[1];
+	        String asignatura2 = linea[2];
+	        String asignatura3 = linea[3];
+	        listaNombreAsignaturas.add(asignatura1);
+	        listaNombreAsignaturas.add(asignatura2);
+	        listaNombreAsignaturas.add(asignatura3);
+	        //recorrer mediante for ambas listas y comprobar si existe la asignatura
+	        // Mapa para almacenar nombres completos de alumnos
+	        Map<String, String> mapaNombres = new HashMap<>();
+
+	        while (scanner.hasNext()) 
+	        {
+	            List<String> listaAsignaturas = new ArrayList<>();
+	            // Separamos la línea por comas
+	            linea = scanner.nextLine().split(",");
+
+	            String apellidos = linea[0];
+	            String nombre = linea[1];
+
+	            String uno = linea[2];
+	            String dos = linea[3];
+	            String tres = linea[4];
+
+	            if (uno.equalsIgnoreCase("MATR")) 
+	            {
+	                listaAsignaturas.add(asignatura1);
+	            }
+	            if (dos.equalsIgnoreCase("MATR")) 
+	            {
+	                listaAsignaturas.add(asignatura2);
+	            }
+	            if (tres.equalsIgnoreCase("MATR")) 
+	            {
+	                listaAsignaturas.add(asignatura3);
+	            }
+
+	            mapaAsignaturas.put(apellidos, listaAsignaturas);
+	            mapaNombres.put(apellidos, nombre);
+	        }
+
+	        session.setAttribute("mapaAsignaturasCursos", mapaAsignaturas);
+	        session.setAttribute("mapaNombres", mapaNombres);
+	        return clave;
+	    }
+	    catch(IOException ioException) 
+	    {
+	        String error = "Error al realizar la lectura del fichero CSV";
+	        log.error(error, ioException);
+	        throw new HorarioException(11, error, ioException);
+	    }
+	    finally
+	    {
+	        if (scanner != null) 
+	        {
+	            scanner.close();            
+	        }
+	    }  
+	}
+
+
+	/**
+	 * metodo para comprobar si existe el mapa cursos
+	 * @param session
+	 * @param mapaCursos
+	 * @return
+	 * @throws HorarioException
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, Map<String, List<String>>> comprobarMapaCursosExiste(HttpSession session,
+			Map<String, Map<String, List<String>>> mapaCursos) throws HorarioException
+	{
+		if(session.getAttribute("mapaCursos")!=null) 
+		{
+			mapaCursos=(Map<String, Map<String, List<String>>>) session.getAttribute("mapaCursos");
+		}
+		else 
+		{
+			String error = "No se ha cargado el mapa de cursos";
+		    throw new HorarioException(1, error);
+		}
+		return mapaCursos;
+	}
+	/**
+	 * metodo para comprobar si el mapa bloques existe
+	 * @param session
+	 * @param mapaBloques
+	 * @return
+	 * @throws HorarioException
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, List<String>> comprobarMapaBloquesExiste(HttpSession session,
+			Map<String, List<String>> mapaBloques) throws HorarioException
+	{
+		if(session.getAttribute("mapaBloques")!=null) 
+		{
+			mapaBloques = (Map<String, List<String>>) session.getAttribute("mapaBloques");
+		}
+		else 
+		{
+			String error = "No se ha realizado asignacion de bloques todavía";
+			throw new HorarioException(1,error);
+		}
+		return mapaBloques;
 	}
 }
