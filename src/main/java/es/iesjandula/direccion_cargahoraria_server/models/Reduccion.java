@@ -11,16 +11,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Reduccion 
 {
-	/**Id reduccion*/
+	/** Id reduccion*/
 	private String idReduccion;
-	/**nombre reducccion*/
+	/** Nombre de la reducccion*/
 	private String nombreReduccion;
-	/**numero horas*/
+	/** Número de horas*/
 	private int numeroHoras;
-	/**curso al que pertenece la reduccion*/
+	/** Curso al que pertenece la reduccion*/
 	private String curso;
-	/**etapa a la que pertenece la reduccion*/
+	/** Etapa a la que pertenece la reduccion*/
 	private String etapa;
-	/**grupo al que pertenece la reduccion*/
+	/** Grupo al que pertenece la reduccion*/
 	private String grupo;
 }

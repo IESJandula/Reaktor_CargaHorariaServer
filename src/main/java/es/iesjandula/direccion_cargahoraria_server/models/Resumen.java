@@ -12,14 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Resumen
 {
-	/**numero profesores departamento*/
+	/** Número profesores departamento*/
 	private int plantilla;
-	/**numero horas de profesores en el departamento*/
+	/** Número horas de profesores en el departamento*/
 	private int horasNecesarias;
-	/**suma total de las horas asignadas a todos los profesores del departamento.*/
+	/** Suma total de las horas asignadas a todos los profesores del departamento.*/
 	private int totalHoras;
-	/**total horas - horas necesarias.*/
+	/** Total horas - horas necesarias.*/
 	private int desfase;
-	/**resultado del desfase*/
+	/** Resultado del desfase*/
 	private String resultado;
 }

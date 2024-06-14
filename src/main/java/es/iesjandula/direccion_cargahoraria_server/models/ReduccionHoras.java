@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReduccionHoras
 {
-	/**id de la reduccion*/
+	/** Id de la reduccion*/
 	private String idReduccion;
-	/**numero de horas de la reduccion*/
+	/** Número de horas de la reduccion*/
 	private int numHoras;
 }

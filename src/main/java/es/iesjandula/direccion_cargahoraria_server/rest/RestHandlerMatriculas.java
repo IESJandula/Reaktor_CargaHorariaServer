@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import es.iesjandula.direccion_cargahoraria_server.exception.HorarioException;
 import es.iesjandula.direccion_cargahoraria_server.models.Asignatura;
 import es.iesjandula.direccion_cargahoraria_server.models.Curso;
+import es.iesjandula.direccion_cargahoraria_server.models.ResumenCursos;
+import es.iesjandula.direccion_cargahoraria_server.utils.Constants;
 import es.iesjandula.direccion_cargahoraria_server.utils.Parse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.log4j.Log4j2;
@@ -28,11 +30,11 @@ import lombok.extern.log4j.Log4j2;
 public class RestHandlerMatriculas
 {
 	/**
-	 * metodo para cargar los cursos
-	 * @param csvFile
-	 * @param curso
-	 * @param etapa
-	 * @param session
+	 * endpoint para cargar los cursos
+	 * @param csvFile fichero csv a parsear
+	 * @param curso curso sobre el cual se asigna
+	 * @param etapa etapa sobre la cual se asigna
+	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -53,20 +55,23 @@ public class RestHandlerMatriculas
 			mapaCursos.put(clave, mapaAsignaturas);
 			session.setAttribute("mapaCursos", mapaCursos);
 			log.info(mapaCursos);
-			return ResponseEntity.ok().body("Carga realizada con exito");
+			return ResponseEntity.ok().build();
 		}
 		catch (Exception exception)
 		{
-			String error = "Error desconocido";
-			log.error(error, exception.getMessage());
-			return ResponseEntity.status(400).body(exception.getMessage());
+			HorarioException horarioException = 
+					new HorarioException(Constants.ERR_GENERIC_EXCEPTION_CODE, 
+							 Constants.ERR_GENERIC_EXCEPTION_MSG + "uploadCursos",
+							 exception);
+			log.error(Constants.ERR_GENERIC_EXCEPTION_MSG + "uploadCursos", horarioException);
+			return ResponseEntity.status(500).body(horarioException.getBodyExceptionMessage());
 		}
 	}
 
 	/**
 	 * endpoint para obtener cursos
 	 * 
-	 * @param session
+	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/cursos")
@@ -81,19 +86,22 @@ public class RestHandlerMatriculas
 		}
 		catch (Exception exception)
 		{
-			String error = "Error desconocido";
-			log.error(error, exception.getMessage());
-			return ResponseEntity.status(400).body(exception.getMessage());
+			HorarioException horarioException = 
+					new HorarioException(Constants.ERR_GENERIC_EXCEPTION_CODE, 
+							 Constants.ERR_GENERIC_EXCEPTION_MSG + "getCursos",
+							 exception);
+			log.error(Constants.ERR_GENERIC_EXCEPTION_MSG + "getCursos", horarioException);
+			return ResponseEntity.status(500).body(horarioException.getBodyExceptionMessage());
 		}
 	}
 
 	/**
 	 * endpoint para subir bloques
 	 * 
-	 * @param curso
-	 * @param etapa
-	 * @param nombreAsignatura
-	 * @param session
+	 * @param curso número curso 
+	 * @param etapa etapa del curso
+	 * @param nombreAsignatura nombre de la asignatura
+	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -161,18 +169,21 @@ public class RestHandlerMatriculas
 		}
 		catch (Exception exception)
 		{
-			String error = "Error desconocido";
-			log.error(error, exception.getMessage());
-			return ResponseEntity.status(400).body(error);
+			HorarioException horarioException = 
+					new HorarioException(Constants.ERR_GENERIC_EXCEPTION_CODE, 
+							 Constants.ERR_GENERIC_EXCEPTION_MSG + "uploadBloques",
+							 exception);
+			log.error(Constants.ERR_GENERIC_EXCEPTION_MSG + "uploadBloques", horarioException);
+			return ResponseEntity.status(500).body(horarioException.getBodyExceptionMessage());
 		}
 	}
 
 	/**
 	 * endpoint para obtener los bloques
 	 * 
-	 * @param curso
-	 * @param etapa
-	 * @param session
+	 * @param curso número curso 
+	 * @param etapa etapa del curso
+	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/bloques")
@@ -196,20 +207,23 @@ public class RestHandlerMatriculas
 		}
 		catch (Exception exception)
 		{
-			String error = "Error desconocido";
-			log.error(error, exception.getMessage());
-			return ResponseEntity.status(400).body(error);
+			HorarioException horarioException = 
+					new HorarioException(Constants.ERR_GENERIC_EXCEPTION_CODE, 
+							 Constants.ERR_GENERIC_EXCEPTION_MSG + "getBloques",
+							 exception);
+			log.error(Constants.ERR_GENERIC_EXCEPTION_MSG + "getBloques", horarioException);
+			return ResponseEntity.status(500).body(horarioException.getBodyExceptionMessage());
 		}
 	}
 
 	/**
 	 * metodo para cargar alumnos
 	 * 
-	 * @param alumno
-	 * @param curso
-	 * @param etapa
-	 * @param grupo
-	 * @param session
+	 * @param alumno apellidos y nombre del alumno(Nuñez Nuñez,Juanito)
+	 * @param curso número curso 
+	 * @param etapa etapa del curso
+	 * @param grupo grupo del curso
+	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -232,22 +246,25 @@ public class RestHandlerMatriculas
 			resultado = parse.realizarAsignacionAlumno(alumno, session, cursoObject, resultado, clave, listaCursos,
 					listaNombres);
 
-			return ResponseEntity.ok().body(resultado);
+			return ResponseEntity.ok().build();
 		}
 		catch (Exception exception)
 		{
-			String error = "Error desconocido";
-			log.error(error, exception.getMessage());
-			return ResponseEntity.status(400).body(exception.getMessage());
+			HorarioException horarioException = 
+					new HorarioException(Constants.ERR_GENERIC_EXCEPTION_CODE, 
+							 Constants.ERR_GENERIC_EXCEPTION_MSG + "uploadAlumno",
+							 exception);
+			log.error(Constants.ERR_GENERIC_EXCEPTION_MSG + "uploadAlumno", horarioException);
+			return ResponseEntity.status(500).body(horarioException.getBodyExceptionMessage());
 		}
 	}
 	
 	/**
 	 * metodo para obtener los alumnos
-	 * @param curso
-	 * @param etapa
-	 * @param grupo
-	 * @param session
+	 * @param curso número del curso 
+	 * @param etapa etapa del curso
+	 * @param grupo grupo del curso
+	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -293,19 +310,22 @@ public class RestHandlerMatriculas
 		}
 		catch (Exception exception)
 		{
-			String error = "Error desconocido";
-			log.error(error, exception.getMessage());
-			return ResponseEntity.status(400).body(exception.getMessage());
+			HorarioException horarioException = 
+					new HorarioException(Constants.ERR_GENERIC_EXCEPTION_CODE, 
+							 Constants.ERR_GENERIC_EXCEPTION_MSG + "getAlumno",
+							 exception);
+			log.error(Constants.ERR_GENERIC_EXCEPTION_MSG + "getAlumno", horarioException);
+			return ResponseEntity.status(500).body(horarioException.getBodyExceptionMessage());
 		}
 	}
 	
 	/**
 	 * endpoint para aliminar alumnos
-	 * @param alumno
-	 * @param curso
-	 * @param etapa
-	 * @param grupo
-	 * @param session
+	 * @param alumno apellidos y nombre del alumno(Nuñez Nuñez,Juanito)
+	 * @param curso número de curso 
+	 * @param etapa etapa del curso
+	 * @param grupo grupo del curso
+	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -361,18 +381,20 @@ public class RestHandlerMatriculas
 		}
 		catch (Exception exception)
 		{
-			String error = "Error desconocido";
-			log.error(error, exception.getMessage());
-			return ResponseEntity.status(400).body(exception.getMessage());
+			HorarioException horarioException = 
+					new HorarioException(Constants.ERR_GENERIC_EXCEPTION_CODE, 
+							 Constants.ERR_GENERIC_EXCEPTION_MSG + "borrarAlumno",
+							 exception);
+			log.error(Constants.ERR_GENERIC_EXCEPTION_MSG + "borrarAlumno", horarioException);
+			return ResponseEntity.status(500).body(horarioException.getBodyExceptionMessage());
 		}
 	}
 
 	/**
+	 * endpoint papra obtener el resumen de una asignatura
 	 * 
-	 * @param nombreAsignatura
-	 * @param curso
-	 * @param etapa
-	 * @param session
+	 * @param nombreAsignatura nombre de la asignatura para resumen
+	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -421,36 +443,63 @@ public class RestHandlerMatriculas
 		}
 		catch (Exception exception)
 		{
-			String error = "Error desconocido";
-			log.error(error, exception.getMessage());
-			return ResponseEntity.status(400).body(exception.getMessage());
+			HorarioException horarioException = 
+					new HorarioException(Constants.ERR_GENERIC_EXCEPTION_CODE, 
+							 Constants.ERR_GENERIC_EXCEPTION_MSG + "getAsignaturasResumen",
+							 exception);
+			log.error(Constants.ERR_GENERIC_EXCEPTION_MSG + "getAsignaturasResumen", horarioException);
+			return ResponseEntity.status(500).body(horarioException.getBodyExceptionMessage());
 		}
 	}
 	
 	/**
-	 * endpoint para obtener el resumen de un curso
-	 * @param nombreAsignatura
-	 * @param session
+	 * endpoint para obtener el resumen por cursos
+	 * 
+	 * @param curso número del curso
+	 * @param etapa etapa del curso
+	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.GET, value = "/cursos/resumen")
 	public ResponseEntity<?> getCursosResumen(
-			@RequestHeader(value = "curso", required = true) String curso,
+			@RequestHeader(value = "curso", required = true) int curso,
 			@RequestHeader(value = "etapa", required = true) String etapa,HttpSession session)
 	{
 		try
 		{
-			Map<String, List<String>> mapaAlumnos;
+			Parse parse = new Parse();
+			boolean encontrado = false;
+			Map<String, List<String>> mapaAlumnos=null;
+			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
+			parse.comprobarListaCursos(session, listaCursos);
 			mapaAlumnos = (Map<String, List<String>>) session.getAttribute("mapaAlumnos");
+			parse.comprobarMapaAlumnoExiste(mapaAlumnos,session);
+			ResumenCursos resumenCursos = null;
+			List<ResumenCursos> listaResumenCursos = new ArrayList<ResumenCursos>();
+			int i = 0;
+			while(i < listaCursos.size() && !encontrado) 
+			{
+				if(listaCursos.get(i).getCurso() == curso && listaCursos.get(i).getEtapa().equalsIgnoreCase(etapa)) 
+				{
+					String claveMapaAlumnos = curso+etapa+listaCursos.get(i).getGrupo();
+					List<String> listaAlumnos = mapaAlumnos.get(claveMapaAlumnos);
+					resumenCursos = new ResumenCursos(curso, listaCursos.get(i).getGrupo(), etapa, listaAlumnos.size());
+					listaResumenCursos.add(resumenCursos);
+				}
+				i++;
+			}
 			
-			return ResponseEntity.ok().body("prueba");
+			return ResponseEntity.ok().body(resumenCursos);
 		}
 		catch (Exception exception)
 		{
-			String error = "Error desconocido";
-			log.error(error, exception.getMessage());
-			return ResponseEntity.status(400).body(exception.getMessage());
+			HorarioException horarioException = 
+					new HorarioException(Constants.ERR_GENERIC_EXCEPTION_CODE, 
+							 Constants.ERR_GENERIC_EXCEPTION_MSG + "getCursosResumen",
+							 exception);
+			log.error(Constants.ERR_GENERIC_EXCEPTION_MSG + "getCursosResumen", horarioException);
+			return ResponseEntity.status(500).body(horarioException.getBodyExceptionMessage());
 		}
 	}
 }

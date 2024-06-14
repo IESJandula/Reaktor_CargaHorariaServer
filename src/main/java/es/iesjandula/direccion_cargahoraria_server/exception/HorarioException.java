@@ -10,7 +10,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 public class HorarioException extends Exception
 {
 	/**
-	 * 
+	 * Seria Version UID
 	 */
 	private static final long serialVersionUID = -4929334625724771326L;
 	/**Codigo de error para la excepcion*/
@@ -21,8 +21,8 @@ public class HorarioException extends Exception
 	private Exception exception;
 	/**
 	 * 
-	 * @param code
-	 * @param message
+	 * @param code código del error
+	 * @param message mensaje del error
 	 */
 	public HorarioException(int code, String message) 
 	{
@@ -32,9 +32,9 @@ public class HorarioException extends Exception
 	}
 	/**
 	 * 
-	 * @param code
-	 * @param message
-	 * @param exception
+	 * @param code código del error
+	 * @param message mensaje del error
+	 * @param exception excepcion del error
 	 */
 	public HorarioException(int code, String message, Exception exception) 
 	{
@@ -45,7 +45,7 @@ public class HorarioException extends Exception
 	}
 	/**
 	 * mapa para devolver la excepcion
-	 * @return
+	 * @return mapa con mensaje, error y en caso de tener excepcion tambien devuelve la excepcion
 	 */
 	public Map<String,String> getBodyExceptionMessage()
 	{

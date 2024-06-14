@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Departamento 
 {
-	/**nombre departamento*/
+	/** Nombre del departamento*/
 	private String nombre;
 }

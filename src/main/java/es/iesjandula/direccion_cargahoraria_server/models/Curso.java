@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Curso 
 {
-	/**curso*/
+	/** Número curso al que pertenece*/
 	private int curso;
-	/**etapa*/
+	/** Etapa que se cursa*/
 	private String etapa;
-	/**grupo*/
+	/** Grupo al que pertenece*/
 	private String grupo;
 }

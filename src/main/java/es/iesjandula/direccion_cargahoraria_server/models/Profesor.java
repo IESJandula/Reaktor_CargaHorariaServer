@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Profesor 
 {
-	/**Id del profesor*/
+	/** Id del profesor*/
 	private String idProfesor;
-	/**nombre profesor*/
+	/** Nombre del profesor*/
 	private String nombreProfesor;
-	/**nombre departamento*/
+	/** Nombre del departamento*/
 	private String departamento;
 }

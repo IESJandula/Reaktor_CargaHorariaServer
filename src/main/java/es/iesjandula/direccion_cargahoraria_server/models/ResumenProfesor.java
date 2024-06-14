@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResumenProfesor 
 {
-	/**numero de horas de la asignatura*/
+	/** Número de horas de la asignatura*/
 	private List<Asignatura> asignaturas;
-	/**numero de horas de la reduccion*/
+	/** Número de horas de la reduccion*/
 	private List<ReduccionHoras> reducciones;
-	/**numero de horas totales*/
+	/** Número de horas totales*/
 	private int horasTotales;
 }
