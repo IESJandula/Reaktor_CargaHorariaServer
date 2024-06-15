@@ -37,6 +37,7 @@ public class RestHandler
 {
 	/**
 	 * endpoint para subir los departamentos
+	 * 
 	 * @param csvFile fichero csv a parsear
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
@@ -72,6 +73,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para obtener los departamentos
+	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return lista de departamentos
 	 */
@@ -86,9 +88,7 @@ public class RestHandler
 			//comprobamos si la lista existe
 			parse.comprobarListaDepartamentos(session, listaDepartamentos);
 			log.info(listaDepartamentos);
-			return ResponseEntity.ok(listaDepartamentos);
-			
-		
+			return ResponseEntity.ok(listaDepartamentos);		
 		}
 		catch(HorarioException horarioException)
 		{
@@ -107,6 +107,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para subir los cursos
+	 * 
 	 * @param csvFile fichero csv a parsear
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
@@ -140,6 +141,7 @@ public class RestHandler
 	}
 	/**
 	 * endpoint para obtener lista de cursos
+	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
@@ -158,9 +160,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			String error = "Error de carga de datos";
-			log.error(error,horarioException.getBodyExceptionMessage());
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 			
 		}
 		catch(Exception exception)
@@ -176,6 +176,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para subir los profesores
+	 * 
 	 * @param csvFile fichero csv a parsear
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
@@ -200,7 +201,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -215,6 +216,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para obtener la lista profesores
+	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
@@ -233,10 +235,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			String error = "Error de carga de datos";
-			log.error(error,horarioException.getBodyExceptionMessage());
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
-			
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());		
 		}
 		catch(Exception exception)
 		{
@@ -251,6 +250,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para subir las asignaturas
+	 * 
 	 * @param csvFile fichero csv a parsear
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
@@ -277,7 +277,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -292,6 +292,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para obtener las asignaturas
+	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
@@ -310,9 +311,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			String error = "Error de carga de datos";
-			log.error(error,horarioException.getBodyExceptionMessage());
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 			
 		}
 		catch(Exception exception)
@@ -328,6 +327,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para asignar una asignatura a un profesor
+	 * 
 	 * @param idProfesor id del profesor al que queremos asignar la asignatura
 	 * @param nombreAsignatura nombre de la asignatura
 	 * @param curso curso al que pertenece la asignatura
@@ -400,7 +400,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -413,7 +413,8 @@ public class RestHandler
 		}
 	}
 	/**
-	 * Endpoint para eliminar asignaturas
+	 * endpoint para eliminar asignaturas
+	 * 
 	 * @param idProfesor id del profesor al que queremos eliminar la asignatura
 	 * @param nombreAsignatura nombre de la asignatura
 	 * @param curso curso al que pertenece la asignatura
@@ -455,7 +456,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -470,6 +471,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para subir las reducciones
+	 * 
 	 * @param csvFile fichero csv a parsear
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
@@ -493,7 +495,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -508,6 +510,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para obtener lista de reducciones
+	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
 	 */
@@ -526,9 +529,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			String error = "Error de carga de datos";
-			log.error(error,horarioException.getMessage());
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -543,6 +544,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para asignar reducciones a un profesor
+	 * 
 	 * @param idProfesor id del profesor al que asignar la reducción
 	 * @param idReduccion id de la reducción 
 	 * @param session utilizado para guardas u obtener cosas en sesión
@@ -577,7 +579,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -591,6 +593,7 @@ public class RestHandler
 	}
 	/**
 	 * endpoint para borrar reducciones
+	 * 
 	 * @param idProfesor id del profesor al que borrar la reducción
 	 * @param idReduccion id de la reducción 
 	 * @param session utilizado para guardas u obtener cosas en sesión
@@ -626,7 +629,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -641,6 +644,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para asignar horas de guardias a un profesor
+	 * 
 	 * @param idProfesor id del profesor al que asignar horas
 	 * @param horasAsignadas número de horas asignadas al profesor
 	 * @param session utilizado para guardas u obtener cosas en sesión
@@ -679,7 +683,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -694,6 +698,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para obtener un resemun de un profesor
+	 * 
 	 * @param idProfesor id del profesor sobre el que hacer el resumen
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
@@ -720,7 +725,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getBodyExceptionMessage());
+			return ResponseEntity.status(400).body(horarioException.getBodyExceptionMessage());
 		}
 		catch(Exception exception)
 		{
@@ -735,6 +740,7 @@ public class RestHandler
 	
 	/**
 	 * endpoint para obtener un resumen por departamento
+	 * 
 	 * @param nombreDepartamento nombre del departamento para hacer resumen
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
@@ -758,7 +764,7 @@ public class RestHandler
 		}
 		catch(HorarioException horarioException)
 		{
-			return ResponseEntity.status(410).body(horarioException.getMessage());
+			return ResponseEntity.status(400).body(horarioException.getMessage());
 		}
 		catch(Exception exception)
 		{

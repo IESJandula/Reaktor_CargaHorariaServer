@@ -29,7 +29,7 @@ import lombok.extern.log4j.Log4j2;
 public class Parse
 {
 	/**
-	 * metodo para parsear departamentos
+	 * método para parsear departamentos
 	 * 
 	 * @param csvFile fichero csv 
 	 * @return
@@ -80,7 +80,7 @@ public class Parse
 		}
 	}
 	/**
-	 * metodo para comprobar si el fichero esta vacio
+	 * método para comprobar si el fichero esta vacio
 	 * @param contenido contenido del ficherp
 	 * @throws HorarioException
 	 */
@@ -93,7 +93,7 @@ public class Parse
 	}
 
 	/**
-	 * endpoint para parsear cursos
+	 * métodoara parsear cursos
 	 * 
 	 * @param csvFile fichero csv
 	 * @return
@@ -174,7 +174,6 @@ public class Parse
 				if (!listaDepartamentos.contains(departamento))
 				{
 					String error = "Departamento no encontrado";
-					log.error(error);
 					throw new HorarioException(12, error);
 				}
 
@@ -201,7 +200,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para parsear asignaturas
+	 * método para parsear asignaturas
 	 * 
 	 * @param csvFile fichero csv
 	 * @param listaCursos
@@ -244,7 +243,6 @@ public class Parse
 					if (!listaDepartamentos.contains(departamento))
 					{
 						String error = "Departamento no encontrado";
-						log.error(error);
 						throw new HorarioException(12, error);
 					}
 				}
@@ -282,7 +280,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para parsear reducciones
+	 * método para parsear reducciones
 	 * 
 	 * @param csvFile fichero csv
 	 * @param listaCursos lista de cursos
@@ -313,7 +311,6 @@ public class Parse
 					if (!listaCursos.contains(curso))
 					{
 						String error = "Curso no encontrado";
-						log.error(error);
 						throw new HorarioException(12, error);
 					}
 
@@ -326,7 +323,6 @@ public class Parse
 					reduccion = new Reduccion(linea[0], linea[1], Integer.valueOf(linea[2]), null, null, null);
 					listaReducciones.add(reduccion);
 				}
-
 			}
 			return listaReducciones;
 		}
@@ -348,7 +344,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para obtener el resumen de un profesor
+	 * método para obtener el resumen de un profesor
 	 * 
 	 * @param nombreDepartamento nombre del departamento
 	 * @param session utilizado para guardas u obtener cosas en sesión
@@ -411,7 +407,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para obtener las horas de reduccion
+	 * método para obtener las horas de reduccion
 	 * 
 	 * @param mapaReduccion mapa de reducciones
 	 * @param profesorId id del profesor
@@ -432,7 +428,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para obtener las horas de las asignaturas
+	 * método para obtener las horas de las asignaturas
 	 * 
 	 * @param mapaAsignatura mapa de las asignaturas
 	 * @param profesorId id del profesor
@@ -441,7 +437,6 @@ public class Parse
 	private int obtenerHorasAsignaturas(Map<String, List<Asignatura>> mapaAsignatura, String profesorId) 
 	{
 		int totalHoras = 0;
-
 		List<Asignatura> listaAsignaturas = mapaAsignatura.get(profesorId);
 
 		for (Asignatura asignatura : listaAsignaturas)
@@ -453,7 +448,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para realizar una reduccion
+	 * método para realizar una reduccion
 	 * 
 	 * @param idProfesor id del profesor
 	 * @param idReduccion id de la reduccion
@@ -526,7 +521,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para validar y crear el objeto
+	 * método para validar y crear el objeto
 	 * 
 	 * @param nombreAsignatura nombre de la asignatura
 	 * @param curso número del curso
@@ -572,7 +567,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar el curso
+	 * método para comprobar el curso
 	 * 
 	 * @param listaCursos lista de cursos
 	 * @param cursoExiste booleano para comprobar si el curso existe
@@ -600,7 +595,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar el id del profesor
+	 * método para comprobar el id del profesor
 	 * 
 	 * @param idProfesor id del profesor
 	 * @param listaProfesores lista de profesores
@@ -621,13 +616,12 @@ public class Parse
 		if (!idProfesorExiste)
 		{
 			String error = "Profesor no encontrado";
-			log.info(error);
 			throw new HorarioException(13, error);
 		}
 	}
 
 	/**
-	 * metodo para comprobar que la lista de departamentos existe
+	 * método para comprobar que la lista de departamentos existe
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param listaDepartamentos lista de departamentos
@@ -651,7 +645,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar si la lista de cursos existe
+	 * método para comprobar si la lista de cursos existe
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión 
 	 * @param listaCursos lista de cursos
@@ -673,7 +667,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar la lista de profesores
+	 * método para comprobar la lista de profesores
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param listaProfesores lista de profesores
@@ -697,7 +691,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar la lista de asignaturas
+	 * método para comprobar la lista de asignaturas
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param listaAsignaturas lista de asignaturas
@@ -721,7 +715,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar la lista de reducciones
+	 * método para comprobar la lista de reducciones
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param listaReducciones lista de reducciones
@@ -745,7 +739,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar si el departamento existe
+	 * método para comprobar si el departamento existe
 	 * 
 	 * @param listaDepartamentos lista de departamentos
 	 * @param departamento objeto departamento
@@ -763,7 +757,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar si la id reduccion existe
+	 * método para comprobar si la id reduccion existe
 	 * 
 	 * @param idReduccion id de la reduccion
 	 * @param listaReducciones lista de reduccionnes
@@ -791,7 +785,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar si el nombre de asignatura existe
+	 * método para comprobar si el nombre de asignatura existe
 	 * 
 	 * @param nombreAsignatura nombre de la asignatura
 	 * @param listaAsignaturas lista de asignaturas
@@ -814,12 +808,12 @@ public class Parse
 		if (!asignaturaExiste)
 		{
 			String error = "Asignatura no encontrada";
-			log.info(error);
 			throw new HorarioException(13, error);
 		}
 	}
 
 	/**
+	 * método para obtener las horas de un profesor
 	 * 
 	 * @param idProfesor id del profesor
 	 * @param mapaReduccion mapa de reducciones
@@ -859,7 +853,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar si existe el mapa de reduccion
+	 * método para comprobar si existe el mapa de reduccion
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param mapaReduccion mapa de reducción
@@ -883,7 +877,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar si existe el mapa asignaturas
+	 * método para comprobar si existe el mapa asignaturas
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param mapaAsignatura mapa de asignaturas
@@ -907,7 +901,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para parsear el fichero matriculas curso
+	 * método para parsear el fichero matriculas curso
 	 * 
 	 * @param csvFile fichero csv
 	 * @param curso número de curso
@@ -920,84 +914,97 @@ public class Parse
 	 */
 	@SuppressWarnings("unchecked")
 	public String parseCursosMap(MultipartFile csvFile, Integer curso, String etapa,
-			Map<String, List<String>> mapaAsignaturas, HttpSession session) throws IOException, HorarioException
+	        HttpSession session) throws IOException, HorarioException 
 	{
-		Scanner scanner = null;
-		try
-		{
-			boolean encontrado = false;
-			Parse parse = new Parse();
-			String contenido = new String(csvFile.getBytes());
-			scanner = new Scanner(contenido);
-			String clave = curso + etapa;
-			String[] linea = scanner.nextLine().split(",");
-			List<Asignatura> listaAsignatura = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-			parse.comprobarListaAsignaturas(session, listaAsignatura);
-			List<String> listaNombres = new ArrayList<String>();
-			listaNombres = inicializarListaNombres(session);
-			comprobarListaAsignaturas(session, listaAsignatura);
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			comprobarListaCursos(session, listaCursos);
-			int i = 0;
-			while (i < listaCursos.size() && !encontrado)
-			{
-				if (listaCursos.get(i).getCurso() == curso && listaCursos.get(i).getEtapa().equalsIgnoreCase(etapa))
-				{
-					encontrado = true;
-				}
-				i++;
-			}
+	    Scanner scanner = null;
+	    try 
+	    {
+	        boolean encontrado = false;
+	        String contenido = new String(csvFile.getBytes());
+	        scanner = new Scanner(contenido);
+	        String clave = curso + etapa.toUpperCase();
+	        String[] linea = scanner.nextLine().split(",");
+	        List<Asignatura> listaAsignatura = (List<Asignatura>) session.getAttribute("listaAsignaturas");
+	        this.comprobarListaAsignaturas(session, listaAsignatura);
+	        List<String> listaNombres = inicializarListaNombres(session);
+	        this.comprobarListaAsignaturas(session, listaAsignatura);
+	        List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
+	        this.comprobarListaCursos(session, listaCursos);
+	        int i = 0;
+	        while (i < listaCursos.size() && !encontrado) 
+	        {
+	            if (listaCursos.get(i).getCurso() == curso && listaCursos.get(i).getEtapa().equalsIgnoreCase(etapa)) 
+	            {
+	                encontrado = true;
+	            }
+	            i++;
+	        }
+	        if (encontrado) 
+	        {
+	            String asignatura1 = "";
+	            String asignatura2 = "";
+	            String asignatura3 = "";
+	            for (Asignatura asignatura : listaAsignatura) 
+	            {
+	                if (linea[1].equalsIgnoreCase(asignatura.getNombreAsinatura())) 
+	                {
+	                    asignatura1 = linea[1];
+	                }
+	                if (linea[2].equalsIgnoreCase(asignatura.getNombreAsinatura())) 
+	                {
+	                    asignatura2 = linea[2];
+	                }
+	                if (linea[3].equalsIgnoreCase(asignatura.getNombreAsinatura())) 
+	                {
+	                    asignatura3 = linea[3];
+	                }
+	            }
 
-			String asignatura1 = "";
-			String asignatura2 = "";
-			String asignatura3 = "";
-			if (encontrado)
-			{
-				for (Asignatura asignatura : listaAsignatura)
-				{
-					if (linea[1].equalsIgnoreCase(asignatura.getNombreAsinatura()))
-					{
-						asignatura1 = linea[1];
-					}
-					if (linea[2].equalsIgnoreCase(asignatura.getNombreAsinatura()))
-					{
-						asignatura2 = linea[2];
-					}
-					if (linea[3].equalsIgnoreCase(asignatura.getNombreAsinatura()))
-					{
-						asignatura3 = linea[3];
-					}
-				}
-				parseMatriculaCursos(mapaAsignaturas, scanner, listaNombres, asignatura1, asignatura2, asignatura3);
-				session.setAttribute("listaNombres", listaNombres);
-				log.info(listaNombres);
-				session.setAttribute("mapaAsignaturasCursos", mapaAsignaturas);
-				return clave;
-			}
-			else
-			{
-				String error = "El curso o etapa no existe";
-				throw new HorarioException(1, error);
-			}
-		} 
-		catch (IOException ioException)
-		{
-			log.error(Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseCursosMap", ioException);
-			
-			throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, 
-									   Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseCursosMap", 
-									   ioException);
-		}
-		finally
-		{
-			if (scanner != null)
-			{
-				scanner.close();
-			}
-		}
+	            Map<String, List<String>> mapaAsignaturas = (Map<String, List<String>>) session.getAttribute("mapaAsignaturasCursos");
+	            if(mapaAsignaturas==null) 
+	            {
+	            	mapaAsignaturas = new HashMap<String, List<String>>();
+	            }
+	            this.parseMatriculaCursos(mapaAsignaturas, scanner, listaNombres, asignatura1, asignatura2, asignatura3,session);
+	            
+                session.setAttribute("listaNombres", listaNombres);
+
+                Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute("mapaCursos");
+                if (mapaCursos == null) 
+                {
+                    mapaCursos = new HashMap<>();
+                }
+                mapaCursos.put(clave, mapaAsignaturas);
+                session.setAttribute("mapaCursos", mapaCursos);
+
+                log.info("mapaCursos: " + mapaCursos);
+	            
+	            return clave;
+	        }
+	        else 
+	        {
+	            String error = "El curso o etapa no existe";
+	            throw new HorarioException(1, error);
+	        }
+	    }
+	    catch (IOException ioException) 
+	    {
+	        log.error(Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseCursosMap", ioException);
+	        throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE,
+	                Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseCursosMap", ioException);
+	    }
+	    finally 
+	    {
+	        if (scanner != null) 
+	        {
+	            scanner.close();
+	       
+	        }
+	    }
 	}
+
 	/**
-	 * metodo para parsear el fichero matricula Cursos
+	 * método para parsear el fichero matricula Cursos
 	 * 
 	 * @param mapaAsignaturas mapa de asignaturas
 	 * @param scanner escaner para leer
@@ -1007,7 +1014,7 @@ public class Parse
 	 * @param asignatura3 asignatura
 	 */
 	public void parseMatriculaCursos(Map<String, List<String>> mapaAsignaturas, Scanner scanner,
-			List<String> listaNombres, String asignatura1, String asignatura2, String asignatura3)
+			List<String> listaNombres, String asignatura1, String asignatura2, String asignatura3,HttpSession session)
 	{
 		String[] linea;
 		while (scanner.hasNext())
@@ -1040,10 +1047,11 @@ public class Parse
 
 			mapaAsignaturas.put(nombreCompleto, listaAsignaturas);
 		}
+		session.setAttribute("mapaAsignaturasCursos", mapaAsignaturas);
 	}
 
 	/**
-	 * metodo para inicializar la lista de nombres
+	 * método para inicializar la lista de nombres
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
@@ -1064,7 +1072,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar si existe el mapa cursos
+	 * método para comprobar si existe el mapa cursos
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param mapaCursos mapa de cursos
@@ -1088,7 +1096,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar si el mapa bloques existe
+	 * método para comprobar si el mapa bloques existe
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param mapaBloques mapa de bloques
@@ -1112,7 +1120,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para incializar el mapa de cursos
+	 * método para incializar el mapa de cursos
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @return
@@ -1133,7 +1141,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para comprobar si la lista existe
+	 * método para comprobar si la lista existe
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param listaNombres lista con el nombre y apellidos de los alumnos 
@@ -1154,7 +1162,7 @@ public class Parse
 	}
 
 	/**
-	 * metodo para realizar la asignacion de un alumno
+	 * método para realizar la asignacion de un alumno
 	 * 
 	 * @param alumno nombre y apellido del alumno
 	 * @param session utilizado para guardas u obtener cosas en sesión
@@ -1184,12 +1192,12 @@ public class Parse
 						listaAlumnos = mapaAlumnos.get(clave);
 						if (listaAlumnos.contains(alumno))
 						{
-							resultado = "no se ha podido añadir";
+							String error = "El alumno ya ha sido asignado a ese curso";
+							throw new HorarioException(1, error);
 						}
 						else
 						{
 							listaAlumnos.add(alumno);
-							resultado = "se ha añadido correctamente";
 							mapaAlumnos.put(clave, listaAlumnos);
 							session.setAttribute("mapaAlumnos", mapaAlumnos);
 						}
@@ -1197,7 +1205,6 @@ public class Parse
 					else
 					{
 						listaAlumnos.add(alumno);
-						resultado = "se ha añadido correctamente";
 						mapaAlumnos.put(clave, listaAlumnos);
 						session.setAttribute("mapaAlumnos", mapaAlumnos);
 					}
@@ -1208,7 +1215,6 @@ public class Parse
 					List<String> listaAlumnos2 = new ArrayList<String>();
 					listaAlumnos2.add(alumno);
 					mapaAlumnos.put(clave, listaAlumnos2);
-					resultado = "se ha añadido correctamente";
 					session.setAttribute("mapaAlumnos", mapaAlumnos);
 				}
 				log.info(mapaAlumnos);
@@ -1227,7 +1233,8 @@ public class Parse
 		return resultado;
 	}
 	/**
-	 * metodo para comprobar si el mapa asignaturas cursos existe
+	 * método para comprobar si el mapa asignaturas cursos existe
+	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión 
 	 * @param mapaAsignaturas mapa de asignaturas
 	 * @throws HorarioException
@@ -1246,6 +1253,7 @@ public class Parse
 		}
 	}
 	/**
+	 * metodo para comprobar si el mapa de alumnos existe
 	 * 
 	 * @param mapaAlumnos mapa de alumnos
 	 * @param session utilizado para guardas u obtener cosas en sesión

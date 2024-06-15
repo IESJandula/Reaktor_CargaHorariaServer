@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0681fa0e-2adb-4a2b-af92-c9d5c8aa743e",
+		"_postman_id": "761b5187-05fb-42fd-acb4-19627be079be",
 		"name": "DireccionCargas",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "30194530"
@@ -435,6 +435,26 @@
 					}
 				],
 				"url": "http://localhost:8080/matriculas/asignaturas/resumen"
+			},
+			"response": []
+		},
+		{
+			"name": "resumenCursos",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "curso",
+						"value": "1",
+						"type": "text"
+					},
+					{
+						"key": "etapa",
+						"value": "ESO",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/matriculas/cursos/resumen"
 			},
 			"response": []
 		}
