@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class Asignatura 
 {
 	/** Nombre de la asignatura */
-	private String nombreAsinatura;
+	private String nombreAsignatura;
 	/** Curso de la asignatura */
 	private int curso;
 	/** Etapa de la asignatura */

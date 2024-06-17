@@ -30,12 +30,12 @@ import lombok.extern.log4j.Log4j2;
 public class RestHandlerMatriculas
 {
 	/**
-	 * endpoint para cargar los cursos
-	 * @param csvFile fichero csv a parsear
-	 * @param curso curso sobre el cual se asigna
-	 * @param etapa etapa sobre la cual se asigna
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @return
+	 * Endpoint para cargar los cursos
+	 * @param csvFile Fichero csv a parsear
+	 * @param curso Curso sobre el cual se asigna
+	 * @param etapa Etapa sobre la cual se asigna
+	 * @param session Utilizado para guardar u obtener cosas en sesión
+	 * @return 200 si todo ha ido bien
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.POST, value = "/cursos", consumes = "multipart/form-data")
@@ -66,10 +66,10 @@ public class RestHandlerMatriculas
 	}
 
 	/**
-	 * endpoint para obtener cursos
+	 * Endpoint para obtener cursos
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @return
+	 * @param session Utilizado para guardar u obtener cosas en sesión
+	 * @return Lista de cursos
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/cursos")
 	public ResponseEntity<?> getCursos(HttpSession session) 
@@ -78,7 +78,7 @@ public class RestHandlerMatriculas
 		{
 			Parse parse = new Parse();
 			Map<String, Map<String, List<String>>> mapaCursos = new HashMap<String, Map<String, List<String>>>();
-			mapaCursos = parse.comprobarMapaCursosExiste(session, mapaCursos);
+			mapaCursos = parse.obtenerMapaCursosExiste(session, mapaCursos);
 			return ResponseEntity.ok().body(mapaCursos.keySet());
 		}
 		catch (Exception exception)
@@ -93,13 +93,13 @@ public class RestHandlerMatriculas
 	}
 
 	/**
-	 * endpoint para subir bloques
+	 * Endpoint para subir bloques
 	 * 
-	 * @param curso número curso 
-	 * @param etapa etapa del curso
-	 * @param nombreAsignatura nombre de la asignatura
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @return
+	 * @param curso Número curso 
+	 * @param etapa Etapa del curso
+	 * @param nombreAsignatura Nombre de la asignatura
+	 * @param session Utilizado para guardar u obtener cosas en sesión
+	 * @return 200 si todo ha ido bien
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.POST, value = "/bloques")
@@ -116,7 +116,7 @@ public class RestHandlerMatriculas
 				mapaBloques = new HashMap<>();
 			}
 			List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-			parse.comprobarListaAsignaturas(session, listaAsignaturas);
+			parse.obtenerListaAsignaturas(session, listaAsignaturas);
 
 			boolean encontrado = false;
 			String resultado = "alguno de los parametros es incorrecto";
@@ -124,7 +124,7 @@ public class RestHandlerMatriculas
 			// comprobamos que los parametros recibidos son correctos
 			while (i < listaAsignaturas.size() && !encontrado)
 			{
-				if (listaAsignaturas.get(i).getNombreAsinatura().equalsIgnoreCase(nombreAsignatura)
+				if (listaAsignaturas.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura)
 						&& listaAsignaturas.get(i).getCurso() == (curso)
 						&& listaAsignaturas.get(i).getEtapa().equalsIgnoreCase(etapa))
 				{
@@ -174,11 +174,11 @@ public class RestHandlerMatriculas
 	}
 
 	/**
-	 * endpoint para obtener los bloques
+	 * Endpoint para obtener los bloques
 	 * 
-	 * @param curso número curso 
-	 * @param etapa etapa del curso
-	 * @param session utilizado para guardas u obtener cosas en sesión
+	 * @param curso Número curso 
+	 * @param etapa Etapa del curso
+	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -190,9 +190,9 @@ public class RestHandlerMatriculas
 		{
 			Parse parse = new Parse();
 			Map<String, List<String>> mapaBloques = new HashMap<String, List<String>>();
-			mapaBloques = parse.comprobarMapaBloquesExiste(session, mapaBloques);
+			mapaBloques = parse.obtenerMapaBloquesExiste(session, mapaBloques);
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			parse.comprobarListaCursos(session, listaCursos);
+			parse.obtenerListaCursos(session, listaCursos);
 			int i = 0;
 			boolean encontrado = false;
 			while(i < listaCursos.size() && !encontrado)
@@ -239,7 +239,7 @@ public class RestHandlerMatriculas
 	 * @param curso número curso 
 	 * @param etapa etapa del curso
 	 * @param grupo grupo del curso
-	 * @param session utilizado para guardas u obtener cosas en sesión
+	 * @param session utilizado para guardar u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -256,9 +256,9 @@ public class RestHandlerMatriculas
 			String resultado = "";
 			String clave = curso + etapa.toUpperCase() + grupo.toUpperCase();
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			parse.comprobarListaCursos(session, listaCursos);
+			parse.obtenerListaCursos(session, listaCursos);
 			List<String> listaNombres = (List<String>) session.getAttribute("listaNombres");
-			parse.comprobarListaNombresExiste(session, listaNombres);
+			parse.obtenerListaNombresExiste(session, listaNombres);
 			resultado = parse.realizarAsignacionAlumno(alumno, session, cursoObject, resultado, clave, listaCursos,
 					listaNombres);
 
@@ -280,7 +280,7 @@ public class RestHandlerMatriculas
 	 * @param curso número del curso 
 	 * @param etapa etapa del curso
 	 * @param grupo grupo del curso
-	 * @param session utilizado para guardas u obtener cosas en sesión
+	 * @param session utilizado para guardar u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -294,7 +294,7 @@ public class RestHandlerMatriculas
 			Parse parse = new Parse();
 			List<String> listaAlumnos = null;
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			parse.comprobarListaCursos(session, listaCursos);
+			parse.obtenerListaCursos(session, listaCursos);
 			Curso cursoObject = new Curso(curso, etapa.toUpperCase(), grupo.toUpperCase());
 			if (listaCursos.contains(cursoObject))
 			{
@@ -341,7 +341,7 @@ public class RestHandlerMatriculas
 	 * @param curso número de curso 
 	 * @param etapa etapa del curso
 	 * @param grupo grupo del curso
-	 * @param session utilizado para guardas u obtener cosas en sesión
+	 * @param session utilizado para guardar u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -356,7 +356,7 @@ public class RestHandlerMatriculas
 			Parse parse = new Parse();
 			String resultado = "No existe el alumno";
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			parse.comprobarListaCursos(session, listaCursos);
+			parse.obtenerListaCursos(session, listaCursos);
 			Curso cursoObject = new Curso(curso, etapa.toUpperCase(), grupo.toUpperCase());
 			if (listaCursos.contains(cursoObject))
 			{
@@ -410,7 +410,7 @@ public class RestHandlerMatriculas
 	 * endpoint papra obtener el resumen de una asignatura
 	 * 
 	 * @param nombreAsignatura nombre de la asignatura para resumen
-	 * @param session utilizado para guardas u obtener cosas en sesión
+	 * @param session utilizado para guardar u obtener cosas en sesión
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -422,17 +422,17 @@ public class RestHandlerMatriculas
 		{
 			Parse parse = new Parse();
 			List<String> listaNombres = (List<String>) session.getAttribute("listaNombres");
-			parse.comprobarListaNombresExiste(session, listaNombres);
+			parse.obtenerListaNombresExiste(session, listaNombres);
 			Map<String, List<String>> mapaAsignaturas = (Map<String, List<String>>) session.getAttribute("mapaAsignaturasCursos");
-			parse.comprobarMapaAsignaturasCursosExiste(session,mapaAsignaturas);
+			parse.obtenerMapaAsignaturasCursosExiste(session,mapaAsignaturas);
 			List<Asignatura> listaAsignatura = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-			parse.comprobarListaAsignaturas(session, listaAsignatura);
+			parse.obtenerListaAsignaturas(session, listaAsignatura);
 			int contadorAlumno=0;
 			boolean encontrado = false;
 			int i = 0;
 			while(i < listaAsignatura.size() && !encontrado) 
 			{
-				if(listaAsignatura.get(i).getNombreAsinatura().equalsIgnoreCase(nombreAsignatura)) 
+				if(listaAsignatura.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura)) 
 				{
 					encontrado = true;
 				}
@@ -471,10 +471,10 @@ public class RestHandlerMatriculas
 	/**
 	 * endpoint para obtener el resumen por cursos
 	 * 
-	 * @param curso número del curso
-	 * @param etapa etapa del curso
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @return
+	 * @param curso Número del curso
+	 * @param etapa Etapa del curso
+	 * @param session Utilizado para guardar u obtener cosas en sesión
+	 * @return Lista de resumen por cursos
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.GET, value = "/cursos/resumen")
@@ -488,9 +488,9 @@ public class RestHandlerMatriculas
 			boolean encontrado = false;
 			Map<String, List<String>> mapaAlumnos=null;
 			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			parse.comprobarListaCursos(session, listaCursos);
+			parse.obtenerListaCursos(session, listaCursos);
 			mapaAlumnos = (Map<String, List<String>>) session.getAttribute("mapaAlumnos");
-			parse.comprobarMapaAlumnoExiste(mapaAlumnos,session);
+			parse.obtenerMapaAlumnoExiste(mapaAlumnos,session);
 			ResumenCursos resumenCursos = null;
 			List<ResumenCursos> listaResumenCursos = new ArrayList<ResumenCursos>();
 			int i = 0;

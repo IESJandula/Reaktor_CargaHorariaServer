@@ -29,11 +29,11 @@ import lombok.extern.log4j.Log4j2;
 public class Parse
 {
 	/**
-	 * método para parsear departamentos
+	 * Método para parsear departamentos
 	 * 
-	 * @param csvFile fichero csv 
-	 * @return
-	 * @throws HorarioException
+	 * @param csvFile Fichero csv 
+	 * @return La lista de departamentos
+	 * @throws HorarioException Excepción en la línea en la que ocurre el error
 	 */
 	public List<Departamento> parseDepartamentos(MultipartFile csvFile) throws HorarioException 
 	{
@@ -41,35 +41,35 @@ public class Parse
 		try
 		{
 			List<Departamento> listaDepartamentos = new ArrayList<>();
-			String contenido = new String(csvFile.getBytes());
 			
-			this.comprobarContenidoFichero(contenido);
+			Validations validations = new Validations() ;
+			
+			String contenido = validations.obtenerContenidoFichero(Constants.NOMBRE_METH_PARSE_DEPARTAMENTOS, csvFile) ;
 			
 			scanner = new Scanner(contenido);
-			// saltamos la cabecera
+			// Saltamos la cabecera
 			scanner.nextLine();
 			while (scanner.hasNext())
 			{
-				// separamos la linea por ,
-				String[] linea = scanner.nextLine().split(",");
+				String linea = scanner.nextLine() ;
 				
-				if (linea.length != 1)
+				// Separamos la linea por ,
+				String[] lineaArray = linea.split(",");
+				
+				if (lineaArray.length != 1)
 				{
-					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseDepartamentos");
+					String errorString = Constants.ERR_LECTURA_FICHEROS_CSV_MSG + Constants.NOMBRE_METH_PARSE_DEPARTAMENTOS + ". Concretamente aquí: " + linea ;
+					
+					log.error(errorString);
+					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, errorString);
 				}
-				Departamento departamento = new Departamento(linea[0]);
-				listaDepartamentos.add(departamento);
+				
+				listaDepartamentos.add(new Departamento(lineaArray[0]));
 			}
+			// Log para mostrar la lista de departamentos
 			log.info(listaDepartamentos);
-			return listaDepartamentos;
-		}
-		catch (IOException ioException)
-		{
-			log.error(Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseDepartamentos", ioException);
 			
-			throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, 
-									   Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseDepartamentos", 
-									   ioException);
+			return listaDepartamentos;
 		}
 		finally
 		{
@@ -79,25 +79,13 @@ public class Parse
 			}
 		}
 	}
-	/**
-	 * método para comprobar si el fichero esta vacio
-	 * @param contenido contenido del ficherp
-	 * @throws HorarioException
-	 */
-	private void comprobarContenidoFichero(String contenido) throws HorarioException
-	{
-		if (contenido == null || contenido.isEmpty())
-		{
-			throw new HorarioException(Constants.ERR_CONTENIDO_FICHEROS_CSV_CODE, Constants.ERR_CONTENIDO_FICHEROS_CSV_MSG);
-		}
-	}
 
 	/**
 	 * métodoara parsear cursos
 	 * 
-	 * @param csvFile fichero csv
-	 * @return
-	 * @throws HorarioException
+	 * @param csvFile Fichero csv
+	 * @return La lista de cursos
+	 * @throws HorarioException Excepción en la línea en la que ocurre el error
 	 */
 	public List<Curso> parseCursos(MultipartFile csvFile) throws HorarioException 
 	{
@@ -105,31 +93,29 @@ public class Parse
 		try
 		{
 			List<Curso> listaCursos = new ArrayList<>();
-			String contenido = new String(csvFile.getBytes());
-			this.comprobarContenidoFichero(contenido);
+			Validations validations = new Validations() ;
+			
+			String contenido = validations.obtenerContenidoFichero("parseCursos", csvFile) ;
 			scanner = new Scanner(contenido);
-			// saltamos la cabecera
+			// Saltamos la cabecera
 			scanner.nextLine();
 			while (scanner.hasNext())
 			{
-				// separamos la linea por ,
-				String[] linea = scanner.nextLine().split(",");
-				if (linea.length != 3)
+				String linea = scanner.nextLine() ;
+				
+				// Separamos la linea por ,
+				String[] lineaArray = linea.split(",");
+				if (lineaArray.length != 3)
 				{
-					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseCursos");
+					String errorString = Constants.ERR_LECTURA_FICHEROS_CSV_MSG + Constants.NOMBRE_METH_PARSE_CURSOS + ". Concretamente aquí: " + linea ;
+					
+					log.error(errorString);
+					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, errorString);
 				}
-				Curso curso = new Curso(Integer.parseInt(linea[0]), linea[1], linea[2]);
+				Curso curso = new Curso(Integer.parseInt(lineaArray[0]), lineaArray[1], lineaArray[2]);
 				listaCursos.add(curso);
 			}
 			return listaCursos;
-		}
-		catch (IOException ioException)
-		{
-			log.error(Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseCursos", ioException);
-			
-			throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, 
-									   Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseCursos", 
-									   ioException);
 		}
 		finally
 		{
@@ -142,10 +128,10 @@ public class Parse
 
 	/**
 	 * 
-	 * @param csvFile fichero csv 
-	 * @param listaDepartamentos lista de departamentos para comprobar si existe
-	 * @return 
-	 * @throws HorarioException
+	 * @param csvFile Fichero csv 
+	 * @param listaDepartamentos Lista de departamentos para obtener si existe
+	 * @return La lista de profesores
+	 * @throws HorarioException Excepción en la línea en la que ocurre el error
 	 */
 	public List<Profesor> parseProfesores(MultipartFile csvFile, List<Departamento> listaDepartamentos)
 			throws HorarioException
@@ -154,41 +140,36 @@ public class Parse
 		try
 		{
 			List<Profesor> listaProfesores = new ArrayList<>();
-			String contenido = new String(csvFile.getBytes());
-			this.comprobarContenidoFichero(contenido);
+			Validations validations = new Validations() ;
+			
+			String contenido = validations.obtenerContenidoFichero("parseCursos", csvFile) ;
 
 			scanner = new Scanner(contenido);
-			// saltamos la cabecera
+			// Saltamos la cabecera
 			scanner.nextLine();
 
 			while (scanner.hasNext())
 			{
-				// separamos la linea por ,
-				String[] linea = scanner.nextLine().split(",");
-				if (linea.length != 3)
+				String linea = scanner.nextLine() ;
+				
+				// Separamos la linea por ,
+				String[] lineaArray = linea.split(",");
+				if (lineaArray.length != 3)
 				{
-					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseProfesores");
+					String errorString = Constants.ERR_LECTURA_FICHEROS_CSV_MSG + Constants.NOMBRE_METH_PARSE_PROFESORES + ". Concretamente aquí: " + linea ;
+					
+					log.error(errorString);
+					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, errorString);
 				}
-				Departamento departamento = new Departamento(linea[2]);
-				// comprobamos que el departamento existe
-				if (!listaDepartamentos.contains(departamento))
-				{
-					String error = "Departamento no encontrado";
-					throw new HorarioException(12, error);
-				}
-
-				Profesor profesor = new Profesor(linea[0], linea[1], linea[2]);
+				Departamento departamento = new Departamento(lineaArray[2]);
+				// Método para obtener el departamento
+				validations.obtenerDepartamento(listaDepartamentos, departamento);
+				// Creamos el objeto profesor y lo añadimos a la lista
+				Profesor profesor = new Profesor(lineaArray[0], lineaArray[1], lineaArray[2]);
 				listaProfesores.add(profesor);
 			}
-			return listaProfesores;
-		}
-		catch (IOException ioException)
-		{
-			log.error(Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseProfesores", ioException);
 			
-			throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, 
-									   Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseProfesores", 
-									   ioException);
+			return listaProfesores;
 		}
 		finally
 		{
@@ -202,11 +183,11 @@ public class Parse
 	/**
 	 * método para parsear asignaturas
 	 * 
-	 * @param csvFile fichero csv
-	 * @param listaCursos
-	 * @param listaDepartamentos
-	 * @return
-	 * @throws HorarioException
+	 * @param csvFile Fichero csv
+	 * @param listaCursos Lista de cursos
+	 * @param listaDepartamentos Lista de departamentos
+	 * @return La lista de asignaturas
+	 * @throws HorarioException Excepción en la línea en la que ocurre el error
 	 */
 	public List<Asignatura> parseAsignaturas(MultipartFile csvFile, List<Curso> listaCursos,
 			List<Departamento> listaDepartamentos) throws HorarioException
@@ -215,60 +196,53 @@ public class Parse
 		try
 		{
 			List<Asignatura> listaAsignaturas = new ArrayList<>();
-			String contenido = new String(csvFile.getBytes());
-			this.comprobarContenidoFichero(contenido);
+			
+			Validations validations = new Validations() ;
+			// Obtenemos el contenido del fichero
+			String contenido = validations.obtenerContenidoFichero("parseCursos", csvFile) ;
 			scanner = new Scanner(contenido);
 			Asignatura asignatura = null;
-			// saltamos la cabecera
+			// Saltamos la cabecera
 			scanner.nextLine();
 			while (scanner.hasNext())
 			{
-				// separamos la linea por ,
-				String[] linea = scanner.nextLine().split(",");
+				String linea = scanner.nextLine() ;
+				
+				// Separamos la linea por ,
+				String[] lineaArray = linea.split(",");
 
-				Curso curso = new Curso(Integer.parseInt(linea[1]), linea[2], linea[3]);
-				// comprobamos que el curso existe
-				if (!listaCursos.contains(curso))
+				Curso curso = new Curso(Integer.parseInt(lineaArray[1]), lineaArray[2], lineaArray[3]);
+				validations.obtenerCurso(listaCursos, curso);
+				
+				boolean esAsignatura = lineaArray.length == 6 ;
+				boolean esTutoria = lineaArray.length == 5 ;
+				
+				if (!esAsignatura && !esTutoria)
 				{
-					String error = "Curso no encontrado: " + curso;
-					log.error(error);
-					throw new HorarioException(12, error);
+					String errorString = Constants.ERR_LECTURA_FICHEROS_CSV_MSG + Constants.NOMBRE_METH_PARSE_ASIGNATURAS + ". Concretamente aquí: " + linea ;
+					
+					log.error(errorString);
+					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, errorString);
 				}
-				if (linea.length == 6)
+				else if (esAsignatura)
 				{
-					Departamento departamento = new Departamento(linea[5]);
-					// comprobamos que el departamento exista
-					asignatura = new Asignatura(linea[0], Integer.parseInt(linea[1]), linea[2], linea[3],
-							Integer.valueOf(linea[4]), linea[5]);
-					if (!listaDepartamentos.contains(departamento))
-					{
-						String error = "Departamento no encontrado";
-						throw new HorarioException(12, error);
-					}
+					Departamento departamento = new Departamento(lineaArray[5]);
+					// Obtenemos el departamento
+					validations.obtenerDepartamento(listaDepartamentos, departamento);
+					// Creamos la asignatura
+					asignatura = new Asignatura(lineaArray[0], Integer.parseInt(lineaArray[1]), lineaArray[2], lineaArray[3], Integer.valueOf(lineaArray[4]), lineaArray[5]);
 				}
-				else if(linea.length == 5)
+				else
 				{
-					asignatura = new Asignatura(linea[0], Integer.parseInt(linea[1]), linea[2], linea[3],
-							Integer.valueOf(linea[4]), null);
+					// Creamos la asignatura
+					asignatura = new Asignatura(lineaArray[0], Integer.parseInt(lineaArray[1]), lineaArray[2], lineaArray[3], Integer.valueOf(lineaArray[4]), null);
 				}
-				else 
-				{
-					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseAsignaturas");
-				}
-
+				// Log para mostrar la lista de asignaturas
 				log.info(listaAsignaturas);
 				listaAsignaturas.add(asignatura);
 			}
 
 			return listaAsignaturas;
-		}
-		catch (IOException ioException)
-		{
-			log.error(Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseAsignaturas", ioException);
-			
-			throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, 
-									   Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseAsignaturas", 
-									   ioException);
 		}
 		finally
 		{
@@ -282,10 +256,10 @@ public class Parse
 	/**
 	 * método para parsear reducciones
 	 * 
-	 * @param csvFile fichero csv
-	 * @param listaCursos lista de cursos
-	 * @return
-	 * @throws HorarioException
+	 * @param csvFile Fichero csv
+	 * @param listaCursos Lista de cursos
+	 * @return Lista de reducciones
+	 * @throws HorarioException Controla que el fichero se pueda parsear correctamente
 	 */
 	public List<Reduccion> parseReducciones(MultipartFile csvFile, List<Curso> listaCursos) throws HorarioException 
 	{
@@ -294,46 +268,37 @@ public class Parse
 		{
 			List<Reduccion> listaReducciones = new ArrayList<>();
 			Reduccion reduccion;
-			String contenido = new String(csvFile.getBytes());
-			this.comprobarContenidoFichero(contenido);
+			Validations validations = new Validations() ;
+			
+			String contenido = validations.obtenerContenidoFichero("parseReducciones", csvFile) ;
 			scanner = new Scanner(contenido);
-			// saltamos la cabecera
+			// Saltamos la cabecera
 			scanner.nextLine();
 			while (scanner.hasNext())
 			{
-				// separamos la linea por ,
-				String[] linea = scanner.nextLine().split(",");
-				// comprobamos si es tutoria
-				if ("tutoria".equalsIgnoreCase(linea[1]))
-				{
-					Curso curso = new Curso(Integer.parseInt(linea[3]), linea[4], linea[5]);
-					// comprobamos si el curso existe
-					if (!listaCursos.contains(curso))
-					{
-						String error = "Curso no encontrado";
-						throw new HorarioException(12, error);
-					}
+				String linea = scanner.nextLine() ;
+				
+				// Separamos la linea por ,
+				String[] lineaArray = linea.split(",");
 
-					Reduccion reduccionObject = new Reduccion(linea[0], linea[1], Integer.parseInt(linea[2]),
-							String.valueOf(curso.getCurso()), curso.getEtapa(), curso.getGrupo());
-					listaReducciones.add(reduccionObject);
-				}
-				else
+				boolean esReduccion = lineaArray.length == 3;
+				
+				if(!esReduccion)
 				{
-					reduccion = new Reduccion(linea[0], linea[1], Integer.valueOf(linea[2]), null, null, null);
+					String errorString = Constants.ERR_LECTURA_FICHEROS_CSV_MSG + Constants.NOMBRE_METH_PARSE_REDUCCIONES + ". Concretamente aquí: " + linea ;
+					
+					log.error(errorString);
+					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, errorString);
+				}
+				else 
+				{
+					reduccion = new Reduccion(lineaArray[0], lineaArray[1], Integer.valueOf(lineaArray[2]), null, null, null);
 					listaReducciones.add(reduccion);
 				}
 			}
 			return listaReducciones;
 		}
-		catch (IOException ioException)
-		{
-			log.error(Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseReducciones", ioException);
-			
-			throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, 
-									   Constants.ERR_LECTURA_FICHEROS_CSV_MSG + "parseReducciones", 
-									   ioException);
-		}
+
 		finally
 		{
 			if (scanner != null)
@@ -343,120 +308,17 @@ public class Parse
 		}
 	}
 
-	/**
-	 * método para obtener el resumen de un profesor
-	 * 
-	 * @param nombreDepartamento nombre del departamento
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param numeroProfesorDepartamento numero de profesores en el departamento
-	 * @param totalHoras total de horas 
-	 * @return
-	 * @throws HorarioException
-	 */
-	@SuppressWarnings("unchecked")
-	public Resumen resumenDepartamento(String nombreDepartamento, HttpSession session) throws HorarioException 
-	{
-		int numeroProfesorDepartamento = 0;
-		int totalHoras = 0;
-		Map<String, List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session
-				.getAttribute("mapaReduccion");
-		Map<String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session
-				.getAttribute("mapaAsignaturas");
-		Map<String, Integer> mapaGuardias = (Map<String, Integer>) session.getAttribute("mapaGuardias");
-
-		List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-		for (Profesor profesor : listaProfesores)
-		{
-			// comprobamos si el profesor pertenece a ese departamento
-			if (profesor.getDepartamento().equalsIgnoreCase(nombreDepartamento))
-			{
-				numeroProfesorDepartamento++;
-				String profesorId = profesor.getIdProfesor();
-				// comprobamos que el mapa de asignaturas existe para sumar horas
-				if (mapaAsignatura != null)
-				{
-					totalHoras = totalHoras + this.obtenerHorasAsignaturas(mapaAsignatura, profesorId);
-				}
-				// comprobamos que el mapa de reducciones existe para sumar horas
-				if (mapaReduccion != null)
-				{
-					totalHoras = totalHoras + this.obtenerHorasReduccion(mapaReduccion, profesorId);
-				}
-				// comprobamos que el mapa de guardias no es nulo y contiene la id del profesor
-				if (mapaGuardias != null && mapaGuardias.containsKey(profesorId))
-				{
-					totalHoras += mapaGuardias.get(profesorId);
-				}
-			}
-		}
-
-		int horasNecesarias = numeroProfesorDepartamento * 18;
-		int desfase = totalHoras - horasNecesarias;
-
-		String resultadoDesfase = "Cerrado";
-		if (desfase > 0)
-		{
-			resultadoDesfase = "Sobran horas";
-		} 
-		else if (desfase < 0)
-		{
-			resultadoDesfase = "Faltan horas";
-		}
-
-		return new Resumen(numeroProfesorDepartamento, horasNecesarias, totalHoras, desfase, resultadoDesfase);
-	}
-
-	/**
-	 * método para obtener las horas de reduccion
-	 * 
-	 * @param mapaReduccion mapa de reducciones
-	 * @param profesorId id del profesor
-	 * @return
-	 */
-	private int obtenerHorasReduccion(Map<String, List<ReduccionHoras>> mapaReduccion, String profesorId) 
-	{
-		int totalHoras = 0;
-
-		List<ReduccionHoras> listaReducciones = mapaReduccion.get(profesorId);
-
-		for (ReduccionHoras reduccionHoras : listaReducciones)
-		{
-			totalHoras += reduccionHoras.getNumHoras();
-		}
-
-		return totalHoras;
-	}
-
-	/**
-	 * método para obtener las horas de las asignaturas
-	 * 
-	 * @param mapaAsignatura mapa de las asignaturas
-	 * @param profesorId id del profesor
-	 * @return
-	 */
-	private int obtenerHorasAsignaturas(Map<String, List<Asignatura>> mapaAsignatura, String profesorId) 
-	{
-		int totalHoras = 0;
-		List<Asignatura> listaAsignaturas = mapaAsignatura.get(profesorId);
-
-		for (Asignatura asignatura : listaAsignaturas)
-		{
-			totalHoras += asignatura.getNumeroHorasSemanales();
-		}
-
-		return totalHoras;
-	}
 
 	/**
 	 * método para realizar una reduccion
 	 * 
-	 * @param idProfesor id del profesor
-	 * @param idReduccion id de la reduccion
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param listaReducciones lista de reducciones
-	 * @param listaReduccionHoras lista de las horas de reduccion
-	 * @return
-	 * @throws HorarioException
+	 * @param idProfesor Id del profesor
+	 * @param idReduccion Id de la reduccion
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @param listaReducciones Lista de reducciones
+	 * @param listaReduccionHoras Lista de las horas de reduccion
+	 * @return Un mapa de reducciones
+	 * @throws HorarioException 
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, List<ReduccionHoras>> realizarReduccion(String idProfesor, String idReduccion,
@@ -465,19 +327,10 @@ public class Parse
 	{
 		ReduccionHoras reduccionHoras = new ReduccionHoras();
 		boolean reduccionEncontrada = false;
-		Map<String, List<ReduccionHoras>> asignacionReduccion;
-		int i = 0;
-		while (i < listaReducciones.size() && !reduccionEncontrada)
-		{
-			if (listaReducciones.get(i).getIdReduccion().equalsIgnoreCase(idReduccion))
-			{
-				reduccionEncontrada = true;
-				reduccionHoras.setIdReduccion(idReduccion);
-				reduccionHoras.setNumHoras(listaReducciones.get(i).getNumeroHoras());
-			}
-			i++;
-		}
-		listaReduccionHoras.add(reduccionHoras);
+		
+		this.obtenerReduccionId(idReduccion, listaReducciones, listaReduccionHoras, reduccionHoras, reduccionEncontrada);
+		
+		Map<String, List<ReduccionHoras>> asignacionReduccion = null;
 		if (session.getAttribute("mapaReduccion") == null)
 		{
 			asignacionReduccion = new TreeMap<String, List<ReduccionHoras>>();
@@ -487,121 +340,145 @@ public class Parse
 		else
 		{
 			asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
-			if (asignacionReduccion.containsKey(idProfesor))
-			{
-				List<ReduccionHoras> existingReduccionHoras = asignacionReduccion.get(idProfesor);
-				boolean idReduccionExists = false;
-
-				// comprobamos si la id de reduccion existe
-				i = 0;
-				while (i < existingReduccionHoras.size() && !idReduccionExists)
-				{
-					if (existingReduccionHoras.get(i).getIdReduccion().equalsIgnoreCase(idReduccion))
-					{
-						idReduccionExists = true;
-					}
-				}
-				if (idReduccionExists)
-				{
-					String error = "La reducción ya existe";
-					throw new HorarioException(1, error);
-				} 
-				else
-				{
-					existingReduccionHoras.addAll(listaReduccionHoras);
-				}
-			}
-			else
-			{
-				asignacionReduccion.put(idProfesor, listaReduccionHoras);
-			}
+			this.asignarReduccion(idProfesor, idReduccion, listaReduccionHoras, asignacionReduccion);
+			
 			session.setAttribute("mapaReduccion", asignacionReduccion);
 		}
 		return asignacionReduccion;
 	}
+	/**
+	 * Metodo para asignar una reducción
+	 * 
+	 * @param idProfesor Id del profesor
+	 * @param idReduccion Id de la reducción
+	 * @param listaReduccionHoras Lista de las horas de reducción
+	 * @param asignacionReduccion Mapa de reducciones
+	 * @throws HorarioException 
+	 */
+	public void asignarReduccion(String idProfesor, String idReduccion, List<ReduccionHoras> listaReduccionHoras,
+			Map<String, List<ReduccionHoras>> asignacionReduccion) throws HorarioException
+	{
+		if (asignacionReduccion.containsKey(idProfesor))
+		{
+			List<ReduccionHoras> existingReduccionHoras = asignacionReduccion.get(idProfesor);
+			boolean idReduccionExists = false;
+
+			// Comprobamos si la id de reduccion existe
+			int i = 0;
+			while (i < existingReduccionHoras.size() && !idReduccionExists)
+			{
+				idReduccionExists = existingReduccionHoras.get(i).getIdReduccion().equalsIgnoreCase(idReduccion) ;
+				i++;
+			}
+			
+			if (idReduccionExists)
+			{
+				String error = "La reducción ya existe";
+				throw new HorarioException(1, error);
+			} 
+			else
+			{
+				existingReduccionHoras.addAll(listaReduccionHoras);
+			}
+		}
+		else
+		{
+			asignacionReduccion.put(idProfesor, listaReduccionHoras);
+		}
+	}
+	/**
+	 * Método para obtener la id de la reducción
+	 * 
+	 * @param idReduccion Id de la reducción
+	 * @param listaReducciones Lista de Reducciones
+	 * @param listaReduccionHoras Lista de horas de reducción
+	 * @param reduccionHoras Objeto de reducción horas
+	 * @param reduccionEncontrada boolean para comprobar si existe
+	 */
+	public void obtenerReduccionId(String idReduccion, List<Reduccion> listaReducciones,
+			List<ReduccionHoras> listaReduccionHoras, ReduccionHoras reduccionHoras, boolean reduccionEncontrada)
+	{
+		int i = 0;
+		while (i < listaReducciones.size() && !reduccionEncontrada)
+		{
+			reduccionEncontrada = listaReducciones.get(i).getIdReduccion().equalsIgnoreCase(idReduccion) ;
+			if (reduccionEncontrada)
+			{
+				reduccionHoras.setIdReduccion(idReduccion);
+				reduccionHoras.setNumHoras(listaReducciones.get(i).getNumeroHoras());
+			}
+			
+			i++;
+		}
+		listaReduccionHoras.add(reduccionHoras);
+	}
 
 	/**
-	 * método para validar y crear el objeto
+	 * Método para validar y crear el objeto
 	 * 
-	 * @param nombreAsignatura nombre de la asignatura
-	 * @param curso número del curso
-	 * @param etapa etapa del curso
-	 * @param grupo grupo del curso
-	 * @param datosAsignacion lista de asignaturas para asignar
-	 * @param listaAsignaturas lista de asignaturas
-	 * @param listaCursos lista de cursos
-	 * @param asignaturaObject objeto de asignatura
-	 * @param asignaturaEncontrada booleano para comprobar que existe la asignatura
+	 * @param nombreAsignatura Nombre de la asignatura
+	 * @param curso Número del curso
+	 * @param etapa Etapa del curso
+	 * @param grupo Grupo del curso
+	 * @param datosAsignacion Lista de asignaturas para asignar
+	 * @param listaAsignaturas Lista de asignaturas
+	 * @param listaCursos Lista de cursos
+	 * @param asignaturaObject Objeto de asignatura
+	 * @param asignaturaEncontrada Booleano para obtener que existe la asignatura
 	 * @throws HorarioException
 	 */
-	public String comprobacionCreacionObjeto(String nombreAsignatura, Integer curso, String etapa, String grupo,
+	public void comprobacionCreacionObjeto(String nombreAsignatura, Integer curso, String etapa, String grupo,
 			List<Asignatura> datosAsignacion, List<Asignatura> listaAsignaturas, List<Curso> listaCursos,
 			Asignatura asignaturaObject) throws HorarioException
 	{
-		boolean asignaturaEncontrada = false;
-		boolean cursoExiste = false;
-		String result = "No se ha podido crear la asignacion";
+		boolean encontrado = false;
 		int i = 0;
-		while (i < listaAsignaturas.size() && !cursoExiste)
+		while (i < listaAsignaturas.size() && !encontrado)
 		{
-			if (listaAsignaturas.get(i).getCurso() == curso && listaAsignaturas.get(i).getEtapa().equals(etapa)
-					&& listaAsignaturas.get(i).getGrupo().equals(grupo)
-					&& listaAsignaturas.get(i).getNombreAsinatura().equalsIgnoreCase(nombreAsignatura))
+			encontrado = listaAsignaturas.get(i).getCurso() == curso && listaAsignaturas.get(i).getEtapa().equals(etapa) && 
+						 listaAsignaturas.get(i).getGrupo().equals(grupo) && 
+						 listaAsignaturas.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura) ;
+			if (encontrado)
 			{
-				cursoExiste = true;
-				asignaturaEncontrada = true;
 				asignaturaObject.setDepartamento(listaAsignaturas.get(i).getDepartamento());
 				asignaturaObject.setNumeroHorasSemanales(listaAsignaturas.get(i).getNumeroHorasSemanales());
 			}
+			
 			i++;
 		}
-		if (asignaturaEncontrada && cursoExiste)
+		if(!encontrado) 
 		{
-			asignaturaObject.setCurso(curso);
-			asignaturaObject.setEtapa(etapa);
-			asignaturaObject.setGrupo(grupo);
-			result = "asignacion creada correctamente";
-			datosAsignacion.add(asignaturaObject);
+			String errorString = "No se ha encontrado la asignatura";
+			
+			log.error(errorString);
+			throw new HorarioException(2, errorString);
 		}
-		return result;
+		
+
+		asignaturaObject.setCurso(curso);
+		asignaturaObject.setEtapa(etapa);
+		asignaturaObject.setGrupo(grupo);
+		datosAsignacion.add(asignaturaObject);
+		
 	}
 
 	/**
-	 * método para comprobar el curso
+	 * Método para obtener el curso
 	 * 
-	 * @param listaCursos lista de cursos
-	 * @param cursoExiste booleano para comprobar si el curso existe
+	 * @param listaCursos Lista de cursos
+	 * @param cursoExiste Booleano para obtener si el curso existe
 	 * @param cursoAsignacion Objeto curso
 	 * @throws HorarioException 
 	 */
-	public void comprobarCurso(List<Curso> listaCursos, boolean cursoExiste, Curso cursoAsignacion)
-			throws HorarioException
-	{
-		int i = 0;
-		while (i < listaCursos.size() && !cursoExiste)
-		{
-			if (listaCursos.get(i).equals(cursoAsignacion))
-			{
-				cursoExiste = true;
-			}
-			i++;
-		}
-		if (!cursoExiste)
-		{
-			String error = "Curso no encontrado";
-			log.info(error);
-			throw new HorarioException(13, error);
-		}
-	}
 
 	/**
-	 * método para comprobar el id del profesor
+	 * método para obtener el id del profesor
 	 * 
-	 * @param idProfesor id del profesor
-	 * @param listaProfesores lista de profesores
+	 * @param idProfesor Id del profesor
+	 * @param listaProfesores Lista de profesores
 	 * @throws HorarioException
 	 */
-	public void comprobarIdProfesor(String idProfesor, List<Profesor> listaProfesores) throws HorarioException 
+	public void obtenerIdProfesor(String idProfesor, List<Profesor> listaProfesores) throws HorarioException 
 	{
 		boolean idProfesorExiste = false;
 		int i = 0;
@@ -621,44 +498,39 @@ public class Parse
 	}
 
 	/**
-	 * método para comprobar que la lista de departamentos existe
+	 * Método para obtener que la lista de departamentos existe
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param listaDepartamentos lista de departamentos
-	 * @return
-	 * @throws HorarioException
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @return Lista de departamentos
+	 * @throws HorarioException se lanzará esta excepción si la lista de departamentos es nula
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Departamento> comprobarListaDepartamentos(HttpSession session, List<Departamento> listaDepartamentos)
+	public List<Departamento> obtenerListaDepartamentos(HttpSession session)
 			throws HorarioException
 	{
-		if (session.getAttribute("listaDepartamentos") != null)
-		{
-			listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos");
-		}
-		else
+		List<Departamento> listaDepartamentos = (List<Departamento>) session.getAttribute("listaDepartamentos") ;
+
+		if (listaDepartamentos == null)
 		{
 			String error = "Los departamentos no han sido cargados en sesion todavía";
 			throw new HorarioException(1, error);
 		}
+
 		return listaDepartamentos;
 	}
 
 	/**
-	 * método para comprobar si la lista de cursos existe
+	 * Método para obtener si la lista de cursos existe
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión 
-	 * @param listaCursos lista de cursos
-	 * @return
-	 * @throws HorarioException
+	 * @param session Utilizado para guardas u obtener cosas en sesión 
+	 * @param listaCursos Lista de cursos
+	 * @return Lista de cursos
+	 * @throws HorarioException se lanzará esta excepción si la lista es nula
 	 */
-	@SuppressWarnings("unchecked")
-	public List<Curso> comprobarListaCursos(HttpSession session, List<Curso> listaCursos) throws HorarioException {
-		if (session.getAttribute("listaCursos") != null)
-		{
-			listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-		} 
-		else
+	public List<Curso> obtenerListaCursos(HttpSession session, List<Curso> listaCursos) throws HorarioException
+	{
+		
+		if (listaCursos == null)
 		{
 			String error = "Los cursos no han sido cargados en sesion todavía";
 			throw new HorarioException(1, error);
@@ -667,22 +539,17 @@ public class Parse
 	}
 
 	/**
-	 * método para comprobar la lista de profesores
+	 * Método para obtener la lista de profesores
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param listaProfesores lista de profesores
-	 * @return
-	 * @throws HorarioException
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @param listaProfesores Lista de profesores
+	 * @return Lista de profesores
+	 * @throws HorarioException se lanzará esta excepción si la lista es nula
 	 */
-	@SuppressWarnings("unchecked")
-	public List<Profesor> comprobarListaProfesores(HttpSession session, List<Profesor> listaProfesores)
+	public List<Profesor> obtenerListaProfesores(HttpSession session, List<Profesor> listaProfesores)
 			throws HorarioException
 	{
-		if (session.getAttribute("listaProfesores") != null)
-		{
-			listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-		}
-		else
+		if (listaProfesores == null)
 		{
 			String error = "Los profesores no han sido cargados en sesion todavía";
 			throw new HorarioException(1, error);
@@ -691,61 +558,51 @@ public class Parse
 	}
 
 	/**
-	 * método para comprobar la lista de asignaturas
+	 * Método para obtener la lista de asignaturas
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param listaAsignaturas lista de asignaturas
-	 * @return
-	 * @throws HorarioException
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @param listaAsignaturas Lista de asignaturas
+	 * @return Lista de asignaturas
+	 * @throws HorarioException se lanzará esta excepción si la lista es nula
 	 */
-	@SuppressWarnings("unchecked")
-	public List<Asignatura> comprobarListaAsignaturas(HttpSession session, List<Asignatura> listaAsignaturas)
+	public List<Asignatura> obtenerListaAsignaturas(HttpSession session, List<Asignatura> listaAsignaturas)
 			throws HorarioException
 	{
-		if (session.getAttribute("listaAsignaturas") != null)
+		if (listaAsignaturas == null)
 		{
-			listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-		}
-		else
-		{
-			String error = "Las asignatura no han sido cargados en sesion todavía";
+			String error = "Las asignaturas no han sido cargadas en sesion todavía";
 			throw new HorarioException(1, error);
 		}
 		return listaAsignaturas;
 	}
 
 	/**
-	 * método para comprobar la lista de reducciones
+	 * Método para obtener la lista de reducciones
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param listaReducciones lista de reducciones
-	 * @return
-	 * @throws HorarioException
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @param listaReducciones Lista de reducciones
+	 * @return Lista de reducciones
+	 * @throws HorarioException se lanzará esta excepción si la lista es nula
 	 */
-	@SuppressWarnings("unchecked")
-	public List<Reduccion> comprobarListaReducciones(HttpSession session, List<Reduccion> listaReducciones)
+	public List<Reduccion> obtenerListaReducciones(HttpSession session, List<Reduccion> listaReducciones)
 			throws HorarioException
 	{
-		if (session.getAttribute("listaReducciones") != null)
+		if (listaReducciones == null)
 		{
-			listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
-		}
-		else
-		{
-			String error = "Las reducciones no han sido cargados en sesion todavía";
+			String error = "Las reducciones no han sido cargadas en sesion todavía";
 			throw new HorarioException(1, error);
 		}
 		return listaReducciones;
 	}
 
 	/**
-	 * método para comprobar si el departamento existe
+	 * Método para obtener si el departamento existe
 	 * 
-	 * @param listaDepartamentos lista de departamentos
-	 * @param departamento objeto departamento
-	 * @throws HorarioException
+	 * @param listaDepartamentos Lista de departamentos
+	 * @param departamento Objeto departamento
+	 * @throws HorarioException se lanzará esta excepción si no existe el departamento
 	 */
-	public void comprobarDepartamentoExiste(List<Departamento> listaDepartamentos, Departamento departamento)
+	public void obtenerDepartamentoExiste(List<Departamento> listaDepartamentos, Departamento departamento)
 			throws HorarioException
 	{
 		if (!listaDepartamentos.contains(departamento))
@@ -757,13 +614,13 @@ public class Parse
 	}
 
 	/**
-	 * método para comprobar si la id reduccion existe
+	 * Método para obtener si la id reduccion existe
 	 * 
-	 * @param idReduccion id de la reduccion
-	 * @param listaReducciones lista de reduccionnes
-	 * @throws HorarioException
+	 * @param idReduccion Id de la reduccion
+	 * @param listaReducciones Lista de reduccionnes
+	 * @throws HorarioException se lanzará esta excepción si la reduccion no existe
 	 */
-	public void comprobarIdReduccionExiste(String idReduccion, List<Reduccion> listaReducciones)
+	public void obtenerIdReduccionExiste(String idReduccion, List<Reduccion> listaReducciones)
 			throws HorarioException
 	{
 		boolean idReduccionExiste = false;
@@ -785,21 +642,21 @@ public class Parse
 	}
 
 	/**
-	 * método para comprobar si el nombre de asignatura existe
+	 * Método para obtener si el nombre de asignatura existe
 	 * 
-	 * @param nombreAsignatura nombre de la asignatura
-	 * @param listaAsignaturas lista de asignaturas
-	 * @param asignaturaExiste booleano para comprobar si la asignatura existe
-	 * @throws HorarioException
+	 * @param nombreAsignatura Nombre de la asignatura
+	 * @param listaAsignaturas Lista de asignaturas
+	 * @param asignaturaExiste Booleano para obtener si la asignatura existe
+	 * @throws HorarioException Se lanzará esta excepción si la asignatura no existe
 	 */
-	public void comprobarNombreAsignaturaExiste(String nombreAsignatura, List<Asignatura> listaAsignaturas)
+	public void obtenerNombreAsignaturaExiste(String nombreAsignatura, List<Asignatura> listaAsignaturas)
 			throws HorarioException
 	{
 		boolean asignaturaExiste = false;
 		int i = 0;
 		while (i < listaAsignaturas.size() && !asignaturaExiste)
 		{
-			if (listaAsignaturas.get(i).getNombreAsinatura().equalsIgnoreCase(nombreAsignatura))
+			if (listaAsignaturas.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura))
 			{
 				asignaturaExiste = true;
 			}
@@ -813,12 +670,12 @@ public class Parse
 	}
 
 	/**
-	 * método para obtener las horas de un profesor
+	 * Método para obtener las horas de un profesor
 	 * 
-	 * @param idProfesor id del profesor
-	 * @param mapaReduccion mapa de reducciones
-	 * @param mapaAsignatura mapa de asignaturas
-	 * @return
+	 * @param idProfesor Id del profesor
+	 * @param mapaReduccion Mapa de reducciones
+	 * @param mapaAsignatura Mapa de asignaturas
+	 * @return Objeto resumen de profesor
 	 */
 	public ResumenProfesor obtencionHorasProfesor(String idProfesor, Map<String, List<ReduccionHoras>> mapaReduccion,
 			Map<String, List<Asignatura>> mapaAsignatura)
@@ -853,64 +710,54 @@ public class Parse
 	}
 
 	/**
-	 * método para comprobar si existe el mapa de reduccion
+	 * Método para obtener si existe el mapa de reduccion
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param mapaReduccion mapa de reducción
-	 * @return
-	 * @throws HorarioException
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @param mapaReduccion Mapa de reducción
+	 * @return Mapa de reduccion
+	 * @throws HorarioException Se lanzará esta excepción si el mapa es nulo
 	 */
-	@SuppressWarnings("unchecked")
-	public Map<String, List<ReduccionHoras>> comprobarMapaReduccion(HttpSession session,
+	public Map<String, List<ReduccionHoras>> obtenerMapaReduccion(HttpSession session,
 			Map<String, List<ReduccionHoras>> mapaReduccion) throws HorarioException
 	{
-		if (session.getAttribute("mapaReduccion") != null)
+		if (mapaReduccion == null)
 		{
-			mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
-		}
-		else
-		{
-			String error = "No se ha realizado reducciones todavía";
+			String error = "El mapa reduccion no han sido cargado en sesion todavía";
 			throw new HorarioException(1, error);
 		}
 		return mapaReduccion;
 	}
 
 	/**
-	 * método para comprobar si existe el mapa asignaturas
+	 * Método para obtener si existe el mapa asignaturas
 	 * 
 	 * @param session utilizado para guardas u obtener cosas en sesión
 	 * @param mapaAsignatura mapa de asignaturas
-	 * @return
-	 * @throws HorarioException
+	 * @return Mapa de asignaturas
+	 * @throws HorarioException Se lanzará esta excepción si el mapa es nulo
 	 */
-	@SuppressWarnings("unchecked")
-	public Map<String, List<Asignatura>> comprobarMapaAsignaturas(HttpSession session,
+	public Map<String, List<Asignatura>> obtenerMapaAsignaturas(HttpSession session,
 			Map<String, List<Asignatura>> mapaAsignatura) throws HorarioException
 	{
-		if (session.getAttribute("mapaAsignaturas") != null)
+		if (mapaAsignatura == null)
 		{
-			mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
-		}
-		else
-		{
-			String error = "No se ha realizado asignacion de asignaturas todavía";
+			String error = "El mapa asignaturas no han sido cargado en sesion todavía";
 			throw new HorarioException(1, error);
 		}
 		return mapaAsignatura;
 	}
 
 	/**
-	 * método para parsear el fichero matriculas curso
+	 * Método para parsear el fichero matriculas curso
 	 * 
-	 * @param csvFile fichero csv
-	 * @param curso número de curso
-	 * @param etapa etapa del curso
-	 * @param mapaAsignaturas mapa de asignaturas
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @return
-	 * @throws IOException
-	 * @throws HorarioException
+	 * @param csvFile Fichero csv
+	 * @param curso Número de curso
+	 * @param etapa Etapa del curso
+	 * @param mapaAsignaturas Mapa de asignaturas
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @return La clave del mapa
+	 * @throws IOException Se lanzará esta excepción si hay un error con el fichero
+	 * @throws HorarioException 
 	 */
 	@SuppressWarnings("unchecked")
 	public String parseCursosMap(MultipartFile csvFile, Integer curso, String etapa,
@@ -925,11 +772,11 @@ public class Parse
 	        String clave = curso + etapa.toUpperCase();
 	        String[] linea = scanner.nextLine().split(",");
 	        List<Asignatura> listaAsignatura = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-	        this.comprobarListaAsignaturas(session, listaAsignatura);
+	        this.obtenerListaAsignaturas(session, listaAsignatura);
 	        List<String> listaNombres = inicializarListaNombres(session);
-	        this.comprobarListaAsignaturas(session, listaAsignatura);
+	        this.obtenerListaAsignaturas(session, listaAsignatura);
 	        List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-	        this.comprobarListaCursos(session, listaCursos);
+	        this.obtenerListaCursos(session, listaCursos);
 	        int i = 0;
 	        while (i < listaCursos.size() && !encontrado) 
 	        {
@@ -946,15 +793,15 @@ public class Parse
 	            String asignatura3 = "";
 	            for (Asignatura asignatura : listaAsignatura) 
 	            {
-	                if (linea[1].equalsIgnoreCase(asignatura.getNombreAsinatura())) 
+	                if (linea[1].equalsIgnoreCase(asignatura.getNombreAsignatura())) 
 	                {
 	                    asignatura1 = linea[1];
 	                }
-	                if (linea[2].equalsIgnoreCase(asignatura.getNombreAsinatura())) 
+	                if (linea[2].equalsIgnoreCase(asignatura.getNombreAsignatura())) 
 	                {
 	                    asignatura2 = linea[2];
 	                }
-	                if (linea[3].equalsIgnoreCase(asignatura.getNombreAsinatura())) 
+	                if (linea[3].equalsIgnoreCase(asignatura.getNombreAsignatura())) 
 	                {
 	                    asignatura3 = linea[3];
 	                }
@@ -1004,11 +851,11 @@ public class Parse
 	}
 
 	/**
-	 * método para parsear el fichero matricula Cursos
+	 * Método para parsear el fichero matricula Cursos
 	 * 
-	 * @param mapaAsignaturas mapa de asignaturas
-	 * @param scanner escaner para leer
-	 * @param listaNombres lista de nombres
+	 * @param mapaAsignaturas Mapa de asignaturas
+	 * @param scanner Escaner para leer
+	 * @param listaNombres Lista de nombres
 	 * @param asignatura1 asignatura
 	 * @param asignatura2 asignatura
 	 * @param asignatura3 asignatura
@@ -1051,10 +898,10 @@ public class Parse
 	}
 
 	/**
-	 * método para inicializar la lista de nombres
+	 * Método para inicializar la lista de nombres
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @return
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @return Lista con nombres de alumnos
 	 */
 	@SuppressWarnings("unchecked")
 	public List<String> inicializarListaNombres(HttpSession session) 
@@ -1072,58 +919,48 @@ public class Parse
 	}
 
 	/**
-	 * método para comprobar si existe el mapa cursos
+	 * Método para obtener si existe el mapa cursos
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param mapaCursos mapa de cursos
-	 * @return
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @param mapaCursos Mapa de cursos
+	 * @return Mapa cursos
 	 * @throws HorarioException
 	 */
-	@SuppressWarnings("unchecked")
-	public Map<String, Map<String, List<String>>> comprobarMapaCursosExiste(HttpSession session,
+	public Map<String, Map<String, List<String>>> obtenerMapaCursosExiste(HttpSession session,
 			Map<String, Map<String, List<String>>> mapaCursos) throws HorarioException
 	{
-		if (session.getAttribute("mapaCursos") != null)
+		if (mapaCursos == null)
 		{
-			mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute("mapaCursos");
-		} 
-		else
-		{
-			String error = "No se ha cargado el mapa de cursos";
+			String error = "El mapa cursos no han sido cargado en sesion todavía";
 			throw new HorarioException(1, error);
 		}
 		return mapaCursos;
 	}
 
 	/**
-	 * método para comprobar si el mapa bloques existe
+	 * Método para obtener si el mapa bloques existe
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param mapaBloques mapa de bloques
-	 * @return
-	 * @throws HorarioException
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @param mapaBloques Mapa de bloques
+	 * @return mapa de los bloques
+	 * @throws HorarioException Se lanzara si el mapa es nulo
 	 */
-	@SuppressWarnings("unchecked")
-	public Map<String, List<String>> comprobarMapaBloquesExiste(HttpSession session,
+	public Map<String, List<String>> obtenerMapaBloquesExiste(HttpSession session,
 			Map<String, List<String>> mapaBloques) throws HorarioException
 	{
-		if (session.getAttribute("mapaBloques") != null)
+		if (mapaBloques == null)
 		{
-			mapaBloques = (Map<String, List<String>>) session.getAttribute("mapaBloques");
-		}
-		else
-		{
-			String error = "No se ha realizado asignacion de bloques todavía";
+			String error = "El mapa bloques no han sido cargado en sesion todavía";
 			throw new HorarioException(1, error);
 		}
 		return mapaBloques;
 	}
 
 	/**
-	 * método para incializar el mapa de cursos
+	 * Método para incializar el mapa de cursos
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @return
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @return Mapa de cursos
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, Map<String, List<String>>> inicializarMapaCursos(HttpSession session) 
@@ -1141,37 +978,32 @@ public class Parse
 	}
 
 	/**
-	 * método para comprobar si la lista existe
+	 * Método para obtener si la lista existe
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @param listaNombres lista con el nombre y apellidos de los alumnos 
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @param listaNombres Lista con el nombre y apellidos de los alumnos 
 	 * @throws HorarioException
 	 */
-	@SuppressWarnings("unchecked")
-	public void comprobarListaNombresExiste(HttpSession session, List<String> listaNombres) throws HorarioException
+	public void obtenerListaNombresExiste(HttpSession session, List<String> listaNombres) throws HorarioException
 	{
-		if (session.getAttribute("listaNombres") != null)
+		if (listaNombres == null)
 		{
-			listaNombres = (List<String>) session.getAttribute("listaNombres");
-		}
-		else
-		{
-			String error = "Los nombres no han sido cargados todavia";
+			String error = "La lista de nombres no han sido cargada en sesion todavía";
 			throw new HorarioException(1, error);
 		}
 	}
 
 	/**
-	 * método para realizar la asignacion de un alumno
+	 * Método para realizar la asignacion de un alumno
 	 * 
-	 * @param alumno nombre y apellido del alumno
-	 * @param session utilizado para guardas u obtener cosas en sesión
+	 * @param alumno Nombre y apellido del alumno
+	 * @param session Utilizado para guardas u obtener cosas en sesión
 	 * @param cursoObject Objeto curso
-	 * @param resultado string con el resultado
-	 * @param clave clave para el mapa
-	 * @param listaCursos lista de cursos
-	 * @param listaNombres lista de nombres
-	 * @return
+	 * @param resultado String con el resultado
+	 * @param clave Clave para el mapa
+	 * @param listaCursos Lista de cursos
+	 * @param listaNombres Lista de nombres
+	 * @return 
 	 * @throws HorarioException
 	 */
 	@SuppressWarnings("unchecked")
@@ -1233,42 +1065,32 @@ public class Parse
 		return resultado;
 	}
 	/**
-	 * método para comprobar si el mapa asignaturas cursos existe
+	 * Método para obtener si el mapa asignaturas cursos existe
 	 * 
-	 * @param session utilizado para guardas u obtener cosas en sesión 
-	 * @param mapaAsignaturas mapa de asignaturas
-	 * @throws HorarioException
+	 * @param session Utilizado para guardas u obtener cosas en sesión 
+	 * @param mapaAsignaturas Mapa de asignaturas
+	 * @throws HorarioException se lanzara si el mapa es nulo
 	 */
-	@SuppressWarnings("unchecked")
-	public void comprobarMapaAsignaturasCursosExiste(HttpSession session,Map<String, List<String>> mapaAsignaturas) throws HorarioException 
+	public void obtenerMapaAsignaturasCursosExiste(HttpSession session,Map<String, List<String>> mapaAsignaturas) throws HorarioException 
 	{
-		if (session.getAttribute("mapaAsignaturasCursos") != null)
+		if (mapaAsignaturas == null)
 		{
-			mapaAsignaturas = (Map<String, List<String>>) session.getAttribute("mapaAsignaturasCursos");
-		}
-		else
-		{
-			String error = "No se ha realizado la asignacion de asignatura a cursos";
+			String error = "El mapa asignaturas no han sido cargado en sesion todavía";
 			throw new HorarioException(1, error);
 		}
 	}
 	/**
-	 * metodo para comprobar si el mapa de alumnos existe
+	 * metodo para obtener si el mapa de alumnos existe
 	 * 
-	 * @param mapaAlumnos mapa de alumnos
-	 * @param session utilizado para guardas u obtener cosas en sesión
-	 * @throws HorarioException
+	 * @param mapaAlumnos Mapa de alumnos
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @throws HorarioException Se lanzara si el mapa alumnos es nulo
 	 */
-	@SuppressWarnings("unchecked")
-	public void comprobarMapaAlumnoExiste(Map<String, List<String>> mapaAlumnos,HttpSession session) throws HorarioException
+	public void obtenerMapaAlumnoExiste(Map<String, List<String>> mapaAlumnos,HttpSession session) throws HorarioException
 	{
-		if (session.getAttribute("mapaAlumnos") != null)
+		if (mapaAlumnos == null)
 		{
-			mapaAlumnos = (Map<String, List<String>>) session.getAttribute("mapaAlumnos");
-		} 
-		else
-		{
-			String error = "El mapa de alumnos no ha sido cargado en sesion todavía";
+			String error = "El mapa alumnos no han sido cargado en sesion todavía";
 			throw new HorarioException(1, error);
 		}
 	}
