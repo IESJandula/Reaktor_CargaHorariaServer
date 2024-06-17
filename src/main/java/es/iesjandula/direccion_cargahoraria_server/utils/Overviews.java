@@ -1,5 +1,6 @@
 package es.iesjandula.direccion_cargahoraria_server.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,16 +9,17 @@ import es.iesjandula.direccion_cargahoraria_server.models.Asignatura;
 import es.iesjandula.direccion_cargahoraria_server.models.Profesor;
 import es.iesjandula.direccion_cargahoraria_server.models.ReduccionHoras;
 import es.iesjandula.direccion_cargahoraria_server.models.Resumen;
+import es.iesjandula.direccion_cargahoraria_server.models.ResumenProfesor;
 import jakarta.servlet.http.HttpSession;
 
 public class Overviews
 {
 	/**
-	 * método para obtener las horas de reduccion
+	 * Método para obtener las horas de reduccion
 	 * 
-	 * @param mapaReduccion mapa de reducciones
-	 * @param profesorId id del profesor
-	 * @return
+	 * @param mapaReduccion Mapa de reducciones
+	 * @param profesorId Id del profesor
+	 * @return Se devolvera el total de horas de reducción
 	 */
 	public int obtenerHorasReduccion(Map<String, List<ReduccionHoras>> mapaReduccion, String profesorId) 
 	{
@@ -34,11 +36,11 @@ public class Overviews
 	}
 
 	/**
-	 * método para obtener las horas de las asignaturas
+	 * Método para obtener las horas de las asignaturas
 	 * 
-	 * @param mapaAsignatura mapa de las asignaturas
-	 * @param profesorId id del profesor
-	 * @return
+	 * @param mapaAsignatura Mapa de las asignaturas
+	 * @param profesorId Id del profesor
+	 * @return Se devolvera el total de horas de asignaturas
 	 */
 	public int obtenerHorasAsignaturas(Map<String, List<Asignatura>> mapaAsignatura, String profesorId) 
 	{
@@ -54,6 +56,7 @@ public class Overviews
 	}
 	
 	/**
+	 * Método para realizar el resumen del departamento
 	 * 
 	 * @param nombreDepartamento Nombre del departamento
 	 * @param session Utilizado para obtener o guardar cosas en sesión
@@ -71,8 +74,8 @@ public class Overviews
 		Map<String, Integer> mapaGuardias = (Map<String, Integer>) session.getAttribute("mapaGuardias");
 
 		List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores"); 
-		Parse parse = new Parse();
-		parse.obtenerListaProfesores(session, listaProfesores);
+		Validations validations = new Validations();
+		validations.obtenerListaProfesores(session, listaProfesores);
 		for (Profesor profesor : listaProfesores)
 		{
 			// comprobamos si el profesor pertenece a ese departamento
@@ -102,12 +105,18 @@ public class Overviews
 
 		int horasNecesarias = numeroProfesorDepartamento * 18;
 		int desfase = totalHoras - horasNecesarias;
+		
 		// Obtenemos el desfase
 		String resultadoDesfase = obtenerDesfase(desfase);
 
 		return new Resumen(numeroProfesorDepartamento, horasNecesarias, totalHoras, desfase, resultadoDesfase);
 	}
-	
+	/**
+	 * Método para obtener el desfase
+	 * 
+	 * @param desfase Numero de horas
+	 * @return Si sobran horas, faltan horas o cerrado
+	 */
 	public String obtenerDesfase(int desfase)
 	{
 		String resultadoDesfase = "Cerrado";
@@ -120,5 +129,50 @@ public class Overviews
 			resultadoDesfase = "Faltan horas";
 		}
 		return resultadoDesfase;
+	}
+	
+	/**
+	 * Método para obtener las horas de un profesor
+	 * 
+	 * @param idProfesor Id del profesor
+	 * @param mapaReduccion Mapa de reducciones
+	 * @param mapaAsignatura Mapa de asignaturas
+	 * @return Objeto resumen de profesor
+	 */
+	public ResumenProfesor obtencionHorasProfesor(String idProfesor, Map<String, List<ReduccionHoras>> mapaReduccion,
+			Map<String, List<Asignatura>> mapaAsignatura)
+	{
+		int totalHoras = 0;
+		
+		List<Asignatura> listaAsignaturaProfesor = new ArrayList<Asignatura>();
+		List<ReduccionHoras> listaReduccionHoras = new ArrayList<ReduccionHoras>();
+		
+		if (mapaAsignatura.containsKey(idProfesor))
+		{
+			// Obtenemos la lista de asignaturas del profesor
+			List<Asignatura> listaAsignaturas = mapaAsignatura.get(idProfesor);
+			
+			for (Asignatura asignatura : listaAsignaturas)
+			{
+				Asignatura asignatura2 = asignatura;
+				listaAsignaturaProfesor.add(asignatura2);
+				totalHoras += asignatura.getNumeroHorasSemanales();
+			}
+		}
+		if (mapaReduccion.containsKey(idProfesor))
+		{
+			// Obtenemos la lista de reducciones del profesor
+			List<ReduccionHoras> listaReducciones = mapaReduccion.get(idProfesor);
+
+			for (ReduccionHoras reduccionHoras : listaReducciones)
+			{
+				ReduccionHoras reduccionHoras2 = reduccionHoras;
+				listaReduccionHoras.add(reduccionHoras2);
+				totalHoras += reduccionHoras.getNumHoras();
+			}
+		}
+
+		ResumenProfesor resumen = new ResumenProfesor(listaAsignaturaProfesor, listaReduccionHoras, totalHoras);
+		return resumen;
 	}
 }
