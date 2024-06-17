@@ -708,4 +708,18 @@ public class Validations
 		}
 		return asignacion;
 	}
+	/**
+	 * Método para inicialiar el mapa de bloques si esta vacio 
+	 *  
+	 * @param mapaBloques Mapa de bloques
+	 * @return Mapa de bloques
+	 */
+	public Map<String, List<String>> inicializarMapaBloques(Map<String, List<String>> mapaBloques) 
+	{
+		if (mapaBloques == null)
+		{
+			mapaBloques = new HashMap<>();
+		}
+		return mapaBloques;
+	}
 }

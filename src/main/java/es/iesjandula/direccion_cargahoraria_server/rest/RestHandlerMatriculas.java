@@ -124,8 +124,7 @@ public class RestHandlerMatriculas
 			
 			// Obtenemos el mapa de bloques
 			Map<String, List<String>> mapaBloques = (Map<String, List<String>>) session.getAttribute("mapaBloques");
-			validations.obtenerMapaBloques(session, mapaBloques);
-			
+			mapaBloques = validations.inicializarMapaBloques(mapaBloques);
 			// Obtenemos la lista de asignaturas
 			List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
 			validations.obtenerListaAsignaturas(session, listaAsignaturas);
@@ -486,7 +485,7 @@ public class RestHandlerMatriculas
 					}
 				}
 			}
-			return ResponseEntity.ok().body(contadorAlumno);
+			return ResponseEntity.ok().body("Número de alumnos: " + contadorAlumno);
 		}
 		catch (Exception exception)
 		{
