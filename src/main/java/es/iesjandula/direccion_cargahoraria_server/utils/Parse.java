@@ -64,6 +64,7 @@ public class Parse
 
 				listaDepartamentos.add(new Departamento(lineaArray[0]));
 			}
+			// mostramos la lista de departamentos en el log
 			log.info(listaDepartamentos);
 
 			return listaDepartamentos;
@@ -92,7 +93,7 @@ public class Parse
 			List<Curso> listaCursos = new ArrayList<>();
 			Validations validations = new Validations();
 
-			String contenido = validations.obtenerContenidoFichero("parseCursos", csvFile);
+			String contenido = validations.obtenerContenidoFichero(Constants.NOMBRE_METH_PARSE_CURSOS, csvFile);
 			scanner = new Scanner(contenido);
 			// Saltamos la cabecera
 			scanner.nextLine();
@@ -140,7 +141,7 @@ public class Parse
 			List<Profesor> listaProfesores = new ArrayList<>();
 			Validations validations = new Validations();
 
-			String contenido = validations.obtenerContenidoFichero("parseCursos", csvFile);
+			String contenido = validations.obtenerContenidoFichero(Constants.NOMBRE_METH_PARSE_PROFESORES, csvFile);
 
 			scanner = new Scanner(contenido);
 			// Saltamos la cabecera
@@ -163,8 +164,10 @@ public class Parse
 				Departamento departamento = new Departamento(lineaArray[2]);
 				// Método para obtener el departamento
 				validations.obtenerDepartamento(listaDepartamentos, departamento);
+				
 				// Creamos el objeto profesor y lo añadimos a la lista
 				Profesor profesor = new Profesor(lineaArray[0], lineaArray[1], lineaArray[2]);
+				
 				listaProfesores.add(profesor);
 			}
 
@@ -197,12 +200,15 @@ public class Parse
 			List<Asignatura> listaAsignaturas = new ArrayList<>();
 
 			Validations validations = new Validations();
+			
 			// Obtenemos el contenido del fichero
-			String contenido = validations.obtenerContenidoFichero("parseCursos", csvFile);
+			String contenido = validations.obtenerContenidoFichero(Constants.NOMBRE_METH_PARSE_ASIGNATURAS, csvFile);
+			
 			scanner = new Scanner(contenido);
-			Asignatura asignatura = null;
+			
 			// Saltamos la cabecera
 			scanner.nextLine();
+			
 			while (scanner.hasNext())
 			{
 				String linea = scanner.nextLine();
@@ -211,36 +217,17 @@ public class Parse
 				String[] lineaArray = linea.split(",");
 
 				Curso curso = new Curso(Integer.parseInt(lineaArray[1]), lineaArray[2], lineaArray[3]);
-				validations.obtenerCurso(listaCursos, curso);
+				
+				// Validamos si el curso existe
+				validations.validarExistenciaCurso(listaCursos, curso);
 
-				boolean esAsignatura = lineaArray.length == 6;
-				boolean esTutoria = lineaArray.length == 5;
-
-				if (!esAsignatura && !esTutoria)
-				{
-					String errorString = Constants.ERR_LECTURA_FICHEROS_CSV_MSG
-							+ Constants.NOMBRE_METH_PARSE_ASIGNATURAS + ". Concretamente aquí: " + linea;
-
-					log.error(errorString);
-					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, errorString);
-				}
-				else if (esAsignatura)
-				{
-					Departamento departamento = new Departamento(lineaArray[5]);
-					// Obtenemos el departamento
-					validations.obtenerDepartamento(listaDepartamentos, departamento);
-					// Creamos la asignatura
-					asignatura = new Asignatura(lineaArray[0], Integer.parseInt(lineaArray[1]), lineaArray[2],
-							lineaArray[3], Integer.valueOf(lineaArray[4]), lineaArray[5]);
-				}
-				else
-				{
-					// Creamos la asignatura
-					asignatura = new Asignatura(lineaArray[0], Integer.parseInt(lineaArray[1]), lineaArray[2],
-							lineaArray[3], Integer.valueOf(lineaArray[4]), null);
-				}
+				// Generamos la asignatgura o tutoria
+				Asignatura asignatura = this.generarAsignaturaOTutoria(listaDepartamentos, validations, linea, lineaArray);
+				
 				// Log para mostrar la lista de asignaturas
 				log.info(listaAsignaturas);
+				
+				// Añadimos la asignatura a la lista de asignaturas
 				listaAsignaturas.add(asignatura);
 			}
 
@@ -253,6 +240,50 @@ public class Parse
 				scanner.close();
 			}
 		}
+	}
+
+	/**
+	 * FALTA
+	 * @param listaDepartamentos
+	 * @param validations
+	 * @param linea
+	 * @param lineaArray
+	 * @return
+	 * @throws HorarioException
+	 */
+	private Asignatura generarAsignaturaOTutoria(List<Departamento> listaDepartamentos, Validations validations, String linea, String[] lineaArray) throws HorarioException
+	{
+		Asignatura asignatura = null ;
+		
+		boolean esAsignatura = lineaArray.length == 6;
+		boolean esTutoria = lineaArray.length == 5;
+
+		if (!esAsignatura && !esTutoria)
+		{
+			String errorString = Constants.ERR_LECTURA_FICHEROS_CSV_MSG
+					+ Constants.NOMBRE_METH_PARSE_ASIGNATURAS + ". Concretamente aquí: " + linea;
+
+			log.error(errorString);
+			throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, errorString);
+		}
+		else if (esAsignatura)
+		{
+			Departamento departamento = new Departamento(lineaArray[5]);
+			// Obtenemos el departamento
+			validations.obtenerDepartamento(listaDepartamentos, departamento);
+			
+			// Creamos la asignatura
+			asignatura = new Asignatura(lineaArray[0], Integer.parseInt(lineaArray[1]), lineaArray[2],
+					lineaArray[3], Integer.valueOf(lineaArray[4]), lineaArray[5]);
+		}
+		else
+		{
+			// Creamos la asignatura
+			asignatura = new Asignatura(lineaArray[0], Integer.parseInt(lineaArray[1]), lineaArray[2],
+					lineaArray[3], Integer.valueOf(lineaArray[4]), null);
+		}
+		
+		return asignatura ;
 	}
 
 	/**
@@ -270,10 +301,9 @@ public class Parse
 		try
 		{
 			List<Reduccion> listaReducciones = new ArrayList<>();
-			Reduccion reduccion;
 			Validations validations = new Validations();
 
-			String contenido = validations.obtenerContenidoFichero("parseReducciones", csvFile);
+			String contenido = validations.obtenerContenidoFichero(Constants.NOMBRE_METH_PARSE_REDUCCIONES, csvFile);
 			scanner = new Scanner(contenido);
 			// Saltamos la cabecera
 			scanner.nextLine();
@@ -293,16 +323,11 @@ public class Parse
 					log.error(errorString);
 					throw new HorarioException(Constants.ERR_LECTURA_FICHEROS_CSV_CODE, errorString);
 				}
-				else
-				{
-					reduccion = new Reduccion(lineaArray[0], lineaArray[1], Integer.valueOf(lineaArray[2]), null, null,
-							null);
-					listaReducciones.add(reduccion);
-				}
-			}
+				
+				listaReducciones.add(new Reduccion(lineaArray[0], lineaArray[1], Integer.valueOf(lineaArray[2])));
+			}	
 			return listaReducciones;
 		}
-
 		finally
 		{
 			if (scanner != null)
@@ -311,7 +336,7 @@ public class Parse
 			}
 		}
 	}
-
+	
 	/**
 	 * Método para parsear el fichero matriculas curso
 	 * 
@@ -326,101 +351,121 @@ public class Parse
 	 * @throws HorarioException
 	 */
 	@SuppressWarnings("unchecked")
-	public String parseCursosMap(MultipartFile csvFile, Integer curso, String etapa, HttpSession session)
+	public void parseCursosMap(MultipartFile csvFile, Integer curso, String etapa, HttpSession session)
 			throws IOException, HorarioException
 	{
 		Scanner scanner = null;
 		try
 		{
 			Validations validations = new Validations();
-			boolean encontrado = false;
-			String contenido = validations.obtenerContenidoFichero("parseCursosMap", csvFile);
+			String contenido = validations.obtenerContenidoFichero(Constants.NOMBRE_METH_PARSE_CURSOSMAP, csvFile);
+			
 			scanner = new Scanner(contenido);
-			String clave = curso + etapa.toUpperCase();
+			
+			// Obtenemos la lista de cursos
+			List<Curso> listaCursos = validations.obtenerListaCursos(session);
+			
+			this.validarCursoEtapa(curso, etapa, listaCursos);
+			
 			String linea = scanner.nextLine();
+			
 			// Separamos la linea por ,
 			String[] lineaArray = linea.split(",");
+			
+			List<String> listaPosiblesAsignaturas = new ArrayList<String>();
+			// Añadimos el contenido de linea array en la lista de posibles asignaturas
+			Collections.addAll(listaPosiblesAsignaturas, lineaArray);
+			// Eliminamos el alumno
+			listaPosiblesAsignaturas.remove(0);
+			log.info(listaPosiblesAsignaturas);
+
 			// Obtenemos la lista de asignaturas
-			List<Asignatura> listaAsignatura = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-			validations.obtenerListaAsignaturas(session, listaAsignatura);
-			// Obtenemos la lista de nombres
-			List<String> listaNombres = validations.inicializarListaNombres(session);
-			validations.obtenerListaAsignaturas(session, listaAsignatura);
-			// Obtenemos la lista de cursos
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			validations.obtenerListaCursos(session, listaCursos);
-			int i = 0;
-			while (i < listaCursos.size() && !encontrado)
+			List<Asignatura> listaAsignatura = validations.obtenerListaAsignaturas(session);
+			
+			validarAsignaturasExisten(listaPosiblesAsignaturas, listaAsignatura);
+
+			Map<String, List<String>> mapaAsignaturas = (Map<String, List<String>>) session
+					.getAttribute(Constants.SESION_MAPA_ASIGNATURA_CURSOS);
+			if (mapaAsignaturas == null)
 			{
-				if (listaCursos.get(i).getCurso() == curso && listaCursos.get(i).getEtapa().equalsIgnoreCase(etapa))
-				{
-					encontrado = true;
-				}
-				i++;
+				mapaAsignaturas = new HashMap<String, List<String>>();
 			}
-			if (encontrado)
+			
+			// Obtenemos la lista de apellidos y nombres de alumnos
+			List<String> listaApellidosNombreAlumnos = validations.inicializarListaApellidosNombreAlumnos(session);
+			
+			this.parseMatriculaCursos(mapaAsignaturas, scanner, listaApellidosNombreAlumnos, listaPosiblesAsignaturas, session);
+
+			session.setAttribute(Constants.SESION_LISTA_NOMBRES, listaApellidosNombreAlumnos);
+
+			Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session
+					.getAttribute(Constants.SESION_MAPA_CURSOS);
+			if (mapaCursos == null)
 			{
-				List<String> listaPosiblesAsignaturas = new ArrayList<String>();
-				// Añadimos el contenido de linea array en la lista de posibles asignaturas
-				Collections.addAll(listaPosiblesAsignaturas, lineaArray);
-				// Eliminamos el alumno
-				listaPosiblesAsignaturas.remove(0);
-				log.info(listaPosiblesAsignaturas);
-
-				for (String posibleAsignatura : listaPosiblesAsignaturas)
-				{
-					boolean asignaturaEncontrada = false;
-					for (Asignatura asignatura : listaAsignatura)
-					{
-						if (asignatura.getNombreAsignatura().equals(posibleAsignatura))
-						{
-							asignaturaEncontrada = true;
-							break;
-						}
-					}
-					if (!asignaturaEncontrada)
-					{
-						String error = "La asignatura " + posibleAsignatura + " no existe";
-						throw new HorarioException(15, error);
-					}
-				}
-
-				Map<String, List<String>> mapaAsignaturas = (Map<String, List<String>>) session
-						.getAttribute("mapaAsignaturasCursos");
-				if (mapaAsignaturas == null)
-				{
-					mapaAsignaturas = new HashMap<String, List<String>>();
-				}
-				this.parseMatriculaCursos(mapaAsignaturas, scanner, listaNombres, listaPosiblesAsignaturas, session);
-
-				session.setAttribute("listaNombres", listaNombres);
-
-				Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session
-						.getAttribute("mapaCursos");
-				if (mapaCursos == null)
-				{
-					mapaCursos = new HashMap<>();
-				}
-				mapaCursos.put(clave, mapaAsignaturas);
-				session.setAttribute("mapaCursos", mapaCursos);
-
-				log.info("mapaCursos: " + mapaCursos);
-
-				return clave;
+				mapaCursos = new HashMap<>();
 			}
-			else
-			{
-				String error = "El curso o etapa no existe";
-				throw new HorarioException(1, error);
-			}
+			
+			String clave = curso + etapa.toUpperCase();
+			mapaCursos.put(clave, mapaAsignaturas);
+			
+			session.setAttribute(Constants.SESION_MAPA_CURSOS, mapaCursos);
+
+			log.info("mapaCursos: " + mapaCursos);
+
 		}
 		finally
 		{
 			if (scanner != null)
 			{
 				scanner.close();
-
 			}
+		}
+	}
+
+	private void validarAsignaturasExisten(List<String> listaPosiblesAsignaturas, List<Asignatura> listaAsignatura)
+			throws HorarioException
+	{
+		for (String posibleAsignatura : listaPosiblesAsignaturas)
+		{
+			boolean asignaturaEncontrada = false;
+			for (Asignatura asignatura : listaAsignatura)
+			{
+				if (asignatura.getNombreAsignatura().equals(posibleAsignatura))
+				{
+					asignaturaEncontrada = true;
+					break;
+				}
+			}
+			if (!asignaturaEncontrada)
+			{
+				String error = "La asignatura " + posibleAsignatura + " no existe";
+				
+				log.error(error);
+				
+				throw new HorarioException(15, error);
+			}
+		}
+	}
+
+	private void validarCursoEtapa(Integer curso, String etapa, List<Curso> listaCursos)
+			throws HorarioException
+	{
+		int i = 0;
+		boolean encontrado = false;
+		while (i < listaCursos.size() && !encontrado)
+		{
+			encontrado = listaCursos.get(i).getCurso() == curso && listaCursos.get(i).getEtapa().equalsIgnoreCase(etapa) ;
+
+			i++;
+		}
+		
+		if (!encontrado)
+		{
+			String error = "El curso o etapa no existe";
+			
+			log.error(error);
+			
+			throw new HorarioException(1, error);
 		}
 	}
 
@@ -434,8 +479,8 @@ public class Parse
 	 * @param asignatura2     asignatura
 	 * @param asignatura3     asignatura
 	 */
-	public void parseMatriculaCursos(Map<String, List<String>> mapaAsignaturas, Scanner scanner,
-			List<String> listaNombres, List<String> listaPosiblesAsignaturas, HttpSession session)
+	private void parseMatriculaCursos(Map<String, List<String>> mapaAsignaturas, Scanner scanner,
+									  List<String> listaNombres, List<String> listaPosiblesAsignaturas, HttpSession session)
 	{
 		while (scanner.hasNext())
 		{
@@ -465,7 +510,7 @@ public class Parse
 			}
 			mapaAsignaturas.put(nombreCompleto, listaAsignaturas);
 		}
-		session.setAttribute("mapaAsignaturasCursos", mapaAsignaturas);
+		session.setAttribute(Constants.SESION_MAPA_ASIGNATURA_CURSOS, mapaAsignaturas);
 	}
 
 }

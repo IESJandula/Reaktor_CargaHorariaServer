@@ -51,14 +51,16 @@ public class RestHandlerMatriculas
 			
 			// Obtenemos el mapa cursos
 			Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session
-					.getAttribute("mapaCursos");
+					.getAttribute(Constants.SESION_MAPA_CURSOS);
 			mapaCursos = validations.inicializarMapaCursos(session); 
+			
 			// Parseamos el fichero csv
 			parse.parseCursosMap(csvFile, curso, etapa, session);
 			
-			mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute("mapaCursos");
+			mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute(Constants.SESION_MAPA_CURSOS);
 			
 			log.info(mapaCursos);
+			
 			return ResponseEntity.ok().build();
 		}
 		catch (Exception exception)
@@ -87,7 +89,7 @@ public class RestHandlerMatriculas
 			Validations validations = new Validations();
 			
 			// Obtenemos el mapa cursos
-			Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute("mapaCursos");
+			Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute(Constants.SESION_MAPA_CURSOS);
 			mapaCursos = validations.obtenerMapaCursos(session, mapaCursos);
 			
 			return ResponseEntity.ok().body(mapaCursos.keySet());
@@ -112,7 +114,6 @@ public class RestHandlerMatriculas
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return 200 si todo ha ido bien
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.POST, value = "/bloques")
 	public ResponseEntity<?> uploadBloques(@RequestHeader(value = "curso", required = true) Integer curso,
 			@RequestHeader(value = "etapa", required = true) String etapa,
@@ -123,14 +124,14 @@ public class RestHandlerMatriculas
 			Validations validations = new Validations();
 			
 			// Obtenemos el mapa de bloques
-			Map<String, List<String>> mapaBloques = (Map<String, List<String>>) session.getAttribute("mapaBloques");
-			mapaBloques = validations.inicializarMapaBloques(mapaBloques);
+			Map<String, List<String>> mapaBloques = validations.inicializarMapaBloques(session);
+			
 			// Obtenemos la lista de asignaturas
-			List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-			validations.obtenerListaAsignaturas(session, listaAsignaturas);
+			List<Asignatura> listaAsignaturas = validations.obtenerListaAsignaturas(session);
 
 			boolean encontrado = false;
 			int i = 0;
+			
 			// Comprobamos que los parametros recibidos son correctos
 			while (i < listaAsignaturas.size() && !encontrado)
 			{
@@ -145,6 +146,7 @@ public class RestHandlerMatriculas
 			if (encontrado)
 			{
 				String clave = curso + etapa.toUpperCase();
+				
 				// Obtenemos la lista en caso de que la clave exista u obtenemos un nueva lista
 				// de asignaturas
 				List<String> listaNombreAsignatura = mapaBloques.getOrDefault(clave, new ArrayList<String>());
@@ -158,7 +160,7 @@ public class RestHandlerMatriculas
 				{
 					listaNombreAsignatura.add(nombreAsignatura);
 					mapaBloques.put(clave, listaNombreAsignatura);
-					session.setAttribute("mapaBloques", mapaBloques);
+					session.setAttribute(Constants.SESION_MAPA_BLOQUES, mapaBloques);
 				}
 			}
 			else
@@ -191,7 +193,6 @@ public class RestHandlerMatriculas
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return Lista de asignaturas de un bloque
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.GET, value = "/bloques")
 	public ResponseEntity<?> getBloques(@RequestHeader(value = "curso", required = true) Integer curso,
 			@RequestHeader(value = "etapa", required = true) String etapa, HttpSession session)
@@ -201,12 +202,11 @@ public class RestHandlerMatriculas
 			Validations validations = new Validations();
 			
 			// Obtenemos el mapa de bloques
-			Map<String, List<String>> mapaBloques = (Map<String, List<String>>) session.getAttribute("mapaBloques");
-			mapaBloques = validations.obtenerMapaBloques(session, mapaBloques);
+			
+			Map<String, List<String>> mapaBloques = validations.obtenerMapaBloques(session);
 			
 			// Obtenemos lista cursos
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			validations.obtenerListaCursos(session, listaCursos);
+			List<Curso> listaCursos = validations.obtenerListaCursos(session);
 			
 			int i = 0;
 			boolean encontrado = false;
@@ -260,7 +260,6 @@ public class RestHandlerMatriculas
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return 200 si todo ha ido bien
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.POST, value = "/alumnos")
 	public ResponseEntity<?> uploadAlumno(@RequestHeader(value = "alumno", required = true) String alumno,
 			@RequestHeader(value = "curso", required = true) Integer curso,
@@ -275,12 +274,10 @@ public class RestHandlerMatriculas
 			String clave = curso + etapa.toUpperCase() + grupo.toUpperCase();
 			
 			// Obtenemos listaCursos
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			validations.obtenerListaCursos(session, listaCursos);
+			List<Curso> listaCursos = validations.obtenerListaCursos(session);
 			
 			// Obtenemos lista nombres
-			List<String> listaNombres = (List<String>) session.getAttribute("listaNombres");
-			validations.obtenerListaNombresExiste(session, listaNombres);
+			List<String> listaNombres = validations.obtenerListaNombresExiste(session);
 			
 			validations.realizarAsignacionAlumno(alumno, session, cursoObject, clave, listaCursos,listaNombres);
 
@@ -306,7 +303,6 @@ public class RestHandlerMatriculas
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return Lista de alumnos
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.GET, value = "/alumnos")
 	public ResponseEntity<?> getAlumno(@RequestHeader(value = "curso", required = true) Integer curso,
 			@RequestHeader(value = "etapa", required = true) String etapa,
@@ -318,8 +314,7 @@ public class RestHandlerMatriculas
 			List<String> listaAlumnos = null;
 			
 			// Obtenemos lista de cursos
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			validations.obtenerListaCursos(session, listaCursos);
+			List<Curso> listaCursos = validations.obtenerListaCursos(session);
 			
 			Curso cursoObject = new Curso(curso, etapa.toUpperCase(), grupo.toUpperCase());
 			
@@ -328,10 +323,10 @@ public class RestHandlerMatriculas
 				String clave = curso + etapa.toUpperCase()+ grupo.toUpperCase();
 				
 				// Obtenemos el mapa Alumnos
-				Map<String, List<String>> mapaAlumnos = (Map<String, List<String>>) session.getAttribute("mapaAlumnos");
-				validations.obtenerMapaAlumno(mapaAlumnos, session);
+				Map<String, List<String>> mapaAlumnos = validations.obtenerMapaAlumno(session);
 				
 				listaAlumnos = mapaAlumnos.get(clave);
+				
 			}
 			else
 			{
@@ -365,7 +360,6 @@ public class RestHandlerMatriculas
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return 200 si todo ha ido bien
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/alumnos")
 	public ResponseEntity<?> borrarAlumno(@RequestHeader(value = "alumno", required = true) String alumno,
 			@RequestHeader(value = "curso", required = true) Integer curso,
@@ -377,8 +371,7 @@ public class RestHandlerMatriculas
 			Validations validations = new Validations();
 			
 			// Obtenemos la lista de cursos
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			validations.obtenerListaCursos(session, listaCursos);
+			List<Curso> listaCursos = validations.obtenerListaCursos(session);
 			
 			Curso cursoObject = new Curso(curso, etapa.toUpperCase(), grupo.toUpperCase());
 			
@@ -387,8 +380,7 @@ public class RestHandlerMatriculas
 				String clave = curso + etapa.toUpperCase() + grupo.toUpperCase();
 				
 				// Obtenemos el mapa alumnos
-				Map<String, List<String>> mapaAlumnos = (Map<String, List<String>>) session.getAttribute("mapaAlumnos");
-				validations.obtenerMapaAlumno(mapaAlumnos, session);
+				Map<String, List<String>> mapaAlumnos = validations.obtenerMapaAlumno(session);
 				
 				// Obtenemos la lista de alumnos
 				List<String> listaAlumnos = mapaAlumnos.get(clave);
@@ -437,7 +429,6 @@ public class RestHandlerMatriculas
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return Número de alumnos en la asignatura
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.GET, value = "/asignaturas/resumen")
 	public ResponseEntity<?> getAsignaturasResumen(
 			@RequestHeader(value = "nombreAsignatura", required = true) String nombreAsignatura, HttpSession session)
@@ -447,16 +438,13 @@ public class RestHandlerMatriculas
 			Validations validations = new Validations();
 			
 			// Obtenemos lista de nombres
-			List<String> listaNombres = (List<String>) session.getAttribute("listaNombres");
-			validations.obtenerListaNombresExiste(session, listaNombres);
+			List<String> listaNombres = validations.obtenerListaNombresExiste(session);
 			
 			// Obtenemos mapa de asignaturas
-			Map<String, List<String>> mapaAsignaturas = (Map<String, List<String>>) session.getAttribute("mapaAsignaturasCursos");
-			validations.obtenerMapaAsignaturasCursos(session,mapaAsignaturas);
+			Map<String, List<String>> mapaAsignaturas = validations.obtenerMapaAsignaturasCursos(session);
 			
 			// Obtenemos lista de asignaturas
-			List<Asignatura> listaAsignatura = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-			validations.obtenerListaAsignaturas(session, listaAsignatura);
+			List<Asignatura> listaAsignatura = validations.obtenerListaAsignaturas(session);
 			
 			int contadorAlumno=0;
 			boolean encontrado = false;
@@ -506,7 +494,6 @@ public class RestHandlerMatriculas
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return Lista de resumen por cursos
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.GET, value = "/cursos/resumen")
 	public ResponseEntity<?> getCursosResumen(
 			@RequestHeader(value = "curso", required = true) int curso,
@@ -518,12 +505,10 @@ public class RestHandlerMatriculas
 			boolean encontrado = false;
 			
 			// Obtenemos lista cursos
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			validations.obtenerListaCursos(session, listaCursos); 
+			List<Curso> listaCursos = validations.obtenerListaCursos(session); 
 			
 			// Obtenemos mapa alumnos
-			Map<String, List<String>> mapaAlumnos = (Map<String, List<String>>) session.getAttribute("mapaAlumnos");
-			validations.obtenerMapaAlumno(mapaAlumnos,session);
+			Map<String, List<String>> mapaAlumnos = validations.obtenerMapaAlumno(session);
 			
 			ResumenCursos resumenCursos = null;
 			List<ResumenCursos> listaResumenCursos = new ArrayList<ResumenCursos>();

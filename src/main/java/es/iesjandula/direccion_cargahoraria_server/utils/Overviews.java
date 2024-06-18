@@ -73,9 +73,9 @@ public class Overviews
 		Map<String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
 		Map<String, Integer> mapaGuardias = (Map<String, Integer>) session.getAttribute("mapaGuardias");
 
-		List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores"); 
 		Validations validations = new Validations();
-		validations.obtenerListaProfesores(session, listaProfesores);
+		
+		List<Profesor> listaProfesores = validations.obtenerListaProfesores(session);
 		for (Profesor profesor : listaProfesores)
 		{
 			// comprobamos si el profesor pertenece a ese departamento

@@ -17,10 +17,4 @@ public class Reduccion
 	private String nombreReduccion;
 	/** Número de horas*/
 	private int numeroHoras;
-	/** Curso al que pertenece la reduccion*/
-	private String curso;
-	/** Etapa a la que pertenece la reduccion*/
-	private String etapa;
-	/** Grupo al que pertenece la reduccion*/
-	private String grupo;
 }

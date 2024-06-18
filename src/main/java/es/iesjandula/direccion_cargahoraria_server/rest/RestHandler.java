@@ -55,7 +55,7 @@ public class RestHandler
 			List<Departamento> listaDepartamentos = parse.parseDepartamentos(csvFile);
 			
 			//guardamos la lista en session
-			session.setAttribute("listaDepartamentos", listaDepartamentos);
+			session.setAttribute(Constants.SESION_LISTA_DEPARTAMENTOS, listaDepartamentos);
 			
 			// Pintamos en los logs en modo info la lista de departamentos
 			log.info(listaDepartamentos);
@@ -96,6 +96,7 @@ public class RestHandler
 			// Obtenemos la lista de departamentos
 			List<Departamento> listaDepartamentos = validations.obtenerListaDepartamentos(session);
 			
+			// Pintamos en los logs en modo info
 			log.info(listaDepartamentos);
 			
 			return ResponseEntity.ok(listaDepartamentos);		
@@ -123,7 +124,7 @@ public class RestHandler
 	 * @return 200 si todo ha ido bien
 	 */
 	@RequestMapping(method=RequestMethod.POST,value="/cursos",consumes="multipart/form-data")
-	public ResponseEntity<?> uploadCursos(@RequestParam(value="csv",required=true)MultipartFile csvFile,HttpSession session)
+	public ResponseEntity<?> uploadCursos(@RequestParam(value="csv",required=true) MultipartFile csvFile, HttpSession session)
 	{
 		try
 		{
@@ -132,7 +133,7 @@ public class RestHandler
 			List<Curso> listaCursos = parse.parseCursos(csvFile);
 			
 			//guardamos la lista en session
-			session.setAttribute("listaCursos", listaCursos);
+			session.setAttribute(Constants.SESION_LISTA_CURSOS, listaCursos);
 			
 			// Log para mostrar la lista
 			log.info(listaCursos);
@@ -160,17 +161,17 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return La lista de cursos
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.GET,value="/cursos")
 	public ResponseEntity<?> consultaCursos(HttpSession session)
 	{
 		try
 		{
 			Validations validations = new Validations();
-			// Obtenemos la lista 
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			validations.obtenerListaCursos(session, listaCursos);
 			
+			// Obtenemos la lista 
+			List<Curso> listaCursos = validations.obtenerListaCursos(session);
+			
+			// Pintamos en los logs en modo info
 			log.info(listaCursos);
 			
 			return ResponseEntity.ok().body(listaCursos);
@@ -212,8 +213,11 @@ public class RestHandler
 			List<Profesor> listaProfesores = parse.parseProfesores(csvFile,listaDepartamentos);
 			
 			//guardamos la lista en session
-			session.setAttribute("listaProfesores", listaProfesores);
+			session.setAttribute(Constants.SESION_LISTA_PROFESORES, listaProfesores);
+			
+			// Pintamos en los logs en modo info
 			log.info(listaProfesores);
+			
 			return ResponseEntity.ok().build();
 		}
 		catch(HorarioException horarioException)
@@ -237,17 +241,19 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return La lista de profesores
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.GET,value="/profesores")
 	public ResponseEntity<?> consultaProfesores(HttpSession session)
 	{
 		try
 		{
 			Validations validations = new Validations();
+			
 			// Obtenemos la lista profesores
-			List<Profesor> listaProfesores =(List<Profesor>) session.getAttribute("listaProfesores");
-			validations.obtenerListaProfesores(session, listaProfesores);
+			List<Profesor> listaProfesores = validations.obtenerListaProfesores(session);
+			
+			// Pintamos en los logs en modo info
 			log.info(listaProfesores);
+			
 			return ResponseEntity.ok().body(listaProfesores);
 		}
 		catch(HorarioException horarioException)
@@ -272,27 +278,29 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return 200 si todo ha ido bien
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.POST,value="/asignaturas",consumes="multipart/form-data")
-	public ResponseEntity<?> uploadAsignaturas(@RequestParam(value="csv",required=true)MultipartFile csvFile,HttpSession session)
+	public ResponseEntity<?> uploadAsignaturas(@RequestParam(value="csv",required=true)MultipartFile csvFile, HttpSession session)
 	{
 		try
 		{
 			Parse parse = new Parse();
 			Validations validations = new Validations();
+			
 			// Obtenemos la lista de departamentos guardada en session
 			List<Departamento> listaDepartamentos = validations.obtenerListaDepartamentos(session);
 			
 			//comprobamos si existe la lista cursos
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			validations.obtenerListaCursos(session, listaCursos);
+			List<Curso> listaCursos = validations.obtenerListaCursos(session);
 			
 			//parseamos el csv con el endpoint
 			List<Asignatura> listaAsignaturas = parse.parseAsignaturas(csvFile,listaCursos,listaDepartamentos);
-			//guardamos la lista en session
-			session.setAttribute("listaAsignaturas", listaAsignaturas);
 			
+			//guardamos la lista en session
+			session.setAttribute(Constants.SESION_LISTA_ASIGNATURAS, listaAsignaturas);
+			
+			// Pintamos en los logs en modo info
 			log.info(listaAsignaturas);
+			
 			return ResponseEntity.ok().build();
 		}
 		catch(HorarioException horarioException)
@@ -316,7 +324,6 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return Lista de asignaturas
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.GET,value="/asignaturas")
 	public ResponseEntity<?> consultaAsignaturas(HttpSession session)
 	{
@@ -324,10 +331,11 @@ public class RestHandler
 		{
 			Validations validations = new Validations();
 			// Obtenemos la lista asignaturas
-			List<Asignatura> listaAsignaturas =(List<Asignatura>) session.getAttribute("listaAsignaturas");
-			validations.obtenerListaAsignaturas(session, listaAsignaturas);
+			List<Asignatura> listaAsignaturas = validations.obtenerListaAsignaturas(session);
 			
+			// Pintamos en los logs en modo info
 			log.info(listaAsignaturas);
+			
 			return ResponseEntity.ok().body(listaAsignaturas);
 		}
 		catch(HorarioException horarioException)
@@ -368,20 +376,17 @@ public class RestHandler
 		try
 		{
 			Validations validations = new Validations();
-			Map<String,List<Asignatura>> asignacion = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
+			Map<String,List<Asignatura>> asignacion = (Map<String, List<Asignatura>>) session.getAttribute(Constants.SESION_MAPA_ASIGNATURAS);
 			List<Asignatura> datosAsignacion = new ArrayList<Asignatura>();
 			
 			// Obtenemos la lista de profesores
-			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-			validations.obtenerListaProfesores(session, listaProfesores);
+			List<Profesor> listaProfesores = validations.obtenerListaProfesores(session);
 			
 			// Obtenemos la lista de asignaturas
-			List<Asignatura> listaAsignaturas = (List<Asignatura>) session.getAttribute("listaAsignaturas");
-			validations.obtenerListaAsignaturas(session, listaAsignaturas);
+			List<Asignatura> listaAsignaturas = validations.obtenerListaAsignaturas(session);
 			
 			// Obtenemos la lista de cursos
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
-			validations.obtenerListaCursos(session, listaCursos);
+			List<Curso> listaCursos = validations.obtenerListaCursos(session);
 			
 			// Método para validar el id de profesor
 			validations.obtenerIdProfesor(idProfesor, listaProfesores);
@@ -396,9 +401,12 @@ public class RestHandler
 			// Método para obtener si el curso existe y creacion del objeto asignatura
 			validations.comprobacionCreacionObjeto(nombreAsignatura, curso, etapa, grupo, datosAsignacion, listaAsignaturas,listaCursos, asignaturaObject);
 			//  Asignanación al mapa de asignaturas
+			
 			asignacion = validations.asignacionMapaAsignaturas(idProfesor, session, datosAsignacion, asignaturaObject);
+			
 			// Log con la asignación
 			log.info(asignacion);
+			
 			return ResponseEntity.ok().build();
 		}
 		catch(HorarioException horarioException)
@@ -427,7 +435,6 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return 
 	 */
-	@SuppressWarnings({ "unchecked"})
 	@RequestMapping(method=RequestMethod.DELETE,value="/asignaturas")
 	public ResponseEntity<?> borrarAsignaturas(@RequestHeader(value="idProfesor",required=true)String idProfesor,
 			@RequestHeader(value="nombreAsignatura",required=true)String nombreAsignatura,
@@ -439,10 +446,11 @@ public class RestHandler
 		{
 			Validations validations = new Validations();
 			// Obtenemos el mapa de asignaturas
-			Map<String,List<Asignatura>> asignacion = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
-			validations.obtenerMapaAsignaturas(session, asignacion);
+			Map<String,List<Asignatura>> asignacion = validations.obtenerMapaAsignaturas(session);
+			
 			// Obtenemos la lista de asignaturas del profesor
 			List<Asignatura> listaMapaAsignatura = asignacion.get(idProfesor);
+			
 			int i = 0;
 			boolean encontrado = false;
 			
@@ -462,7 +470,7 @@ public class RestHandler
 			}
 			
 			asignacion.get(idProfesor).addAll(listaMapaAsignatura);
-			session.setAttribute("mapaAsinaturas", asignacion);
+			session.setAttribute(Constants.SESION_MAPA_ASIGNATURAS, asignacion);
 			
 			return ResponseEntity.ok().build();
 		}
@@ -488,7 +496,6 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return 200 si todo ha ido bien
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.POST,value="/reducciones",consumes="multipart/form-data")
 	public ResponseEntity<?> uploadReducciones(@RequestParam(value="csv",required=true)MultipartFile csvFile,HttpSession session)
 	{
@@ -496,14 +503,19 @@ public class RestHandler
 		{
 			Parse parse = new Parse();
 			Validations validations = new Validations();
-			List<Curso> listaCursos = (List<Curso>) session.getAttribute("listaCursos");
+			
 			// Obtenemos la lista de cursos
-			validations.obtenerListaCursos(session, listaCursos);
+			List<Curso> listaCursos = validations.obtenerListaCursos(session);
+			
 			// Llamamos el metodo para parsear reducciones
 			List<Reduccion> listaReducciones = parse.parseReducciones(csvFile,listaCursos);
+			
 			// Guardamos la lista en session
-			session.setAttribute("listaReducciones", listaReducciones);
+			session.setAttribute(Constants.SESION_LISTA_REDUCCIONES, listaReducciones);
+			
+			// Pintamos en los logs en modo info
 			log.info(listaReducciones);
+			
 			return ResponseEntity.ok().build();
 		}
 		catch(HorarioException horarioException)
@@ -527,7 +539,7 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return Lista de reducciones
 	 */
-	@SuppressWarnings("unchecked")
+
 	@RequestMapping(method=RequestMethod.GET,value="/reducciones")
 	public ResponseEntity<?> consultaReducciones(HttpSession session)
 	{
@@ -536,10 +548,11 @@ public class RestHandler
 			Validations validations = new Validations();
 			
 			// Obtenemos la lista de reducciones
-			List<Reduccion> listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
-			validations.obtenerListaReducciones(session, listaReducciones);
+			List<Reduccion> listaReducciones = validations.obtenerListaReducciones(session);
 			
+			// Pintamos en los logs en modo info
 			log.info(listaReducciones);
+			
 			return ResponseEntity.ok().body(listaReducciones);
 		}
 		catch(HorarioException horarioException)
@@ -573,27 +586,28 @@ public class RestHandler
 		try
 		{
 			Validations validations = new Validations();
-			Map<String,List<ReduccionHoras>> asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");	
+			Map<String,List<ReduccionHoras>> asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute(Constants.SESION_MAPA_REDUCCIONES);	
 			
 			// Obtenemos la lista de profesores
-			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-			validations.obtenerListaProfesores(session, listaProfesores);
+			List<Profesor> listaProfesores =validations.obtenerListaProfesores(session);
 			
-			// Obtenemos la lista de reducciones
-			List<Reduccion> listaReducciones = (List<Reduccion>) session.getAttribute("listaReducciones");
-			validations.obtenerListaReducciones(session, listaReducciones);
+			// Obtenemos la lista de reducciones			
+			List<Reduccion> listaReducciones = validations.obtenerListaReducciones(session);
 			
 			List<ReduccionHoras> listaReduccionHoras = new ArrayList<ReduccionHoras>();
 
 			// Obtener id del profesor
 			validations.obtenerIdProfesor(idProfesor, listaProfesores);
+			
 			// Obtener la id de reduccion si existe
 			validations.obtenerIdReduccionExiste(idReduccion, listaReducciones);
 			
 			// Realizar reducción
 			asignacionReduccion = validations.realizarReduccion(idProfesor, idReduccion, session, listaReducciones, listaReduccionHoras);
 			
+			// Pintamos en los logs en modo info
 			log.info(asignacionReduccion);
+			
 			return ResponseEntity.ok().build();
 		}
 		catch(HorarioException horarioException)
@@ -618,7 +632,6 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return 200 si todo ha ido bien
 	 */
-	@SuppressWarnings({ "unchecked"})
 	@RequestMapping(method=RequestMethod.DELETE,value="/reducciones")
 	public ResponseEntity<?> borrarReducciones(@RequestHeader(value="idProfesor",required=true)String idProfesor,
 			@RequestHeader(value="idReduccion",required=true)String idReduccion,HttpSession session)
@@ -627,15 +640,15 @@ public class RestHandler
 		{
 			Validations validations = new Validations();
 			
-			// Obtenemos el mapa de reducciones
-			Map<String,List<ReduccionHoras>> asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");	
-			validations.obtenerMapaReduccion(session, asignacionReduccion);
+			// Obtenemos el mapa de reducciones	
+			Map<String,List<ReduccionHoras>> asignacionReduccion = validations.obtenerMapaReduccion(session);
 			
 			// Obntenemos la lista de reducciones del profesor
 			List<ReduccionHoras> listaMapaReducciones = asignacionReduccion.get(idProfesor);
 			
 			int i = 0;
 			boolean encontrado = false;
+			
 			while(i < listaMapaReducciones.size() && !encontrado) 
 			{
 				if(listaMapaReducciones.get(i).getIdReduccion().equalsIgnoreCase(idReduccion))
@@ -651,7 +664,9 @@ public class RestHandler
 				throw new HorarioException(1, error);
 			}
 			asignacionReduccion.get(idProfesor).addAll(listaMapaReducciones);
-			session.setAttribute("mapaAsinaturas", asignacionReduccion);
+			
+			session.setAttribute(Constants.SESION_MAPA_REDUCCIONES, asignacionReduccion);
+			
 			return ResponseEntity.ok().build();
 		}
 		catch(HorarioException horarioException)
@@ -685,27 +700,27 @@ public class RestHandler
 		try
 		{
 			Validations validations = new Validations();
-			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-			validations.obtenerListaProfesores(session, listaProfesores);
+			List<Profesor> listaProfesores =validations.obtenerListaProfesores(session);
 			// Obtener id del profesor
 			validations.obtenerIdProfesor(idProfesor, listaProfesores);
 			
 			Map<String,Integer> mapaGuardias;
 			// Comprobamos si se ha creado el mapa de guardias
-			if(session.getAttribute("mapaGuardias")==null)
+			if(session.getAttribute(Constants.SESION_MAPA_GUARDIAS)==null)
 			{
 				mapaGuardias = new TreeMap<String, Integer>();
 				mapaGuardias.put(idProfesor, horasAsignadas);
-				session.setAttribute("mapaGuardias", mapaGuardias);
+				session.setAttribute(Constants.SESION_MAPA_GUARDIAS, mapaGuardias);
 			}
 			else
 			{
-				mapaGuardias=(Map<String, Integer>) session.getAttribute("mapaGuardias");
+				mapaGuardias=(Map<String, Integer>) session.getAttribute(Constants.SESION_MAPA_GUARDIAS);
 				mapaGuardias.put(idProfesor, horasAsignadas);
-				session.setAttribute("mapaGuardias", mapaGuardias);
+				session.setAttribute(Constants.SESION_MAPA_GUARDIAS, mapaGuardias);
 			}
-			
+			// Pintamos en los logs en modo info
 			log.info(mapaGuardias);
+			
 			return ResponseEntity.ok().build();
 		}
 		catch(HorarioException horarioException)
@@ -730,23 +745,28 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return Un objeto resumen de profesor
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method=RequestMethod.GET,value="/profesores/resumen")
 	public ResponseEntity<?> resumenProfesores(@RequestHeader(value="idProfesor",required=true)String idProfesor,HttpSession session)
 	{
 		try
 		{
 			Validations validations = new Validations();
-			List<Profesor> listaProfesores = (List<Profesor>) session.getAttribute("listaProfesores");
-			validations.obtenerListaProfesores(session, listaProfesores);
 			
+			// Obtenemos la lista de profesores
+			List<Profesor> listaProfesores =validations.obtenerListaProfesores(session);
+			
+			// Obtenemos el id del profesor
 			validations.obtenerIdProfesor(idProfesor, listaProfesores);
-			Map <String,List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
-			mapaReduccion = validations.obtenerMapaReduccion(session, mapaReduccion);
-			Map <String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
-			mapaAsignatura = validations.obtenerMapaAsignaturas(session, mapaAsignatura);
+			
+			// Obtenemos mapa de reduccion
+			Map <String,List<ReduccionHoras>> mapaReduccion = validations.obtenerMapaReduccion(session);
+			
+			// Obtenemos el mapa de asignaturas
+			Map <String, List<Asignatura>> mapaAsignatura = validations.obtenerMapaAsignaturas(session);
+			
 			// Obtenemos el resumen del profesor 	
 			Overviews overviews = new Overviews();
+			
 			ResumenProfesor resumen = overviews.obtencionHorasProfesor(idProfesor, mapaReduccion, mapaAsignatura);
 
 			return ResponseEntity.ok().body(resumen);
@@ -780,13 +800,16 @@ public class RestHandler
 		{
 			Overviews overviews = new Overviews();
 			Validations validations = new Validations();
+			
 			// Obtenemos la lista departamentos en session
 			List<Departamento> listaDepartamentos = validations.obtenerListaDepartamentos(session);
 			Departamento departamento = new Departamento(nombreDepartamento);
-			//comprobamos si existe el departamento
+			
+			// Obtenemos el departamento
 			validations.obtenerDepartamento(listaDepartamentos, departamento);
 			
 			Resumen resumen = overviews.resumenDepartamento(nombreDepartamento, session);	
+			
 			return ResponseEntity.ok().body(resumen);
 		}
 		catch(HorarioException horarioException)
