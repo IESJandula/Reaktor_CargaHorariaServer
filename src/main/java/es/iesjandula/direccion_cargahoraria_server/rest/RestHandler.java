@@ -38,7 +38,7 @@ import es.iesjandula.direccion_cargahoraria_server.utils.Overviews;
 public class RestHandler 
 {
 	/**
-	 * endpoint para subir los departamentos
+	 * Endpoint para subir los departamentos
 	 * 
 	 * @param csvFile Fichero csv a parsear
 	 * @param session Utilizado para guardar u obtener cosas en sesión
@@ -289,13 +289,13 @@ public class RestHandler
 			// Obtenemos la lista de departamentos guardada en session
 			List<Departamento> listaDepartamentos = validations.obtenerListaDepartamentos(session);
 			
-			//comprobamos si existe la lista cursos
+			// Comprobamos si existe la lista cursos
 			List<Curso> listaCursos = validations.obtenerListaCursos(session);
 			
-			//parseamos el csv con el endpoint
+			// Parseamos el csv con el endpoint
 			List<Asignatura> listaAsignaturas = parse.parseAsignaturas(csvFile,listaCursos,listaDepartamentos);
 			
-			//guardamos la lista en session
+			// Guardamos la lista en session
 			session.setAttribute(Constants.SESION_LISTA_ASIGNATURAS, listaAsignaturas);
 			
 			// Pintamos en los logs en modo info
@@ -433,7 +433,7 @@ public class RestHandler
 	 * @param etapa Etapa a la que pertenece la asignatura
 	 * @param grupo Grupo al que pertenece la asignatura
 	 * @param session Utilizado para guardar u obtener cosas en sesión
-	 * @return 
+	 * @return 200 si todo ha ido bien
 	 */
 	@RequestMapping(method=RequestMethod.DELETE,value="/asignaturas")
 	public ResponseEntity<?> borrarAsignaturas(@RequestHeader(value="idProfesor",required=true)String idProfesor,
@@ -466,7 +466,11 @@ public class RestHandler
 			if(!encontrado) 
 			{
 				String error = "No existe esa asignación de asignaturas";
-				throw new HorarioException(1, error);
+				
+				// Log con el error
+				log.error(error);
+				
+				throw new HorarioException(Constants.ERR_ASIGNACION_ASIGNATURA, error);
 			}
 			
 			asignacion.get(idProfesor).addAll(listaMapaAsignatura);
@@ -661,7 +665,11 @@ public class RestHandler
 			if(!encontrado) 
 			{
 				String error = "Esa reduccion no existe";
-				throw new HorarioException(1, error);
+				
+				// Log con el error
+				log.error(error);
+				
+				throw new HorarioException(Constants.ERR_REDUCCION_EXIS, error);
 			}
 			asignacionReduccion.get(idProfesor).addAll(listaMapaReducciones);
 			
@@ -700,6 +708,7 @@ public class RestHandler
 		try
 		{
 			Validations validations = new Validations();
+			
 			List<Profesor> listaProfesores =validations.obtenerListaProfesores(session);
 			// Obtener id del profesor
 			validations.obtenerIdProfesor(idProfesor, listaProfesores);

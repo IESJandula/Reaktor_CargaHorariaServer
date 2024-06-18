@@ -61,17 +61,16 @@ public class Overviews
 	 * @param nombreDepartamento Nombre del departamento
 	 * @param session Utilizado para obtener o guardar cosas en sesión
 	 * @return Resumen del departamento
-	 * @throws HorarioException
+	 * @throws HorarioException Se lanza si la lista es nula
 	 */
 	@SuppressWarnings("unchecked")
 	public Resumen resumenDepartamento(String nombreDepartamento, HttpSession session) throws HorarioException 
 	{
-		Overviews overviews = new Overviews() ;
 		int numeroProfesorDepartamento = 0;
 		int totalHoras = 0;
-		Map<String, List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute("mapaReduccion");
-		Map<String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute("mapaAsignaturas");
-		Map<String, Integer> mapaGuardias = (Map<String, Integer>) session.getAttribute("mapaGuardias");
+		Map<String, List<ReduccionHoras>> mapaReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute(Constants.SESION_MAPA_REDUCCIONES);
+		Map<String, List<Asignatura>> mapaAsignatura = (Map<String, List<Asignatura>>) session.getAttribute(Constants.SESION_MAPA_ASIGNATURAS);
+		Map<String, Integer> mapaGuardias = (Map<String, Integer>) session.getAttribute(Constants.SESION_MAPA_GUARDIAS);
 
 		Validations validations = new Validations();
 		
@@ -86,13 +85,13 @@ public class Overviews
 				// comprobamos que el mapa de asignaturas existe para sumar horas
 				if (mapaAsignatura != null)
 				{
-					totalHoras = totalHoras + overviews.obtenerHorasAsignaturas(mapaAsignatura, profesorId);
+					totalHoras = totalHoras + this.obtenerHorasAsignaturas(mapaAsignatura, profesorId);
 				}
 				
 				// comprobamos que el mapa de reducciones existe para sumar horas
 				if (mapaReduccion != null)
 				{
-					totalHoras = totalHoras + overviews.obtenerHorasReduccion(mapaReduccion, profesorId);
+					totalHoras = totalHoras + this.obtenerHorasReduccion(mapaReduccion, profesorId);
 				}
 				
 				// comprobamos que el mapa de guardias no es nulo y contiene la id del profesor

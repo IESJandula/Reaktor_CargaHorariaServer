@@ -243,13 +243,14 @@ public class Parse
 	}
 
 	/**
-	 * FALTA
-	 * @param listaDepartamentos
-	 * @param validations
-	 * @param linea
-	 * @param lineaArray
-	 * @return
-	 * @throws HorarioException
+	 * Método para generar asignatura o tutoria
+	 * 
+	 * @param listaDepartamentos Lista de departamentos
+	 * @param validations Objeto validations
+	 * @param linea Linea que se parsea
+	 * @param lineaArray Linea separada por comas
+	 * @return Un Objeto asignatura
+	 * @throws HorarioException Excepción en la línea en la que ocurre el error
 	 */
 	private Asignatura generarAsignaturaOTutoria(List<Departamento> listaDepartamentos, Validations validations, String linea, String[] lineaArray) throws HorarioException
 	{
@@ -348,9 +349,9 @@ public class Parse
 	 * @return La clave del mapa
 	 * @throws IOException      Se lanzará esta excepción si hay un error con el
 	 *                          fichero
-	 * @throws HorarioException
+	 * @throws HorarioException Se lanza si el contenido del fichero, la lista de cursos, validar curso etapa, obtener lista asignaturas
+	 * 							o validar asignaturas da error
 	 */
-	@SuppressWarnings("unchecked")
 	public void parseCursosMap(MultipartFile csvFile, Integer curso, String etapa, HttpSession session)
 			throws IOException, HorarioException
 	{
@@ -382,14 +383,9 @@ public class Parse
 			// Obtenemos la lista de asignaturas
 			List<Asignatura> listaAsignatura = validations.obtenerListaAsignaturas(session);
 			
-			validarAsignaturasExisten(listaPosiblesAsignaturas, listaAsignatura);
+			this.validarAsignaturasExisten(listaPosiblesAsignaturas, listaAsignatura);
 
-			Map<String, List<String>> mapaAsignaturas = (Map<String, List<String>>) session
-					.getAttribute(Constants.SESION_MAPA_ASIGNATURA_CURSOS);
-			if (mapaAsignaturas == null)
-			{
-				mapaAsignaturas = new HashMap<String, List<String>>();
-			}
+			Map<String, List<String>> mapaAsignaturas = inicialiarMapaAsignaturas(session);
 			
 			// Obtenemos la lista de apellidos y nombres de alumnos
 			List<String> listaApellidosNombreAlumnos = validations.inicializarListaApellidosNombreAlumnos(session);
@@ -398,20 +394,15 @@ public class Parse
 
 			session.setAttribute(Constants.SESION_LISTA_NOMBRES, listaApellidosNombreAlumnos);
 
-			Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session
-					.getAttribute(Constants.SESION_MAPA_CURSOS);
-			if (mapaCursos == null)
-			{
-				mapaCursos = new HashMap<>();
-			}
+			Map<String, Map<String, List<String>>> mapaCursos = validations.inicializarMapaCursos(session);
 			
 			String clave = curso + etapa.toUpperCase();
+			
 			mapaCursos.put(clave, mapaAsignaturas);
 			
 			session.setAttribute(Constants.SESION_MAPA_CURSOS, mapaCursos);
-
+			// Mostramos el mapa de cursos en el log
 			log.info("mapaCursos: " + mapaCursos);
-
 		}
 		finally
 		{
@@ -421,32 +412,69 @@ public class Parse
 			}
 		}
 	}
-
+	/**
+	 * Método para inicializar el mapa asignaturas si esta vacio
+	 * 
+	 * @param session Utilizado para guardas u obtener cosas en sesión
+	 * @return Mapa de asignaturas
+	 */
+	@SuppressWarnings("unchecked")
+	private Map<String, List<String>> inicialiarMapaAsignaturas(HttpSession session) 
+	{
+		Map<String, List<String>> mapaAsignaturas = (Map<String, List<String>>) session
+				.getAttribute(Constants.SESION_MAPA_ASIGNATURA_CURSOS);
+		
+		if (mapaAsignaturas == null)
+		{
+			mapaAsignaturas = new HashMap<String, List<String>>();
+		}
+		
+		return mapaAsignaturas;
+	}
+	
+	/**
+	 * Método para validar asignaturas
+	 * 
+	 * @param listaPosiblesAsignaturas lista con las asignaturas del csv
+	 * @param listaAsignatura Lista con las asignaturas 
+	 * @throws HorarioException Se lanza si la posible asignatura no existes
+	 */
 	private void validarAsignaturasExisten(List<String> listaPosiblesAsignaturas, List<Asignatura> listaAsignatura)
 			throws HorarioException
 	{
-		for (String posibleAsignatura : listaPosiblesAsignaturas)
+		for (String posibleAsignatura : listaPosiblesAsignaturas) 
 		{
-			boolean asignaturaEncontrada = false;
-			for (Asignatura asignatura : listaAsignatura)
-			{
-				if (asignatura.getNombreAsignatura().equals(posibleAsignatura))
-				{
-					asignaturaEncontrada = true;
-					break;
-				}
-			}
-			if (!asignaturaEncontrada)
-			{
-				String error = "La asignatura " + posibleAsignatura + " no existe";
-				
-				log.error(error);
-				
-				throw new HorarioException(15, error);
-			}
+		    boolean asignaturaEncontrada = false;
+		    int i = 0;
+		    while (i < listaAsignatura.size() && !asignaturaEncontrada) 
+		    {
+		        Asignatura asignatura = listaAsignatura.get(i);
+		        if (asignatura.getNombreAsignatura().equals(posibleAsignatura)) 
+		        {
+		            asignaturaEncontrada = true;
+		        }
+		        i++;
+		    }
+		    if (!asignaturaEncontrada) 
+		    {
+		        String error = "La asignatura " + posibleAsignatura + " no existe";
+		        
+		        // Log con el error
+		        log.error(error);
+		        
+		        throw new HorarioException(Constants.ERR_ASIGNATURA, error);
+		    }
 		}
 	}
-
+	
+	/**
+	 * Metodo para validar el curso y etapa
+	 * 
+	 * @param curso Número del curso
+	 * @param etapa Etapa del curso
+	 * @param listaCursos Lista de cursos
+	 * @throws HorarioException Se lanza si el curso o etapa no existe no existe
+	 */
 	private void validarCursoEtapa(Integer curso, String etapa, List<Curso> listaCursos)
 			throws HorarioException
 	{
@@ -463,21 +491,21 @@ public class Parse
 		{
 			String error = "El curso o etapa no existe";
 			
+			// Log con el error
 			log.error(error);
 			
-			throw new HorarioException(1, error);
+			throw new HorarioException(Constants.ERR_VALIDATE_CURSO_ETAPA, error);
 		}
 	}
 
 	/**
-	 * Método para parsear el fichero matricula Cursos
+	 * Método para parsear el fichero matriculas cursos
 	 * 
 	 * @param mapaAsignaturas Mapa de asignaturas
-	 * @param scanner         Escaner para leer
-	 * @param listaNombres    Lista de nombres
-	 * @param asignatura1     asignatura
-	 * @param asignatura2     asignatura
-	 * @param asignatura3     asignatura
+	 * @param scanner Scaner para leer las lineas
+	 * @param listaNombres Lista de nombres de alumnos
+	 * @param listaPosiblesAsignaturas Lista con los nombres de las asignaturas del csv
+	 * @param session Utilizado para guardas u obtener cosas en sesión
 	 */
 	private void parseMatriculaCursos(Map<String, List<String>> mapaAsignaturas, Scanner scanner,
 									  List<String> listaNombres, List<String> listaPosiblesAsignaturas, HttpSession session)

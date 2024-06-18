@@ -59,6 +59,7 @@ public class RestHandlerMatriculas
 			
 			mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute(Constants.SESION_MAPA_CURSOS);
 			
+			// Mostramos el mapa de cursos por log
 			log.info(mapaCursos);
 			
 			return ResponseEntity.ok().build();
@@ -143,31 +144,9 @@ public class RestHandlerMatriculas
 				}
 				i++;
 			}
-			if (encontrado)
-			{
-				String clave = curso + etapa.toUpperCase();
-				
-				// Obtenemos la lista en caso de que la clave exista u obtenemos un nueva lista
-				// de asignaturas
-				List<String> listaNombreAsignatura = mapaBloques.getOrDefault(clave, new ArrayList<String>());
-
-				if (listaNombreAsignatura.contains(nombreAsignatura))
-				{
-					String error = "Esa asignatura ya esta registrada";
-					throw new HorarioException(5, error);
-				}
-				else
-				{
-					listaNombreAsignatura.add(nombreAsignatura);
-					mapaBloques.put(clave, listaNombreAsignatura);
-					session.setAttribute(Constants.SESION_MAPA_BLOQUES, mapaBloques);
-				}
-			}
-			else
-			{
-				String error = "alguno de los parametros mandados no existe";
-				return ResponseEntity.status(400).body(error);
-			}
+			// Asignar asignaturas al mapa bloques
+			validations.asignarAsignaturasMapaBloques(curso, etapa, nombreAsignatura, session, mapaBloques, encontrado);
+			
 			return ResponseEntity.ok().build();
 		}
 		catch (HorarioException horarioException)
@@ -199,10 +178,8 @@ public class RestHandlerMatriculas
 	{
 		try
 		{
-			Validations validations = new Validations();
-			
+			Validations validations = new Validations();		
 			// Obtenemos el mapa de bloques
-			
 			Map<String, List<String>> mapaBloques = validations.obtenerMapaBloques(session);
 			
 			// Obtenemos lista cursos
@@ -221,18 +198,24 @@ public class RestHandlerMatriculas
 			if(!encontrado) 
 			{
 				String error = "El curso o etapa no existe";
-	            throw new HorarioException(1, error);
-			}
-			
+				
+				// Log con el error
+				log.error(error);
+				
+	            throw new HorarioException(Constants.ERR_VALIDATE_CURSO_ETAPA, error);
+			}	
 			String clave = curso + etapa.toUpperCase();
 			List<String> listaAsignatura = mapaBloques.get(clave);
 			
 			if(listaAsignatura == null) 
 			{
-				String error = "No se ha asignado nada a este curso";
-	            throw new HorarioException(1, error);
-			}
-			
+				String error = "No se ha asignado ninguna asignatura a este curso";
+				
+				// Log con el error
+				log.error(error);
+				
+	            throw new HorarioException(Constants.ERR_ASIG_CURSO, error);
+			}	
 			return ResponseEntity.ok().body(listaAsignatura);
 		}
 		catch (HorarioException horarioException)
@@ -279,6 +262,7 @@ public class RestHandlerMatriculas
 			// Obtenemos lista nombres
 			List<String> listaNombres = validations.obtenerListaNombresExiste(session);
 			
+			// Realizar asignacion del alumno
 			validations.realizarAsignacionAlumno(alumno, session, cursoObject, clave, listaCursos,listaNombres);
 
 			return ResponseEntity.ok().build();
@@ -331,7 +315,11 @@ public class RestHandlerMatriculas
 			else
 			{
 				String error = "El curso no existe";
-				throw new HorarioException(1, error);
+				
+				// Log con el error
+				log.error(error);
+				
+				throw new HorarioException(Constants.ERR_CURSO_EXIS, error);
 			}
 			return ResponseEntity.ok().body(listaAlumnos);
 		}
@@ -385,28 +373,20 @@ public class RestHandlerMatriculas
 				// Obtenemos la lista de alumnos
 				List<String> listaAlumnos = mapaAlumnos.get(clave);
 				log.info(listaAlumnos);
+				// Validamos la existencia del objeto curso
+				validations.validarExistenciaCurso(listaCursos, cursoObject);
 				
-				boolean encontrado = false;
-				int i = 0;
-				while (i < listaAlumnos.size() && !encontrado)
-				{
-					if (listaAlumnos.get(i).contains(alumno))
-					{
-						listaAlumnos.remove(i);
-						encontrado = true;
-					}
-					i++;
-				}
-				if(!encontrado) 
-				{
-					String error = "El alumno no existe";
-					throw new HorarioException(1, error);
-				}
+				// Validamos la existencia del alumno
+				validations.validarExistenciaAlumno(alumno, listaAlumnos);
 			}
 			else
 			{
 				String error = "El curso no existe";
-				throw new HorarioException(1, error);
+				
+				// Log con el error
+				log.error(error);
+				
+				throw new HorarioException(Constants.ERR_CURSO_EXIS, error);
 			}
 			
 			return ResponseEntity.ok().build();
@@ -448,21 +428,10 @@ public class RestHandlerMatriculas
 			
 			int contadorAlumno=0;
 			boolean encontrado = false;
-			int i = 0;
-			while(i < listaAsignatura.size() && !encontrado) 
-			{
-				if(listaAsignatura.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura)) 
-				{
-					encontrado = true;
-				}
-				i++;
-			}
-			if(!encontrado) 
-			{
-				String error = "La asignatura no existe";
-				throw new HorarioException(1, error);
-			}
-			else 
+			// Obtenemos si el nombre de la asignatura existe
+			encontrado = validations.obtenerNombreAsignaturaExiste(nombreAsignatura, listaAsignatura);
+			
+			if(encontrado)
 			{
 				for(String nombre : listaNombres) 
 				{

@@ -3,7 +3,7 @@ package es.iesjandula.direccion_cargahoraria_server.utils;
 public final class Constants
 {
 	/** Error - Lectura ficheros genérica - Código */
-	public static final int ERR_LECTURA_FICHEROS_CSV_CODE = 11;
+	public static final int ERR_LECTURA_FICHEROS_CSV_CODE = 0;
 	
 	/** Error - Lectura ficheros genérica - Mensaje */
 	public static final String ERR_LECTURA_FICHEROS_CSV_MSG = "Error al realizar la lectura del fichero CSV en ";
@@ -13,7 +13,52 @@ public final class Constants
 	
 	/** Error - Lectura ficheros genérica - Mensaje */
 	public static final String ERR_CONTENIDO_FICHEROS_CSV_MSG = "Error el fichero siguiente se escuentra vacio: ";
-
+	
+	/** Error - Excepción lista nula - Code */
+	public static final int ERR_LIST_NULL_CODE = 2;
+	
+	/** Error - Excepción al validar curso o etapa - Code */
+	public static final int ERR_VALIDATE_CURSO_ETAPA = 3;
+	
+	/** Error - Excepción al obtener id del profesor - Code */
+	public static final int ERR_PROFESOR_ID = 4;
+	
+	/** Error - Excepción al obtener el nombre de la asignatura - Code */
+	public static final int ERR_NOMBRE_ASIGNATURA = 5;
+	
+	/** Error - Excepción al obtener la asignatura- Code */
+	public static final int ERR_ASIGNATURA = 6;
+	
+	/** Error - Excepción al comprobar si la asignatura existe- Code */
+	public static final int ERR_ASIGNACION_ASIGNATURA = 7;
+	
+	/** Error - Excepción mapa asignaturas nulo - Code */
+	public static final int ERR_MAP_NULL = 8;
+	
+	/** Error - Excepción al obtener el id de la reduccion - Code */
+	public static final int ERR_ID_REDUCCION = 9;
+	
+	/** Error - Excepción la reduccion existe - Code */
+	public static final int ERR_REDUCCION_EXIS = 10;
+	
+	/** Error - Excepción al obtener el departamento - Code */
+	public static final int ERR_DEPART_DONT_EXIS = 11;
+	
+	/** Error - Excepción al obtener el curso - Code */
+	public static final int ERR_CURSO_EXIS = 12;
+	
+	/** Error - Excepción el alumno ya ha sido asignado - Code */
+	public static final int ERR_ALUM_ASIG = 13;
+	
+	/** Error - Excepción el alumno no existe - Code */
+	public static final int ERR_ALUM_EXIS = 14;
+	
+	/** Error - Excepción la asignatura ya esta registrada - Code */
+	public static final int ERR_ASIG_REGIS = 15;
+	
+	/** Error - Excepción la asignatura ya esta registrada - Code */
+	public static final int ERR_ASIG_CURSO = 16;
+	
 	/** Error - Excepción genérica - Código */
 	public static final int ERR_GENERIC_EXCEPTION_CODE = 100;
 	
@@ -40,9 +85,6 @@ public final class Constants
 	
 	/** String - tipo de asignatura */
 	public static final String ASIGNATURA_TUTORIA = "tutoria";
-	
-	/** Error - Excepción lista nula - Code */
-	public static final int ERR_LIST_NULL_CODE = 2;
 	
 	/** String - Nombre lista departamento session */
 	public static final String SESION_LISTA_DEPARTAMENTOS = "listaDepartamentos";
