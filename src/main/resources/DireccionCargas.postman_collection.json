@@ -262,6 +262,52 @@
 			"response": []
 		},
 		{
+			"name": "asignaturas",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "IdProfesor",
+						"value": "FMBC",
+						"type": "text"
+					},
+					{
+						"key": "nombreAsignatura",
+						"value": "Programación de Servicios y Procesos",
+						"type": "text"
+					},
+					{
+						"key": "curso",
+						"value": "2",
+						"type": "text"
+					},
+					{
+						"key": "etapa",
+						"value": "DAM",
+						"type": "text"
+					},
+					{
+						"key": "grupo",
+						"value": "A",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/carga_horaria/asignaturas",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carga_horaria",
+						"asignaturas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "guardias",
 			"request": {
 				"method": "POST",
@@ -352,6 +398,37 @@
 					{
 						"key": "idReduccion",
 						"value": "TDE"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/carga_horaria/reducciones",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carga_horaria",
+						"reducciones"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reducciones",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "idProfesor",
+						"value": "FMBC",
+						"type": "text"
+					},
+					{
+						"key": "idReduccion",
+						"value": "TDE",
+						"type": "text"
 					}
 				],
 				"url": {

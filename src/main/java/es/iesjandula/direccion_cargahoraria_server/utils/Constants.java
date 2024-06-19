@@ -126,5 +126,4 @@ public final class Constants
 	
 	/** String - Nombre mapa alumnos session */
 	public static final String SESION_MAPA_ALUMNOS = "mapaAlumnos";
-
 }

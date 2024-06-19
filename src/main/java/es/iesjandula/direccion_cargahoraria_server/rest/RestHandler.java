@@ -651,7 +651,7 @@ public class RestHandler
 			}
 			if(!encontrado) 
 			{
-				String error = "Esa reduccion no existe. idProfesor: " + idProfesor + "idReduccion: " + idReduccion ;
+				String error = "El profesor " + idProfesor + " no tiene la reduccion " + idReduccion;
 				
 				// Log con el error
 				log.error(error);
