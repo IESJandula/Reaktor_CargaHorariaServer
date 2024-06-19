@@ -459,7 +459,8 @@ public class RestHandler
 			}
 			if(!encontrado) 
 			{
-				String error = "No existe esa asignación de asignaturas";
+				String error = "No existe esa asignación de asignaturas: " + curso + ", etapa " + etapa + ", grupo " + grupo + " o asignatura " + nombreAsignatura;
+				
 				
 				// Log con el error
 				log.error(error);
@@ -650,7 +651,7 @@ public class RestHandler
 			}
 			if(!encontrado) 
 			{
-				String error = "Esa reduccion no existe";
+				String error = "Esa reduccion no existe. idProfesor: " + idProfesor + "idReduccion: " + idReduccion ;
 				
 				// Log con el error
 				log.error(error);

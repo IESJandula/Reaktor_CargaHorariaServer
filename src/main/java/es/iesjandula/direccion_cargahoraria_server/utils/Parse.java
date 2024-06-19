@@ -496,7 +496,7 @@ public class Parse
 		
 		if (!encontrado)
 		{
-			String error = "El curso o etapa no existe";
+			String error = "El curso " + curso + " o etapa " + etapa + " no existe" ;
 			
 			// Log con el error
 			log.error(error);

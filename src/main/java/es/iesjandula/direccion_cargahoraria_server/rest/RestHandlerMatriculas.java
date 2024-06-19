@@ -131,10 +131,9 @@ public class RestHandlerMatriculas
 				i++;
 			}
 			
-			// FALTA poner más información en la excepción: curso, etapa, nombreASignatura
 			if (!encontrado)
 			{
-				String error = "alguno de los parametros mandados no existe: ";
+				String error = "El curso " + curso + ", etapa " + etapa + " o asignatura " + nombreAsignatura + " no existe" ;
 				
 				// Log con el error
 				log.error(error);
@@ -191,10 +190,9 @@ public class RestHandlerMatriculas
 				i++;
 			}
 			
-			// FALTA informa del error con el curso y etapa que no existen
 			if(!encontrado) 
 			{
-				String error = "El curso o etapa no existe";
+				String error = "El curso " + curso + " o etapa " + etapa + " no existe" ;
 				
 				// Log con el error
 				log.error(error);
@@ -207,7 +205,7 @@ public class RestHandlerMatriculas
 			
 			if(listaAsignatura == null) 
 			{
-				String error = "No se ha asignado ninguna asignatura a este curso";
+				String error = "No se ha asignado ninguna asignatura al curso " + clave ;
 				
 				// Log con el error
 				log.error(error);
@@ -300,19 +298,18 @@ public class RestHandlerMatriculas
 			
 			Curso cursoObject = new Curso(curso, etapa.toUpperCase(), grupo.toUpperCase());
 			
+			String clave = curso + etapa.toUpperCase()+ grupo.toUpperCase();
 			if (listaCursos.contains(cursoObject))
 			{
-				String clave = curso + etapa.toUpperCase()+ grupo.toUpperCase();
 				
 				// Obtenemos el mapa Alumnos
 				Map<String, List<String>> mapaAlumnos = validations.obtenerMapaAlumno(session);
 				
-				listaAlumnos = mapaAlumnos.get(clave);
-				
+				listaAlumnos = mapaAlumnos.get(clave);			
 			}
 			else
 			{
-				String error = "El curso no existe";
+				String error = "El curso " + clave + " no existe";
 				
 				// Log con el error
 				log.error(error);
@@ -363,7 +360,7 @@ public class RestHandlerMatriculas
 			
 			if (!listaCursos.contains(cursoObject))
 			{
-				String error = "El curso no existe";
+				String error = "El curso " + cursoObject + " no existe";
 				
 				// Log con el error
 				log.error(error);

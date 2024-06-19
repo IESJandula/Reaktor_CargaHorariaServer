@@ -72,7 +72,7 @@ public class Validations
 		// comprobamos que el departamento existe
 		if (!listaDepartamentos.contains(departamento))
 		{
-			String error = "Departamento no encontrado";
+			String error = "El departamento " + departamento + " no existe";
 			
 			// Log con el error
 			log.error(error);
@@ -92,7 +92,7 @@ public class Validations
 		// comprobamos que el curso existe
 		if (!listaCursos.contains(curso))
 		{
-			String error = "Curso no encontrado: " + curso;
+			String error = "El curso " + curso + " no existe";
 			
 			// Log con el error
 			log.error(error);
@@ -137,7 +137,7 @@ public class Validations
 		}
 		if(!encontrado) 
 		{
-			String errorString = "No se ha encontrado la asignatura";
+			String errorString = "El curso " + curso + ", etapa " + etapa + ", grupo " + grupo + " o asignatura " + nombreAsignatura + " no existe" ;
 			
 			// Log con el error
 			log.error(errorString);
@@ -173,7 +173,7 @@ public class Validations
 		}
 		if (!idProfesorExiste)
 		{
-			String error = "Profesor no encontrado";
+			String error = "El profesor " + idProfesor + " no existe";
 			
 			// Log con el error
 			log.error(error);
@@ -337,7 +337,7 @@ public class Validations
 		}
 		if (!idReduccionExiste)
 		{
-			String error = "Reduccion no encontrada";
+			String error = "La reduccion " + idReduccion + " no existe";
 			
 			// Log con el error
 			log.error(error);
@@ -366,7 +366,7 @@ public class Validations
 		}
 		if (!asignaturaExiste)
 		{
-			String error = "Asignatura no encontrada";
+			String error = "La asignatura " + nombreAsignatura + " no existe";
 			
 			// Log con el error
 			log.error(error);
@@ -474,7 +474,7 @@ public class Validations
 			
 			if (idReduccionExists)
 			{
-				String error = "La reducción ya existe";
+				String error = "El profesor " + idProfesor + " ya tiene la reducción " + idReduccion + " asignada";
 				
 				// Log con el error
 				log.error(error);
@@ -680,7 +680,7 @@ public class Validations
 			}
 			else
 			{
-				String error = "El curso no existe";
+				String error = "El curso " + cursoObject + " no existe";
 				
 				// Log con el error
 				log.error(error);
@@ -690,7 +690,7 @@ public class Validations
 		}
 		else
 		{
-			String error = "El alumno no existe";
+			String error = "El alumno " + alumno + " no existe";
 			
 			// Log con el error
 			log.error(error);
@@ -726,7 +726,7 @@ public class Validations
 				// Si la lista contiene el alumno da un error si no lo añade a la lista
 				if (listaAlumnos.contains(alumno))
 				{
-					String error = "El alumno ya ha sido asignado a ese curso";
+					String error = "El alumno " + alumno + " ya ha sido asignado al curso " + clave;
 					
 					// Log con el error
 					log.error(error);
@@ -838,7 +838,7 @@ public class Validations
 		        List<Asignatura> existingAsignaturas = mapaAsignaturasDeCadaProfesor.get(idProfesor);
 		        if(existingAsignaturas.contains(asignatura)) 
 		        {
-		        	String errorString = "Esta asignación ya existe";
+		        	String errorString = "El profesor " + idProfesor + " ya tiene asignada la asignatura " + asignatura.getNombreAsignatura();
 					
 		        	// Log con el error
 					log.error(errorString);
@@ -898,7 +898,7 @@ public class Validations
 		}
 		if(!encontrado) 
 		{
-			String error = "El alumno no existe";
+			String error = "El alumno " + alumno + " no existe";
 			
 			// Log con el error
 			log.error(error);
@@ -927,7 +927,7 @@ public class Validations
 
 		if (listaNombreAsignatura.contains(nombreAsignatura))
 		{
-			String error = "Esa asignatura ya esta registrada";
+			String error = "La asignatura " + nombreAsignatura + " ya esta registrada";
 			
 			// Log con el error
 			log.error(error);
