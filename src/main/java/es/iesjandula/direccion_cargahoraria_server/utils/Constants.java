@@ -8,10 +8,10 @@ public final class Constants
 	/** Error - Lectura ficheros genérica - Mensaje */
 	public static final String ERR_LECTURA_FICHEROS_CSV_MSG = "Error al realizar la lectura del fichero CSV en ";
 
-	/** Error - Lectura ficheros genérica - Código */
+	/** Error - Contenido ficheros genérica - Código */
 	public static final int ERR_CONTENIDO_FICHEROS_CSV_CODE = 1;
 	
-	/** Error - Lectura ficheros genérica - Mensaje */
+	/** Error - Contenido ficheros genérica - Mensaje */
 	public static final String ERR_CONTENIDO_FICHEROS_CSV_MSG = "Error el fichero siguiente se escuentra vacio: ";
 	
 	/** Error - Excepción lista nula - Code */
@@ -122,9 +122,7 @@ public final class Constants
 	/** String - Nombre mapa bloques session */
 	public static final String SESION_MAPA_BLOQUES = "mapaBloques";
 	
-	/** String - Nombre mapa bloques session */
+	/** String - Nombre mapa alumnos session */
 	public static final String SESION_MAPA_ALUMNOS = "mapaAlumnos";
 
-	
-	
 }
