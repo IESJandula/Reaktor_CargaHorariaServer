@@ -131,6 +131,8 @@ Sube un archivo CSV📝 con la información de la matrícula de cursos.
 - **Obtener matrícula de cursos (GET)**📗
 Obtiene la información de la matrícula de todos los cursos.
 
+### Bloques
+
 - **Subir matrícula de bloques (POST)**📙
 Sube un archivo CSV📝 con la información de la matrícula de bloques.
 
@@ -145,6 +147,8 @@ Obtiene la información de la matrícula de todos los bloques.
 **Headers:**
 - `curso`: Curso de la matrícula.
 - `etapa`: Etapa educativa.
+
+- ### Alumnos
 
 - **Subir matrícula de alumnos (POST)**📙
 Sube la información de la matrícula de un alumno.
