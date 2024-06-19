@@ -11,7 +11,9 @@ import es.iesjandula.direccion_cargahoraria_server.models.ReduccionHoras;
 import es.iesjandula.direccion_cargahoraria_server.models.Resumen;
 import es.iesjandula.direccion_cargahoraria_server.models.ResumenProfesor;
 import jakarta.servlet.http.HttpSession;
-
+/**
+ * Clase overviews
+ */
 public class Overviews
 {
 	/**
@@ -82,6 +84,7 @@ public class Overviews
 			{
 				numeroProfesorDepartamento++;
 				String profesorId = profesor.getIdProfesor();
+				
 				// comprobamos que el mapa de asignaturas existe para sumar horas
 				if (mapaAsignatura != null)
 				{
@@ -97,7 +100,7 @@ public class Overviews
 				// comprobamos que el mapa de guardias no es nulo y contiene la id del profesor
 				if (mapaGuardias != null && mapaGuardias.containsKey(profesorId))
 				{
-					totalHoras += mapaGuardias.get(profesorId);
+					totalHoras = totalHoras + mapaGuardias.get(profesorId);
 				}
 			}
 		}
@@ -127,6 +130,7 @@ public class Overviews
 		{
 			resultadoDesfase = "Faltan horas";
 		}
+		
 		return resultadoDesfase;
 	}
 	
@@ -153,8 +157,7 @@ public class Overviews
 			
 			for (Asignatura asignatura : listaAsignaturas)
 			{
-				Asignatura asignatura2 = asignatura;
-				listaAsignaturaProfesor.add(asignatura2);
+				listaAsignaturaProfesor.add(asignatura);
 				totalHoras += asignatura.getNumeroHorasSemanales();
 			}
 		}
@@ -165,13 +168,11 @@ public class Overviews
 
 			for (ReduccionHoras reduccionHoras : listaReducciones)
 			{
-				ReduccionHoras reduccionHoras2 = reduccionHoras;
-				listaReduccionHoras.add(reduccionHoras2);
+				listaReduccionHoras.add(reduccionHoras);
 				totalHoras += reduccionHoras.getNumHoras();
 			}
 		}
 
-		ResumenProfesor resumen = new ResumenProfesor(listaAsignaturaProfesor, listaReduccionHoras, totalHoras);
-		return resumen;
+		return new ResumenProfesor(listaAsignaturaProfesor, listaReduccionHoras, totalHoras) ;
 	}
 }

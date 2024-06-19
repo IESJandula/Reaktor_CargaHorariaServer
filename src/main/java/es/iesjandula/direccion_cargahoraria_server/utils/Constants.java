@@ -1,5 +1,7 @@
 package es.iesjandula.direccion_cargahoraria_server.utils;
-
+/**
+ * Clase constants
+ */
 public final class Constants
 {
 	/** Error - Lectura ficheros genérica - Código */

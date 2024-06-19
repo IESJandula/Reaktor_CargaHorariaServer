@@ -365,19 +365,16 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return Asignación del profesor a una asignatura
 	 */
-	@SuppressWarnings({ "unchecked"})
 	@RequestMapping(method=RequestMethod.PUT,value="/asignaturas")
 	public ResponseEntity<?> asignacionAsignaturas(@RequestHeader(value="idProfesor",required=true)String idProfesor,
 			@RequestHeader(value="nombreAsignatura",required=true)String nombreAsignatura,
 			@RequestHeader(value="curso",required=true)Integer curso,
 			@RequestHeader(value="etapa",required=true)String etapa,
-			@RequestHeader(value="grupo",required=true)String grupo,HttpSession session)
+			@RequestHeader(value="grupo",required=true)String grupo, HttpSession session)
 	{
 		try
 		{
 			Validations validations = new Validations();
-			Map<String,List<Asignatura>> asignacion = (Map<String, List<Asignatura>>) session.getAttribute(Constants.SESION_MAPA_ASIGNATURAS);
-			List<Asignatura> datosAsignacion = new ArrayList<Asignatura>();
 			
 			// Obtenemos la lista de profesores
 			List<Profesor> listaProfesores = validations.obtenerListaProfesores(session);
@@ -389,23 +386,20 @@ public class RestHandler
 			List<Curso> listaCursos = validations.obtenerListaCursos(session);
 			
 			// Método para validar el id de profesor
-			validations.obtenerIdProfesor(idProfesor, listaProfesores);
+			validations.validarSiExisteProfesor(idProfesor, listaProfesores);
 			
 			// Método para obtener si el nombre de la asignatura existe
-			validations.obtenerNombreAsignaturaExiste(nombreAsignatura, listaAsignaturas);
-			
-			// Asignamos el nombre de la asignatura
-			Asignatura asignaturaObject = new Asignatura();
-			asignaturaObject.setNombreAsignatura(nombreAsignatura);
+			validations.validarSiExisteNombreAsignatura(nombreAsignatura, listaAsignaturas);
 			
 			// Método para obtener si el curso existe y creacion del objeto asignatura
-			validations.comprobacionCreacionObjeto(nombreAsignatura, curso, etapa, grupo, datosAsignacion, listaAsignaturas,listaCursos, asignaturaObject);
+			Asignatura asignatura = validations.creaAsignaturaParaAsignarAProfesor(nombreAsignatura, curso, etapa, grupo, listaAsignaturas, listaCursos);
+
+			// Creamos la lista de asignaturas asignadas al profesor y la añadimos
+			List<Asignatura> listaAsignaturasAsociadasAProfesor = new ArrayList<Asignatura>();
+			listaAsignaturasAsociadasAProfesor.add(asignatura);
+			
 			//  Asignanación al mapa de asignaturas
-			
-			asignacion = validations.asignacionMapaAsignaturas(idProfesor, session, datosAsignacion, asignaturaObject);
-			
-			// Log con la asignación
-			log.info(asignacion);
+			validations.asignacionMapaAsignaturas(idProfesor, session, listaAsignaturasAsociadasAProfesor, asignatura);
 			
 			return ResponseEntity.ok().build();
 		}
@@ -456,9 +450,9 @@ public class RestHandler
 			
 			while(i < listaMapaAsignatura.size() && !encontrado) 
 			{
-				if(listaMapaAsignatura.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura) && listaMapaAsignatura.get(i).getCurso()==curso && listaMapaAsignatura.get(i).getEtapa().equalsIgnoreCase(etapa) && listaMapaAsignatura.get(i).getGrupo().equalsIgnoreCase(grupo)) 
+				encontrado = listaMapaAsignatura.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura) && listaMapaAsignatura.get(i).getCurso()==curso && listaMapaAsignatura.get(i).getEtapa().equalsIgnoreCase(etapa) && listaMapaAsignatura.get(i).getGrupo().equalsIgnoreCase(grupo) ;
+				if (encontrado)
 				{
-					encontrado = true;
 					listaMapaAsignatura.remove(i);
 				}
 				i++;
@@ -473,7 +467,6 @@ public class RestHandler
 				throw new HorarioException(Constants.ERR_ASIGNACION_ASIGNATURA, error);
 			}
 			
-			asignacion.get(idProfesor).addAll(listaMapaAsignatura);
 			session.setAttribute(Constants.SESION_MAPA_ASIGNATURAS, asignacion);
 			
 			return ResponseEntity.ok().build();
@@ -512,7 +505,7 @@ public class RestHandler
 			List<Curso> listaCursos = validations.obtenerListaCursos(session);
 			
 			// Llamamos el metodo para parsear reducciones
-			List<Reduccion> listaReducciones = parse.parseReducciones(csvFile,listaCursos);
+			List<Reduccion> listaReducciones = parse.parseReducciones(csvFile, listaCursos);
 			
 			// Guardamos la lista en session
 			session.setAttribute(Constants.SESION_LISTA_REDUCCIONES, listaReducciones);
@@ -582,7 +575,6 @@ public class RestHandler
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return 200 si todo ha ido bien
 	 */
-	@SuppressWarnings({ "unchecked"})
 	@RequestMapping(method=RequestMethod.PUT,value="/reducciones")
 	public ResponseEntity<?> asignacionReducciones(@RequestHeader(value="idProfesor",required=true)String idProfesor,
 			@RequestHeader(value="idReduccion",required=true)String idReduccion,HttpSession session)
@@ -590,7 +582,6 @@ public class RestHandler
 		try
 		{
 			Validations validations = new Validations();
-			Map<String,List<ReduccionHoras>> asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute(Constants.SESION_MAPA_REDUCCIONES);	
 			
 			// Obtenemos la lista de profesores
 			List<Profesor> listaProfesores =validations.obtenerListaProfesores(session);
@@ -598,19 +589,14 @@ public class RestHandler
 			// Obtenemos la lista de reducciones			
 			List<Reduccion> listaReducciones = validations.obtenerListaReducciones(session);
 			
-			List<ReduccionHoras> listaReduccionHoras = new ArrayList<ReduccionHoras>();
-
 			// Obtener id del profesor
-			validations.obtenerIdProfesor(idProfesor, listaProfesores);
+			validations.validarSiExisteProfesor(idProfesor, listaProfesores);
 			
 			// Obtener la id de reduccion si existe
-			validations.obtenerIdReduccionExiste(idReduccion, listaReducciones);
+			validations.validarSiIdReduccionExiste(idReduccion, listaReducciones);
 			
 			// Realizar reducción
-			asignacionReduccion = validations.realizarReduccion(idProfesor, idReduccion, session, listaReducciones, listaReduccionHoras);
-			
-			// Pintamos en los logs en modo info
-			log.info(asignacionReduccion);
+			validations.realizarReduccion(idProfesor, idReduccion, session, listaReducciones);
 			
 			return ResponseEntity.ok().build();
 		}
@@ -653,13 +639,13 @@ public class RestHandler
 			int i = 0;
 			boolean encontrado = false;
 			
-			while(i < listaMapaReducciones.size() && !encontrado) 
+			while (i < listaMapaReducciones.size() && !encontrado) 
 			{
-				if(listaMapaReducciones.get(i).getIdReduccion().equalsIgnoreCase(idReduccion))
+				encontrado = listaMapaReducciones.get(i).getIdReduccion().equalsIgnoreCase(idReduccion) ;
 				{
-					encontrado = true;
 					listaMapaReducciones.remove(i);
 				}
+				
 				i++;
 			}
 			if(!encontrado) 
@@ -671,7 +657,6 @@ public class RestHandler
 				
 				throw new HorarioException(Constants.ERR_REDUCCION_EXIS, error);
 			}
-			asignacionReduccion.get(idProfesor).addAll(listaMapaReducciones);
 			
 			session.setAttribute(Constants.SESION_MAPA_REDUCCIONES, asignacionReduccion);
 			
@@ -711,11 +696,11 @@ public class RestHandler
 			
 			List<Profesor> listaProfesores =validations.obtenerListaProfesores(session);
 			// Obtener id del profesor
-			validations.obtenerIdProfesor(idProfesor, listaProfesores);
+			validations.validarSiExisteProfesor(idProfesor, listaProfesores);
 			
-			Map<String,Integer> mapaGuardias;
+			Map<String,Integer> mapaGuardias = (Map<String, Integer>) session.getAttribute(Constants.SESION_MAPA_GUARDIAS);
 			// Comprobamos si se ha creado el mapa de guardias
-			if(session.getAttribute(Constants.SESION_MAPA_GUARDIAS)==null)
+			if(mapaGuardias == null)
 			{
 				mapaGuardias = new TreeMap<String, Integer>();
 				mapaGuardias.put(idProfesor, horasAsignadas);
@@ -723,10 +708,10 @@ public class RestHandler
 			}
 			else
 			{
-				mapaGuardias=(Map<String, Integer>) session.getAttribute(Constants.SESION_MAPA_GUARDIAS);
 				mapaGuardias.put(idProfesor, horasAsignadas);
 				session.setAttribute(Constants.SESION_MAPA_GUARDIAS, mapaGuardias);
 			}
+			
 			// Pintamos en los logs en modo info
 			log.info(mapaGuardias);
 			
@@ -762,16 +747,16 @@ public class RestHandler
 			Validations validations = new Validations();
 			
 			// Obtenemos la lista de profesores
-			List<Profesor> listaProfesores =validations.obtenerListaProfesores(session);
+			List<Profesor> listaProfesores = validations.obtenerListaProfesores(session);
 			
 			// Obtenemos el id del profesor
-			validations.obtenerIdProfesor(idProfesor, listaProfesores);
+			validations.validarSiExisteProfesor(idProfesor, listaProfesores);
 			
 			// Obtenemos mapa de reduccion
-			Map <String,List<ReduccionHoras>> mapaReduccion = validations.obtenerMapaReduccion(session);
+			Map<String,List<ReduccionHoras>> mapaReduccion = validations.obtenerMapaReduccion(session);
 			
 			// Obtenemos el mapa de asignaturas
-			Map <String, List<Asignatura>> mapaAsignatura = validations.obtenerMapaAsignaturas(session);
+			Map<String, List<Asignatura>> mapaAsignatura = validations.obtenerMapaAsignaturas(session);
 			
 			// Obtenemos el resumen del profesor 	
 			Overviews overviews = new Overviews();

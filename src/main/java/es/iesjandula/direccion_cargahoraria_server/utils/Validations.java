@@ -20,6 +20,9 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
+/**
+ * Clase validations
+ */
 public class Validations
 {
 	/**
@@ -105,16 +108,18 @@ public class Validations
 	 * @param curso Número del curso
 	 * @param etapa Etapa del curso
 	 * @param grupo Grupo del curso
-	 * @param datosAsignacion Lista de asignaturas para asignar
 	 * @param listaAsignaturas Lista de asignaturas
 	 * @param listaCursos Lista de cursos
-	 * @param asignaturaObject Objeto de asignatura
+	 * @return asignatura creada
 	 * @throws HorarioException Se lanzara si no encuentra la asignatura
 	 */
-	public void comprobacionCreacionObjeto(String nombreAsignatura, Integer curso, String etapa, String grupo,
-			List<Asignatura> datosAsignacion, List<Asignatura> listaAsignaturas, List<Curso> listaCursos,
-			Asignatura asignaturaObject) throws HorarioException
+	public Asignatura creaAsignaturaParaAsignarAProfesor(String nombreAsignatura, Integer curso, String etapa, 
+												 		 String grupo, List<Asignatura> listaAsignaturas, List<Curso> listaCursos) throws HorarioException
 	{
+		// Asignamos el nombre de la asignatura
+		Asignatura asignaturaObject = new Asignatura();
+		asignaturaObject.setNombreAsignatura(nombreAsignatura);
+		
 		boolean encontrado = false;
 		int i = 0;
 		while (i < listaAsignaturas.size() && !encontrado)
@@ -143,7 +148,8 @@ public class Validations
 		asignaturaObject.setCurso(curso);
 		asignaturaObject.setEtapa(etapa);
 		asignaturaObject.setGrupo(grupo);
-		datosAsignacion.add(asignaturaObject);
+		
+		return asignaturaObject ;
 	}
 	
 	/**
@@ -153,7 +159,7 @@ public class Validations
 	 * @param listaProfesores Lista de profesores
 	 * @throws HorarioException Se lanzara si no encuentra el profesor
 	 */
-	public void obtenerIdProfesor(String idProfesor, List<Profesor> listaProfesores) throws HorarioException 
+	public void validarSiExisteProfesor(String idProfesor, List<Profesor> listaProfesores) throws HorarioException 
 	{
 		boolean idProfesorExiste = false;
 		int i = 0;
@@ -316,7 +322,7 @@ public class Validations
 	 * @param listaReducciones Lista de reduccionnes
 	 * @throws HorarioException se lanzará esta excepción si la reduccion no existe
 	 */
-	public void obtenerIdReduccionExiste(String idReduccion, List<Reduccion> listaReducciones)
+	public void validarSiIdReduccionExiste(String idReduccion, List<Reduccion> listaReducciones)
 			throws HorarioException
 	{
 		boolean idReduccionExiste = false;
@@ -348,17 +354,14 @@ public class Validations
 	 * @param asignaturaExiste Booleano para obtener si la asignatura existe
 	 * @throws HorarioException Se lanzará esta excepción si la asignatura no existe
 	 */
-	public boolean obtenerNombreAsignaturaExiste(String nombreAsignatura, List<Asignatura> listaAsignaturas)
+	public void validarSiExisteNombreAsignatura(String nombreAsignatura, List<Asignatura> listaAsignaturas)
 			throws HorarioException
 	{
 		boolean asignaturaExiste = false;
 		int i = 0;
 		while (i < listaAsignaturas.size() && !asignaturaExiste)
 		{
-			if (listaAsignaturas.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura))
-			{
-				asignaturaExiste = true;
-			}
+			asignaturaExiste = listaAsignaturas.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura) ;
 			i++;
 		}
 		if (!asignaturaExiste)
@@ -370,7 +373,6 @@ public class Validations
 			
 			throw new HorarioException(Constants.ERR_NOMBRE_ASIGNATURA, error);
 		}
-		return asignaturaExiste;
 	}
 	
 	/**
@@ -407,13 +409,12 @@ public class Validations
 	 * @param idReduccion Id de la reduccion
 	 * @param session Utilizado para guardas u obtener cosas en sesión
 	 * @param listaReducciones Lista de reducciones
-	 * @param listaReduccionHoras Lista de las horas de reducción
 	 * @return Un mapa de reducciones
 	 * @throws HorarioException Se lanzara si no se puede realizar la reducción
 	 */
 	@SuppressWarnings("unchecked")
-	public Map<String, List<ReduccionHoras>> realizarReduccion(String idProfesor, String idReduccion,
-			HttpSession session, List<Reduccion> listaReducciones, List<ReduccionHoras> listaReduccionHoras)
+	public void realizarReduccion(String idProfesor, String idReduccion,
+			HttpSession session, List<Reduccion> listaReducciones)
 			throws HorarioException
 	{
 		ReduccionHoras reduccionHoras = new ReduccionHoras();
@@ -421,24 +422,27 @@ public class Validations
 		
 		// Obtenemos la reduccion id
 		Validations validations = new Validations();
+		
+		List<ReduccionHoras> listaReduccionHoras = new ArrayList<ReduccionHoras>();
 		validations.obtenerReduccionId(idReduccion, listaReducciones, listaReduccionHoras, reduccionHoras, reduccionEncontrada);
 		
-		Map<String, List<ReduccionHoras>> asignacionReduccion = null;
-		if (session.getAttribute(Constants.SESION_MAPA_REDUCCIONES) == null)
+		Map<String, List<ReduccionHoras>> asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute(Constants.SESION_MAPA_REDUCCIONES);
+		if (asignacionReduccion == null)
 		{
 			asignacionReduccion = new TreeMap<String, List<ReduccionHoras>>();
 			asignacionReduccion.put(idProfesor, listaReduccionHoras);
-			session.setAttribute(Constants.SESION_MAPA_REDUCCIONES, asignacionReduccion);
 		}
 		else
 		{
-			asignacionReduccion = (Map<String, List<ReduccionHoras>>) session.getAttribute(Constants.SESION_MAPA_REDUCCIONES);
-			this.asignarReduccion(idProfesor, idReduccion, listaReduccionHoras, asignacionReduccion);
-			
-			session.setAttribute(Constants.SESION_MAPA_REDUCCIONES, asignacionReduccion);
+			this.realizarReduccionInternal(idProfesor, idReduccion, listaReduccionHoras, asignacionReduccion);
 		}
-		return asignacionReduccion;
+		
+		session.setAttribute(Constants.SESION_MAPA_REDUCCIONES, asignacionReduccion);
+		
+		// Pintamos en los logs en modo info
+		log.info(asignacionReduccion);
 	}
+	
 	/**
 	 * Método para asignar una reducción
 	 * 
@@ -448,10 +452,14 @@ public class Validations
 	 * @param asignacionReduccion Mapa de reducciones
 	 * @throws HorarioException Se lanzara si la reducción ya existe 
 	 */
-	public void asignarReduccion(String idProfesor, String idReduccion, List<ReduccionHoras> listaReduccionHoras,
+	public void realizarReduccionInternal(String idProfesor, String idReduccion, List<ReduccionHoras> listaReduccionHoras,
 			Map<String, List<ReduccionHoras>> asignacionReduccion) throws HorarioException
 	{
-		if (asignacionReduccion.containsKey(idProfesor))
+		if (!asignacionReduccion.containsKey(idProfesor))
+		{
+			asignacionReduccion.put(idProfesor, listaReduccionHoras);
+		}
+		else
 		{
 			List<ReduccionHoras> existingReduccionHoras = asignacionReduccion.get(idProfesor);
 			boolean idReduccionExists = false;
@@ -477,10 +485,6 @@ public class Validations
 			{
 				existingReduccionHoras.addAll(listaReduccionHoras);
 			}
-		}
-		else
-		{
-			asignacionReduccion.put(idProfesor, listaReduccionHoras);
 		}
 	}
 	
@@ -559,13 +563,14 @@ public class Validations
 	 * Método para obtener si existe el mapa cursos
 	 * 
 	 * @param session Utilizado para guardas u obtener cosas en sesión
-	 * @param mapaCursos Mapa de cursos
 	 * @return Mapa cursos
 	 * @throws HorarioException Se lanzara si no se ha cargado el mapa de cursos
 	 */
-	public Map<String, Map<String, List<String>>> obtenerMapaCursos(HttpSession session,
-			Map<String, Map<String, List<String>>> mapaCursos) throws HorarioException
+	@SuppressWarnings("unchecked")
+	public Map<String, Map<String, List<String>>> obtenerMapaCursos(HttpSession session) throws HorarioException
 	{
+		Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute(Constants.SESION_MAPA_CURSOS);
+		
 		if (mapaCursos == null)
 		{
 			String error = "El mapa cursos no han sido cargado en sesion todavía";
@@ -575,6 +580,7 @@ public class Validations
 			
 			throw new HorarioException(Constants.ERR_MAP_NULL, error);
 		}
+		
 		return mapaCursos;
 	}
 
@@ -612,12 +618,8 @@ public class Validations
 	@SuppressWarnings("unchecked")
 	public Map<String, Map<String, List<String>>> inicializarMapaCursos(HttpSession session) 
 	{
-		Map<String, Map<String, List<String>>> mapaCursos;
-		if (session.getAttribute(Constants.SESION_MAPA_CURSOS) != null)
-		{
-			mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute(Constants.SESION_MAPA_CURSOS);
-		}
-		else
+		Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute(Constants.SESION_MAPA_CURSOS);
+		if (mapaCursos == null)
 		{
 			mapaCursos = new HashMap<String, Map<String, List<String>>>();
 		}
@@ -708,8 +710,7 @@ public class Validations
 	 * @throws HorarioException Se lanzara si el alumno ya ha sido asignado a ese curso
 	 */
 	@SuppressWarnings("unchecked")
-	public Map<String, List<String>> añadirAlumnoAlMapa(String alumno, HttpSession session, String clave,
-			List<String> listaAlumnos) throws HorarioException
+	public Map<String, List<String>> añadirAlumnoAlMapa(String alumno, HttpSession session, String clave, List<String> listaAlumnos) throws HorarioException
 	{
 		Map<String, List<String>> mapaAlumnos;
 		// Si el mapa es nulo lo crea y añade el mapa alumnos si no lo obtiene
@@ -812,29 +813,30 @@ public class Validations
 	 * @param idProfesor Id del profesor
 	 * @param session Utilizado para guardas u obtener cosas en sesión
 	 * @param datosAsignacion Lista de asignaturas
-	 * @param asignaturaObject Objeto asignatura
+	 * @param asignatura Objeto asignatura
 	 * @return La asignación
 	 * @throws HorarioException Se lanzara si ocurre un error en la asignación
 	 */
 	@SuppressWarnings("unchecked")
-	public Map<String, List<Asignatura>> asignacionMapaAsignaturas(String idProfesor, HttpSession session,
-			List<Asignatura> datosAsignacion, Asignatura asignaturaObject) throws HorarioException
+	public void asignacionMapaAsignaturas(String idProfesor, HttpSession session, List<Asignatura> datosAsignacion, Asignatura asignatura) throws HorarioException
 	{
-		Map<String, List<Asignatura>> asignacion;
-		if (session.getAttribute(Constants.SESION_MAPA_ASIGNATURAS) == null) 
+		Map<String, List<Asignatura>> mapaAsignaturasDeCadaProfesor = (Map<String, List<Asignatura>>) session.getAttribute(Constants.SESION_MAPA_ASIGNATURAS) ;
+		if (mapaAsignaturasDeCadaProfesor == null) 
 		{
-		    asignacion = new TreeMap<String, List<Asignatura>>();
-		    asignacion.put(idProfesor, datosAsignacion);
-		    session.setAttribute(Constants.SESION_MAPA_ASIGNATURAS, asignacion);
+		    mapaAsignaturasDeCadaProfesor = new TreeMap<String, List<Asignatura>>();
+		    mapaAsignaturasDeCadaProfesor.put(idProfesor, datosAsignacion);
 		}
 		else 
 		{
-		    asignacion = (Map<String, List<Asignatura>>) session.getAttribute(Constants.SESION_MAPA_ASIGNATURAS);
 		    // Comprobamos si existe el idProfesor en el mapa
-		    if (asignacion.containsKey(idProfesor)) 
+		    if (!mapaAsignaturasDeCadaProfesor.containsKey(idProfesor)) 
 		    {
-		        List<Asignatura> existingAsignaturas = asignacion.get(idProfesor);
-		        if(existingAsignaturas.contains(asignaturaObject)) 
+		    	mapaAsignaturasDeCadaProfesor.put(idProfesor, datosAsignacion);
+		    }
+		    else
+		    {
+		        List<Asignatura> existingAsignaturas = mapaAsignaturasDeCadaProfesor.get(idProfesor);
+		        if(existingAsignaturas.contains(asignatura)) 
 		        {
 		        	String errorString = "Esta asignación ya existe";
 					
@@ -848,13 +850,12 @@ public class Validations
 		        	existingAsignaturas.addAll(datosAsignacion);
 		        }
 		    }
-		    else
-		    {
-		        asignacion.put(idProfesor, datosAsignacion);
-		    }
-		    session.setAttribute(Constants.SESION_MAPA_ASIGNATURAS, asignacion);
 		}
-		return asignacion;
+		
+		session.setAttribute(Constants.SESION_MAPA_ASIGNATURAS, mapaAsignaturasDeCadaProfesor);
+		
+		// Log con la asignación
+		log.info(mapaAsignaturasDeCadaProfesor);
 	}
 	/**
 	 * Método para inicialiar el mapa de bloques si esta vacio 
@@ -914,44 +915,30 @@ public class Validations
 	 * @param nombreAsignatura Nombre de la asignatura
 	 * @param session Utilizado para guardas u obtener cosas en sesión
 	 * @param mapaBloques Mapa de bloques
-	 * @param encontrado boolean para saber si se ha encontrado o no
 	 * @throws HorarioException Se lanzara si el curso o etapa no son correctos o si la asignatura ya esta registrada
 	 */
-	public void asignarAsignaturasMapaBloques(Integer curso, String etapa, String nombreAsignatura, HttpSession session,
-			Map<String, List<String>> mapaBloques, boolean encontrado) throws HorarioException
+	public void asignarAsignaturasMapaBloques(Integer curso, String etapa, String nombreAsignatura, HttpSession session, Map<String, List<String>> mapaBloques) throws HorarioException
 	{
-		if (encontrado)
-		{
-			String clave = curso + etapa.toUpperCase();
-			
-			// Obtenemos la lista en caso de que la clave exista u obtenemos un nueva lista
-			// de asignaturas
-			List<String> listaNombreAsignatura = mapaBloques.getOrDefault(clave, new ArrayList<String>());
+		String clave = curso + etapa.toUpperCase();
+		
+		// Obtenemos la lista en caso de que la clave exista u obtenemos un nueva lista
+		// de asignaturas
+		List<String> listaNombreAsignatura = mapaBloques.getOrDefault(clave, new ArrayList<String>());
 
-			if (listaNombreAsignatura.contains(nombreAsignatura))
-			{
-				String error = "Esa asignatura ya esta registrada";
-				
-				// Log con el error
-				log.error(error);
-				
-				throw new HorarioException(Constants.ERR_ASIG_REGIS, error);
-			}
-			else
-			{
-				listaNombreAsignatura.add(nombreAsignatura);
-				mapaBloques.put(clave, listaNombreAsignatura);
-				session.setAttribute(Constants.SESION_MAPA_BLOQUES, mapaBloques);
-			}
-		}
-		else
+		if (listaNombreAsignatura.contains(nombreAsignatura))
 		{
-			String error = "alguno de los parametros mandados no existe";
+			String error = "Esa asignatura ya esta registrada";
 			
 			// Log con el error
 			log.error(error);
 			
-			throw new HorarioException(Constants.ERR_VALIDATE_CURSO_ETAPA, error);
+			throw new HorarioException(Constants.ERR_ASIG_REGIS, error);
+		}
+		else
+		{
+			listaNombreAsignatura.add(nombreAsignatura);
+			mapaBloques.put(clave, listaNombreAsignatura);
+			session.setAttribute(Constants.SESION_MAPA_BLOQUES, mapaBloques);
 		}
 	}
 }

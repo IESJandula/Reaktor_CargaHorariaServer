@@ -347,13 +347,14 @@ public class Parse
 	 * @param etapa           Etapa del curso
 	 * @param mapaAsignaturas Mapa de asignaturas
 	 * @param session         Utilizado para guardas u obtener cosas en sesión
+	 * @param mapaCursos	  Con el mapa de cursos
 	 * @return La clave del mapa
 	 * @throws IOException      Se lanzará esta excepción si hay un error con el
 	 *                          fichero
 	 * @throws HorarioException Se lanza si el contenido del fichero, la lista de cursos, validar curso etapa, obtener lista asignaturas
 	 * 							o validar asignaturas da error
 	 */
-	public void parseCursosMap(MultipartFile csvFile, Integer curso, String etapa, HttpSession session)
+	public void parseCursosMap(MultipartFile csvFile, Integer curso, String etapa, HttpSession session, Map<String, Map<String, List<String>>> mapaCursos)
 			throws IOException, HorarioException
 	{
 		Scanner scanner = null;
@@ -371,22 +372,10 @@ public class Parse
 			
 			String linea = scanner.nextLine();
 			
-			// Separamos la linea por ,
-			String[] lineaArray = linea.split(",");
-			
-			List<String> listaPosiblesAsignaturas = new ArrayList<String>();
-			// Añadimos el contenido de linea array en la lista de posibles asignaturas
-			Collections.addAll(listaPosiblesAsignaturas, lineaArray);
-			// Eliminamos el alumno
-			listaPosiblesAsignaturas.remove(0);
-			log.info(listaPosiblesAsignaturas);
+			// Leemos las asignaturas y validamos si fueron creadas previamente
+			List<String> listaPosiblesAsignaturas = this.parseCursosMapValidarAsignaturas(session, validations, linea);
 
-			// Obtenemos la lista de asignaturas
-			List<Asignatura> listaAsignatura = validations.obtenerListaAsignaturas(session);
-			
-			this.validarAsignaturasExisten(listaPosiblesAsignaturas, listaAsignatura);
-
-			Map<String, List<String>> mapaAsignaturas = inicialiarMapaAsignaturas(session);
+			Map<String, List<String>> mapaAsignaturas = this.inicializarMapaAsignaturas(session);
 			
 			// Obtenemos la lista de apellidos y nombres de alumnos
 			List<String> listaApellidosNombreAlumnos = validations.inicializarListaApellidosNombreAlumnos(session);
@@ -395,8 +384,6 @@ public class Parse
 
 			session.setAttribute(Constants.SESION_LISTA_NOMBRES, listaApellidosNombreAlumnos);
 
-			Map<String, Map<String, List<String>>> mapaCursos = validations.inicializarMapaCursos(session);
-			
 			String clave = curso + etapa.toUpperCase();
 			
 			mapaCursos.put(clave, mapaAsignaturas);
@@ -413,6 +400,26 @@ public class Parse
 			}
 		}
 	}
+
+	private List<String> parseCursosMapValidarAsignaturas(HttpSession session, Validations validations, String linea)
+			throws HorarioException
+	{
+		// Separamos la linea por ,
+		String[] lineaArray = linea.split(",");
+		
+		List<String> listaPosiblesAsignaturas = new ArrayList<String>();
+		// Añadimos el contenido de linea array en la lista de posibles asignaturas
+		Collections.addAll(listaPosiblesAsignaturas, lineaArray);
+		// Eliminamos el alumno
+		listaPosiblesAsignaturas.remove(0);
+		log.info(listaPosiblesAsignaturas);
+
+		// Obtenemos la lista de asignaturas
+		List<Asignatura> listaAsignatura = validations.obtenerListaAsignaturas(session);
+		
+		this.validarAsignaturasExisten(listaPosiblesAsignaturas, listaAsignatura);
+		return listaPosiblesAsignaturas;
+	}
 	/**
 	 * Método para inicializar el mapa asignaturas si esta vacio
 	 * 
@@ -420,10 +427,9 @@ public class Parse
 	 * @return Mapa de asignaturas
 	 */
 	@SuppressWarnings("unchecked")
-	private Map<String, List<String>> inicialiarMapaAsignaturas(HttpSession session) 
+	private Map<String, List<String>> inicializarMapaAsignaturas(HttpSession session) 
 	{
-		Map<String, List<String>> mapaAsignaturas = (Map<String, List<String>>) session
-				.getAttribute(Constants.SESION_MAPA_ASIGNATURA_CURSOS);
+		Map<String, List<String>> mapaAsignaturas = (Map<String, List<String>>) session.getAttribute(Constants.SESION_MAPA_ASIGNATURA_CURSOS);
 		
 		if (mapaAsignaturas == null)
 		{

@@ -1,7 +1,6 @@
 package es.iesjandula.direccion_cargahoraria_server.rest;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +37,6 @@ public class RestHandlerMatriculas
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return 200 si todo ha ido bien
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.POST, value = "/cursos", consumes = "multipart/form-data")
 	public ResponseEntity<?> uploadCursos(@RequestParam(value = "csv", required = true) MultipartFile csvFile,
 			@RequestHeader(value = "curso", required = true) Integer curso,
@@ -50,17 +48,10 @@ public class RestHandlerMatriculas
 			Validations validations = new Validations();
 			
 			// Obtenemos el mapa cursos
-			Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session
-					.getAttribute(Constants.SESION_MAPA_CURSOS);
-			mapaCursos = validations.inicializarMapaCursos(session); 
+			Map<String, Map<String, List<String>>> mapaCursos = validations.inicializarMapaCursos(session); 
 			
 			// Parseamos el fichero csv
-			parse.parseCursosMap(csvFile, curso, etapa, session);
-			
-			mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute(Constants.SESION_MAPA_CURSOS);
-			
-			// Mostramos el mapa de cursos por log
-			log.info(mapaCursos);
+			parse.parseCursosMap(csvFile, curso, etapa, session, mapaCursos);
 			
 			return ResponseEntity.ok().build();
 		}
@@ -81,7 +72,6 @@ public class RestHandlerMatriculas
 	 * @param session Utilizado para guardar u obtener cosas en sesión
 	 * @return Lista de cursos
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(method = RequestMethod.GET, value = "/cursos")
 	public ResponseEntity<?> getCursos(HttpSession session) 
 	{
@@ -90,8 +80,7 @@ public class RestHandlerMatriculas
 			Validations validations = new Validations();
 			
 			// Obtenemos el mapa cursos
-			Map<String, Map<String, List<String>>> mapaCursos = (Map<String, Map<String, List<String>>>) session.getAttribute(Constants.SESION_MAPA_CURSOS);
-			mapaCursos = validations.obtenerMapaCursos(session, mapaCursos);
+			Map<String, Map<String, List<String>>> mapaCursos = validations.obtenerMapaCursos(session);
 			
 			return ResponseEntity.ok().body(mapaCursos.keySet());
 		}
@@ -136,16 +125,25 @@ public class RestHandlerMatriculas
 			// Comprobamos que los parametros recibidos son correctos
 			while (i < listaAsignaturas.size() && !encontrado)
 			{
-				if (listaAsignaturas.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura)
-						&& listaAsignaturas.get(i).getCurso() == (curso)
-						&& listaAsignaturas.get(i).getEtapa().equalsIgnoreCase(etapa))
-				{
-					encontrado = true;
-				}
+				encontrado = listaAsignaturas.get(i).getNombreAsignatura().equalsIgnoreCase(nombreAsignatura) && 
+							 listaAsignaturas.get(i).getCurso() == (curso) 									  && 
+							 listaAsignaturas.get(i).getEtapa().equalsIgnoreCase(etapa) ;
 				i++;
 			}
+			
+			// FALTA poner más información en la excepción: curso, etapa, nombreASignatura
+			if (!encontrado)
+			{
+				String error = "alguno de los parametros mandados no existe: ";
+				
+				// Log con el error
+				log.error(error);
+				
+				throw new HorarioException(Constants.ERR_VALIDATE_CURSO_ETAPA, error);
+			}
+			
 			// Asignar asignaturas al mapa bloques
-			validations.asignarAsignaturasMapaBloques(curso, etapa, nombreAsignatura, session, mapaBloques, encontrado);
+			validations.asignarAsignaturasMapaBloques(curso, etapa, nombreAsignatura, session, mapaBloques);
 			
 			return ResponseEntity.ok().build();
 		}
@@ -189,12 +187,11 @@ public class RestHandlerMatriculas
 			boolean encontrado = false;
 			while(i < listaCursos.size() && !encontrado)
 			{
-				if(listaCursos.get(i).getCurso() == curso && listaCursos.get(i).getEtapa().equals(etapa.toUpperCase())) 
-				{
-					encontrado = true;
-				}
+				encontrado = listaCursos.get(i).getCurso() == curso && listaCursos.get(i).getEtapa().equals(etapa.toUpperCase()) ; 
 				i++;
 			}
+			
+			// FALTA informa del error con el curso y etapa que no existen
 			if(!encontrado) 
 			{
 				String error = "El curso o etapa no existe";
@@ -204,6 +201,7 @@ public class RestHandlerMatriculas
 				
 	            throw new HorarioException(Constants.ERR_VALIDATE_CURSO_ETAPA, error);
 			}	
+			
 			String clave = curso + etapa.toUpperCase();
 			List<String> listaAsignatura = mapaBloques.get(clave);
 			
@@ -363,23 +361,7 @@ public class RestHandlerMatriculas
 			
 			Curso cursoObject = new Curso(curso, etapa.toUpperCase(), grupo.toUpperCase());
 			
-			if (listaCursos.contains(cursoObject))
-			{
-				String clave = curso + etapa.toUpperCase() + grupo.toUpperCase();
-				
-				// Obtenemos el mapa alumnos
-				Map<String, List<String>> mapaAlumnos = validations.obtenerMapaAlumno(session);
-				
-				// Obtenemos la lista de alumnos
-				List<String> listaAlumnos = mapaAlumnos.get(clave);
-				log.info(listaAlumnos);
-				// Validamos la existencia del objeto curso
-				validations.validarExistenciaCurso(listaCursos, cursoObject);
-				
-				// Validamos la existencia del alumno
-				validations.validarExistenciaAlumno(alumno, listaAlumnos);
-			}
-			else
+			if (!listaCursos.contains(cursoObject))
 			{
 				String error = "El curso no existe";
 				
@@ -388,6 +370,21 @@ public class RestHandlerMatriculas
 				
 				throw new HorarioException(Constants.ERR_CURSO_EXIS, error);
 			}
+			
+			String clave = curso + etapa.toUpperCase() + grupo.toUpperCase();
+			
+			// Obtenemos el mapa alumnos
+			Map<String, List<String>> mapaAlumnos = validations.obtenerMapaAlumno(session);
+			
+			// Obtenemos la lista de alumnos
+			List<String> listaAlumnos = mapaAlumnos.get(clave);
+			log.info(listaAlumnos);
+			
+			// Validamos la existencia del objeto curso
+			validations.validarExistenciaCurso(listaCursos, cursoObject);
+			
+			// Validamos la existencia del alumno
+			validations.validarExistenciaAlumno(alumno, listaAlumnos);
 			
 			return ResponseEntity.ok().build();
 		}
@@ -410,8 +407,7 @@ public class RestHandlerMatriculas
 	 * @return Número de alumnos en la asignatura
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/asignaturas/resumen")
-	public ResponseEntity<?> getAsignaturasResumen(
-			@RequestHeader(value = "nombreAsignatura", required = true) String nombreAsignatura, HttpSession session)
+	public ResponseEntity<?> getAsignaturasResumen(@RequestHeader(value = "nombreAsignatura", required = true) String nombreAsignatura, HttpSession session)
 	{
 		try
 		{
@@ -429,19 +425,17 @@ public class RestHandlerMatriculas
 			int contadorAlumno=0;
 			boolean encontrado = false;
 			// Obtenemos si el nombre de la asignatura existe
-			encontrado = validations.obtenerNombreAsignaturaExiste(nombreAsignatura, listaAsignatura);
+			validations.validarSiExisteNombreAsignatura(nombreAsignatura, listaAsignatura);
 			
-			if(encontrado)
+			for(String nombre : listaNombres) 
 			{
-				for(String nombre : listaNombres) 
+				List<String> asignaturasAlumno = mapaAsignaturas.get(nombre);
+				if(asignaturasAlumno.contains(nombreAsignatura)) 
 				{
-					List<String> asignaturasAlumno = mapaAsignaturas.get(nombre);
-					if(asignaturasAlumno.contains(nombreAsignatura)) 
-					{
-						contadorAlumno ++;
-					}
+					contadorAlumno ++;
 				}
 			}
+
 			return ResponseEntity.ok().body("Número de alumnos: " + contadorAlumno);
 		}
 		catch (Exception exception)
@@ -464,9 +458,8 @@ public class RestHandlerMatriculas
 	 * @return Lista de resumen por cursos
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/cursos/resumen")
-	public ResponseEntity<?> getCursosResumen(
-			@RequestHeader(value = "curso", required = true) int curso,
-			@RequestHeader(value = "etapa", required = true) String etapa,HttpSession session)
+	public ResponseEntity<?> getCursosResumen(@RequestHeader(value = "curso", required = true) int curso,
+											  @RequestHeader(value = "etapa", required = true) String etapa,HttpSession session)
 	{
 		try
 		{
@@ -485,7 +478,8 @@ public class RestHandlerMatriculas
 			int i = 0;
 			while(i < listaCursos.size() && !encontrado) 
 			{
-				if(listaCursos.get(i).getCurso() == curso && listaCursos.get(i).getEtapa().equalsIgnoreCase(etapa)) 
+				encontrado = listaCursos.get(i).getCurso() == curso && listaCursos.get(i).getEtapa().equalsIgnoreCase(etapa) ;
+				if (encontrado) 
 				{
 					String claveMapaAlumnos = curso+etapa.toUpperCase()+listaCursos.get(i).getGrupo();
 					// Obtenemos la lista de alumnos
