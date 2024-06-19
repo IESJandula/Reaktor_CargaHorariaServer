@@ -148,7 +148,7 @@ Obtiene la información de la matrícula de todos los bloques.
 - `curso`: Curso de la matrícula.
 - `etapa`: Etapa educativa.
 
-- ### Alumnos
+### Alumnos
 
 - **Subir matrícula de alumnos (POST)**📙
 Sube la información de la matrícula de un alumno.
