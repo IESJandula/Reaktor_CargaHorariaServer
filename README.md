@@ -4,51 +4,51 @@ Este es un proyecto de Spring Boot para la gestión de los horarios de los disti
 
 ## Endpoints🔌
 
-### Departamentos
+## Departamentos
 
-- **Subir departamentos (POST)**📙
+####  Subir departamentos (POST)📙
 Sube un archivo CSV📝 con la información de los departamentos.
 
 **Body:**
 - `csv` (file): El archivo CSV📝 que contiene la información de los departamentos.
 
-- **Obtener departamentos (GET)**📗
+#### Obtener departamentos (GET)📗
 Obtiene la información de todos los departamentos.
 
-### Cursos
+## Cursos
 
-- **Subir cursos (POST)**📙
+#### Subir cursos (POST)📙
 Sube un archivo CSV📝 con la información de los cursos.
 
 **Body:**
 - `csv` (file): El archivo CSV📝 que contiene la información de los cursos.
 
-- **Obtener cursos (GET)**📗
+####  Obtener cursos (GET)📗
 Obtiene la información de todos los cursos.
 
-### Profesores
+## Profesores
 
-- **Subir profesores (POST)**📙
+#### Subir profesores (POST)📙
 Sube un archivo CSV📝 con la información de los profesores.
 
 **Body:**
 - `csv` (file): El archivo CSV📝 que contiene la información de los profesores.
 
-- **Obtener profesores (GET)**📗
+#### Obtener profesores (GET)📗
 Obtiene la información de todos los profesores.
 
-### Asignaturas
+## Asignaturas
 
-- **Subir asignaturas (POST)**📙
+#### Subir asignaturas (POST)📙
 Sube un archivo CSV📝 con la información de las asignaturas.
 
 **Body:**
 - `csv` (file): El archivo CSV📝 que contiene la información de las asignaturas.
 
-- **Obtener asignaturas (GET)**📗
+#### Obtener asignaturas (GET)📗
 Obtiene la información de todas las asignaturas.
 
-- **Actualizar asignatura (PUT)**📘
+#### Asignar asignatura (PUT)📘
 Asigna la información de una asignatura específica a un profesor.
 
 **Headers:**
@@ -58,7 +58,7 @@ Asigna la información de una asignatura específica a un profesor.
 - `etapa`: Etapa educativa.
 - `grupo`: Grupo de la asignatura.
 
-- **Eliminar asignatura (DELETE)**📕
+#### Eliminar asignatura (DELETE)📕
 Elimina la información de una asignatura específica a un profesor.
 
 **Headers:**
@@ -68,57 +68,57 @@ Elimina la información de una asignatura específica a un profesor.
 - `etapa`: Etapa educativa.
 - `grupo`: Grupo de la asignatura.
 
-### Guardias
+## Guardias
 
-- **Asignar guardias (POST)**📙
+#### Asignar guardias (POST)📙
 Asigna horas de guardia a un profesor.
 
 **Headers:**
 - `idProfesor`: Identificador del profesor.
 - `horasAsignadas`: Número de horas asignadas.
 
-### Reducciones
+## Reducciones
 
-- **Subir reducciones (POST)**📙
+#### Subir reducciones (POST)📙
 Sube un archivo CSV📝 con la información de las reducciones de horas.
 
 **Body:**
 - `csv` (file): El archivo CSV📝 que contiene la información de las reducciones.
 
-- **Obtener reducciones (GET)**📗
+#### Obtener reducciones (GET)📗
 Obtiene la información de todas las reducciones.
 
-- **Asignar reducción (PUT)**📘
+#### Asignar reducción (PUT)📘
 Asigna la información de una reducción específica a un profesor.
 
 **Headers:**
 - `idProfesor`: Identificador del profesor.
 - `idReduccion`: Identificador de la reducción.
 
-- **Eliminar reducción (DELETE)**📕
+#### Eliminar reducción (DELETE)📕
 Elimina la información de una reducción específica asignada a un profesor.
 
 **Headers:**
 - `idProfesor`: Identificador del profesor.
 - `idReduccion`: Identificador de la reducción.
 
-### Resúmenes
+## Resúmenes
 
-- **Resumen de profesores (GET)**📗
+#### Resumen de profesores (GET)📗
 Obtiene el resumen de un profesor específico.
 
 **Headers:**
 - `idProfesor`: Identificador del profesor.
 
-- **Resumen de departamentos (GET)**📗
+#### Resumen de departamentos (GET)📗
 Obtiene el resumen de carga horaria de un departamento específico.
 
 **Headers:**
 - `nombreDepartamento`: Nombre del departamento.
 
-### Matrículas
+## Matrículas
 
-- **Subir matrícula de cursos (POST)**📙
+#### Subir matrícula de cursos (POST)📙
 Sube un archivo CSV📝 con la información de la matrícula de cursos.
 
 **Headers:**
@@ -128,12 +128,12 @@ Sube un archivo CSV📝 con la información de la matrícula de cursos.
 **Body:**
 - `csv` (file): El archivo CSV📝 que contiene la información de la matrícula de cursos.
 
-- **Obtener matrícula de cursos (GET)**📗
+#### Obtener matrícula de cursos (GET)📗
 Obtiene la información de la matrícula de todos los cursos.
 
-### Bloques
+## Bloques
 
-- **Subir matrícula de bloques (POST)**📙
+#### Subir matrícula de bloques (POST)📙
 Sube un archivo CSV📝 con la información de la matrícula de bloques.
 
 **Headers:**
@@ -141,16 +141,16 @@ Sube un archivo CSV📝 con la información de la matrícula de bloques.
 -  `etapa`: Etapa educativa.
 - `nombreAsignatura`: Nombre de la asignatura.
 
-- **Obtener matrícula de bloques (GET)**📗
+#### Obtener matrícula de bloques (GET)📗
 Obtiene la información de la matrícula de todos los bloques.
 
 **Headers:**
 - `curso`: Curso de la matrícula.
 - `etapa`: Etapa educativa.
 
-### Alumnos
+## Alumnos
 
-- **Subir matrícula de alumnos (POST)**📙
+#### Subir matrícula de alumnos (POST)📙
 Sube la información de la matrícula de un alumno.
 
 **Headers:**
@@ -159,7 +159,7 @@ Sube la información de la matrícula de un alumno.
 - `etapa`: Etapa educativa.
 - `grupo`: Grupo del alumno.
 
-- **Obtener matrícula de alumnos (GET)**📗
+#### Obtener matrícula de alumnos (GET)📗
 Obtiene la información de la matrícula de todos los alumnos.
 
 **Headers:**
@@ -167,7 +167,7 @@ Obtiene la información de la matrícula de todos los alumnos.
 - `etapa`: Etapa educativa.
 - `grupo`: Grupo del alumno.
 
-- **Eliminar matrícula de alumno (DELETE)**📕
+#### Eliminar matrícula de alumno (DELETE)📕
 Elimina la información de la matrícula de un alumno.
 
 **Headers:**
@@ -176,15 +176,15 @@ Elimina la información de la matrícula de un alumno.
 - `etapa`: Etapa educativa.
 - `grupo`: Grupo del alumno.
 
-### Resúmenes de Matrículas
+## Resúmenes de Matrículas
 
-- **Resumen de asignaturas (GET)**📗
+#### Resumen de asignaturas (GET)📗
 Obtiene el resumen de la matrícula de una asignatura específica.
 
 **Headers:**
 - `nombreAsignatura`: Nombre de la asignatura.
 
-- **Resumen de cursos (GET)**📗
+#### Resumen de cursos (GET)📗
 Obtiene el resumen de la matrícula de un curso específico.
 
 **Headers:**
