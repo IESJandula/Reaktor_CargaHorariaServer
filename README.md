@@ -1,4 +1,4 @@
-# Dirección de Carga Horaria Server ⌛
+# Reaktor - Carga Horaria Server ⌛
 
 Este es un proyecto de Spring Boot para la gestión de los horarios de los distintos departamentos, cursos, profesores, asignaturas y reducciones, permitiendo la gestión centralizada de la información relevante a través de archivos CSV.
 
